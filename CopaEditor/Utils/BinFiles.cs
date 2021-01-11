@@ -18,7 +18,7 @@ namespace CopaEditor.Utils
             {
                 while (br.BaseStream.Position < br.BaseStream.Length)
                 {
-                    var sample = br.readUInt32();
+                    var sample = br.ReadUInt32();
                     if (sample == 0xA755AAFC)
                     {
                         var uncompSize = br.ReadInt32();
