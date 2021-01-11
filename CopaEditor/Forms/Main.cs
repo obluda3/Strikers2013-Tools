@@ -109,7 +109,7 @@ namespace CopaEditor
                 }
             }
 
-            this.lbl_selected.Text = "The current selected file is " + _binFile.fileName + " of filetype " + _binFile.fileType.ToString() + ".bin";
+            this.lbl_selected.Text = "The current selected file is " + _binFile.fileName + " of filetype " + ".bin";
             this.btn_Export.Enabled = true;
 
             Console.WriteLine(_binFile.fileName);
