@@ -67,6 +67,10 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\BigEndianBinaryReader.cs" />
+    <Compile Include="Utils\BinFiles.cs" />
+    <Compile Include="Utils\hexaJIStoString.cs" />
+    <Compile Include="Utils\HexStringToByteArray.cs" />
+    <Compile Include="Utils\stringToHexaJIS.cs" />
     <Compile Include="Utils\TextFile.cs" />
     <EmbeddedResource Include="Forms\FileType.resx">
       <DependentUpon>FileType.cs</DependentUpon>
@@ -98,6 +102,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Convertion\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -56,7 +56,7 @@ namespace CopaEditor
                 strFormat.Alignment = StringAlignment.Center;
                 strFormat.LineAlignment = StringAlignment.Center;
                 GraphicsPath p = new GraphicsPath();
-                var font = new FontFamily("Verdana");
+                var font = new FontFamily("Arial");
                 var fontsize = 9;
                 p.AddString(
                     text,

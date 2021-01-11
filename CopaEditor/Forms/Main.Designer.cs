@@ -38,6 +38,7 @@
             this.lbl_selected = new System.Windows.Forms.Label();
             this.btn_Export = new System.Windows.Forms.Button();
             this.btn_Import = new System.Windows.Forms.Button();
+            this.extractFilesFrombinToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -63,7 +64,7 @@
             // tStrip_Open
             // 
             this.tStrip_Open.Name = "tStrip_Open";
-            this.tStrip_Open.Size = new System.Drawing.Size(103, 22);
+            this.tStrip_Open.Size = new System.Drawing.Size(180, 22);
             this.tStrip_Open.Text = "Open";
             this.tStrip_Open.Click += new System.EventHandler(this.tStrip_Open_Click);
             // 
@@ -71,7 +72,8 @@
             // 
             this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tStrip_replaceMcb,
-            this.tStrip_Portrait});
+            this.tStrip_Portrait,
+            this.extractFilesFrombinToolStripMenuItem});
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
             this.toolsToolStripMenuItem.Size = new System.Drawing.Size(46, 20);
             this.toolsToolStripMenuItem.Text = "Tools";
@@ -79,13 +81,13 @@
             // tStrip_replaceMcb
             // 
             this.tStrip_replaceMcb.Name = "tStrip_replaceMcb";
-            this.tStrip_replaceMcb.Size = new System.Drawing.Size(180, 22);
+            this.tStrip_replaceMcb.Size = new System.Drawing.Size(188, 22);
             this.tStrip_replaceMcb.Text = "Replace mcb and ui";
             // 
             // tStrip_Portrait
             // 
             this.tStrip_Portrait.Name = "tStrip_Portrait";
-            this.tStrip_Portrait.Size = new System.Drawing.Size(180, 22);
+            this.tStrip_Portrait.Size = new System.Drawing.Size(188, 22);
             this.tStrip_Portrait.Text = "Player Portrait";
             this.tStrip_Portrait.Click += new System.EventHandler(this.tStrip_Portrait_Click);
             // 
@@ -129,6 +131,13 @@
             this.btn_Import.UseVisualStyleBackColor = true;
             this.btn_Import.Click += new System.EventHandler(this.btn_Import_Click);
             // 
+            // extractFilesFrombinToolStripMenuItem
+            // 
+            this.extractFilesFrombinToolStripMenuItem.Name = "extractFilesFrombinToolStripMenuItem";
+            this.extractFilesFrombinToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
+            this.extractFilesFrombinToolStripMenuItem.Text = "Extract Files from .bin";
+            this.extractFilesFrombinToolStripMenuItem.Click += new System.EventHandler(this.extractFilesFrombinToolStripMenuItem_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -161,6 +170,7 @@
         private System.Windows.Forms.Label lbl_selected;
         private System.Windows.Forms.Button btn_Export;
         private System.Windows.Forms.Button btn_Import;
+        private System.Windows.Forms.ToolStripMenuItem extractFilesFrombinToolStripMenuItem;
     }
 }
 

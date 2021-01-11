@@ -14,6 +14,7 @@ namespace CopaEditor
     public partial class Form1 : Form
     {
         TextFile _textFile;
+        BinFiles _binFile;
         public Form1()
         {
             InitializeComponent();
@@ -48,17 +49,28 @@ namespace CopaEditor
         private void btn_Export_Click(object sender, EventArgs e)
         {
             string output = "";
-            using(var sfd = new SaveFileDialog())
+            if (_textFile == null && _binFile != null)
             {
-                sfd.FileName = _textFile.fileType.ToString();
-                sfd.DefaultExt = ".txt";
-                sfd.Filter = "Text documents (.txt)|*.txt";
-                if(sfd.ShowDialog() == DialogResult.OK)
+                var folderBrowserDialog1 = new FolderBrowserDialog();
+                if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
                 {
-                    output = sfd.FileName;
+                    output = folderBrowserDialog1.SelectedPath;
+                }
+                _binFile.ExportFiles(output);
+            }
+            else {
+                using (var sfd = new SaveFileDialog())
+                {
+                    sfd.FileName = _textFile.fileType.ToString();
+                    sfd.DefaultExt = ".txt";
+                    sfd.Filter = "Text documents (.txt)|*.txt";
+                    if (sfd.ShowDialog() == DialogResult.OK)
+                    {
+                        output = sfd.FileName;
+                    }
+                    _textFile.ExportText(output);
                 }
             }
-            _textFile.ExportText(output);
         }
 
         private void btn_Import_Click(object sender, EventArgs e)
@@ -82,6 +94,25 @@ namespace CopaEditor
             PortraitGenerator portraitGenerator = new PortraitGenerator();
             portraitGenerator.Show();
 
+        }
+
+        private void extractFilesFrombinToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            _binFile = new BinFiles();
+
+            using (var ofd = new OpenFileDialog())
+            {
+                ofd.Filter = "bin files (*.bin)|*.bin|All files (*.*)|*.*";
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    _binFile.fileName = ofd.FileName;
+                }
+            }
+
+            this.lbl_selected.Text = "The current selected file is " + _binFile.fileName + " of filetype " + _binFile.fileType.ToString() + ".bin";
+            this.btn_Export.Enabled = true;
+
+            Console.WriteLine(_binFile.fileName);
         }
     }
 }
