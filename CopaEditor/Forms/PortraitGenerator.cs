@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using System.Drawing.Text;
+using System.IO;
 
 namespace CopaEditor
 {
@@ -13,9 +14,10 @@ namespace CopaEditor
             InitializeComponent();
         }
         Bitmap portrait;
+        string filename;
         private void selectFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var filename = "test.png";
+            filename = "test.png";
             using (var ofd = new OpenFileDialog())
             {
                 ofd.DefaultExt = ".png";
@@ -44,7 +46,13 @@ namespace CopaEditor
         private void btn_ok_Click(object sender, EventArgs e)
         {
             var text = textBox1.Text;
-            using (Graphics g = Graphics.FromImage(portrait))
+            updateImage(text, portrait);
+            pictureBox1.Image = portrait;
+        }
+        
+        private void updateImage(string text, Bitmap image)
+        {
+            using (Graphics g = Graphics.FromImage(image))
             {
                 g.InterpolationMode = InterpolationMode.High;
                 g.SmoothingMode = SmoothingMode.HighQuality;
@@ -57,11 +65,11 @@ namespace CopaEditor
                 strFormat.LineAlignment = StringAlignment.Center;
                 GraphicsPath p = new GraphicsPath();
                 var font = new FontFamily("Arial");
-                var fontsize = 9;
+                var fontsize = 10;
                 p.AddString(
                     text,
                     font,
-                    (int)FontStyle.Regular,
+                    (int)FontStyle.Bold,
                     g.DpiY * fontsize / 72,
                     new Point(154, 120),
                     strFormat);
@@ -70,7 +78,54 @@ namespace CopaEditor
                 g.DrawPath(outlinePen, p);
                 g.FillPath(Brushes.White, p);
             }
-            pictureBox1.Image = portrait;
+        }
+
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            portrait.Save(filename);
+        }
+
+        private void batchToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string folder = "";
+            string file = "";
+            using (var fbd = new FolderBrowserDialog())
+            {
+                if (fbd.ShowDialog() == DialogResult.OK)
+                {
+                    folder = fbd.SelectedPath;
+                }
+            }
+
+            var fileEntries = Directory.GetFiles(folder);
+            using (var ofd = new OpenFileDialog())
+            {
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    file = ofd.FileName;
+                }
+            }
+            var playerNames = File.ReadAllLines(file);
+            var i = 0;
+            foreach(var filename in fileEntries)
+            {
+                var portraitFile = new Bitmap(filename);
+                updateImage(playerNames[i], portraitFile);
+                portraitFile.Save(filename + "_out.png");
+                i++;
+            }
+
+
+        }
+
+        private void PortraitGenerator_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
