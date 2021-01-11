@@ -63,7 +63,7 @@
             // tStrip_Open
             // 
             this.tStrip_Open.Name = "tStrip_Open";
-            this.tStrip_Open.Size = new System.Drawing.Size(180, 22);
+            this.tStrip_Open.Size = new System.Drawing.Size(103, 22);
             this.tStrip_Open.Text = "Open";
             this.tStrip_Open.Click += new System.EventHandler(this.tStrip_Open_Click);
             // 
@@ -87,6 +87,7 @@
             this.tStrip_Portrait.Name = "tStrip_Portrait";
             this.tStrip_Portrait.Size = new System.Drawing.Size(180, 22);
             this.tStrip_Portrait.Text = "Player Portrait";
+            this.tStrip_Portrait.Click += new System.EventHandler(this.tStrip_Portrait_Click);
             // 
             // label1
             // 

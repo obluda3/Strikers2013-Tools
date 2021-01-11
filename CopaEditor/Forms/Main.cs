@@ -76,5 +76,12 @@ namespace CopaEditor
             }
             _textFile.ImportText(input);
         }
+
+        private void tStrip_Portrait_Click(object sender, EventArgs e)
+        {
+            PortraitGenerator portraitGenerator = new PortraitGenerator();
+            portraitGenerator.Show();
+
+        }
     }
 }
