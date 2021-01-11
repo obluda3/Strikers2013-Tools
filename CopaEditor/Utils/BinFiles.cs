@@ -13,23 +13,20 @@ namespace CopaEditor.Utils
 
         public void ExportFiles(string output) {
 
-            byte[] data = File.ReadAllBytes(fileName);
-
-            int nom = 0;
-
-            for (int i =0; i < data.Length; i++) {
-
-                if (data[i] == 0 && data[i + 1] == 0 && data[i + 2] == 0 && data[i + 3] == 0) {
-
-                    byte[] taille = { data[i + 11]), data[i + 10]), data[i + 9]), data[i + 8]) };
-                    String[] octet = { BitConverter.ToString(data[i + 11]),  };
-                
+            var binfile = File.OpenRead(output); // ou input est le chemin obtenu à l'aide du openfiledialog
+            using (var br = new BinaryReader(binfile))
+            {
+                while (br.BaseStream.Position < br.BaseStream.Length)
+                {
+                    var sample = br.readUInt32();
+                    if (sample == 0xA755AAFC)
+                    {
+                        var uncompSize = br.ReadInt32();
+                        var compSize = br.ReadInt32();
+                    // Ici on a récupéré la taille du fichier, suffit juste de retourner de 8 octet en arrière et de copier le fichier dans un array de byte, puis dans un fichier de destination
+                    }
                 }
-            
-            
             }
-
-        
         }
     }
 }
