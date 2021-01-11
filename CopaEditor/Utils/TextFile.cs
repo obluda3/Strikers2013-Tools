@@ -11,6 +11,7 @@ namespace CopaEditor.Utils
         public string fileName;
         public int fileType; // 14, 35 etc...
 
-
+        public void ExportText(string output) { }
+        public void ImportText(string input) { }
     }
 }
