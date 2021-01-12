@@ -4,16 +4,17 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace CopaEditor.Utils
 {
     class BinFiles
     {
-        public string fileName;
 
-        public void ExportFiles(string output) {
-
-            var binfile = File.OpenRead(output); // ou input est le chemin obtenu à l'aide du openfiledialog
+        public void ExportFiles(string input, string outputFolder)
+        {
+            var index = 0;
+            var binfile = File.Open(input, FileMode.Open);
             using (var br = new BinaryReader(binfile))
             {
                 while (br.BaseStream.Position < br.BaseStream.Length)
@@ -21,11 +22,26 @@ namespace CopaEditor.Utils
                     var sample = br.ReadUInt32();
                     if (sample == 0xA755AAFC)
                     {
+                        // Recupere la taille du fichier
                         var uncompSize = br.ReadInt32();
                         var compSize = br.ReadInt32();
-                    // Ici on a récupéré la taille du fichier, suffit juste de retourner de 8 octet en arrière et de copier le fichier dans un array de byte, puis dans un fichier de destination
+                        var padsize = compSize % 4;
+                        compSize = compSize + (4 - padsize);
+                        
+                        // Retourne en arrière et copie le fichier dans un fichier de destination
+                        br.BaseStream.Position -= 12;
+                        
+                        var file = br.ReadBytes(compSize);
+                        Console.WriteLine("");
+                        var output = File.Open(outputFolder + "\\\\" + index.ToString() +".bin", FileMode.Create);
+                        using (var bw = new BinaryWriter(output))
+                            bw.Write(file);
+                        index += 1;
                     }
                 }
+                MessageBox.Show("Done");
+
+
             }
         }
     }

@@ -49,29 +49,19 @@ namespace CopaEditor
         private void btn_Export_Click(object sender, EventArgs e)
         {
             string output = "";
-            if (_textFile == null && _binFile != null)
+            using (var sfd = new SaveFileDialog())
             {
-                var folderBrowserDialog1 = new FolderBrowserDialog();
-                if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+                sfd.FileName = _textFile.fileType.ToString();
+                sfd.DefaultExt = ".txt";
+                sfd.Filter = "Text documents (.txt)|*.txt";
+                if (sfd.ShowDialog() == DialogResult.OK)
                 {
-                    output = folderBrowserDialog1.SelectedPath;
+                    output = sfd.FileName;
                 }
-                _binFile.ExportFiles(output);
-            }
-            else {
-                using (var sfd = new SaveFileDialog())
-                {
-                    sfd.FileName = _textFile.fileType.ToString();
-                    sfd.DefaultExt = ".txt";
-                    sfd.Filter = "Text documents (.txt)|*.txt";
-                    if (sfd.ShowDialog() == DialogResult.OK)
-                    {
-                        output = sfd.FileName;
-                    }
-                    _textFile.ExportText(output);
-                }
+                _textFile.ExportText(output);
             }
         }
+        
 
         private void btn_Import_Click(object sender, EventArgs e)
         {
@@ -105,14 +95,15 @@ namespace CopaEditor
                 ofd.Filter = "bin files (*.bin)|*.bin|All files (*.*)|*.*";
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
-                    _binFile.fileName = ofd.FileName;
+                    using(var fbd = new FolderBrowserDialog())
+                    {
+                        if (fbd.ShowDialog() == DialogResult.OK)
+                        {
+                            _binFile.ExportFiles(ofd.FileName, fbd.SelectedPath);
+                        }
+                    }
                 }
             }
-
-            this.lbl_selected.Text = "The current selected file is " + _binFile.fileName + " of filetype " + ".bin";
-            this.btn_Export.Enabled = true;
-
-            Console.WriteLine(_binFile.fileName);
         }
     }
 }
