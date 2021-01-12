@@ -83,6 +83,7 @@
             this.tStrip_replaceMcb.Name = "tStrip_replaceMcb";
             this.tStrip_replaceMcb.Size = new System.Drawing.Size(224, 22);
             this.tStrip_replaceMcb.Text = "Batch replace mcb and ui";
+            this.tStrip_replaceMcb.Click += new System.EventHandler(this.tStrip_replaceMcb_Click);
             // 
             // tStrip_Portrait
             // 

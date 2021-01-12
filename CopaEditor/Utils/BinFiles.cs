@@ -27,22 +27,27 @@ namespace CopaEditor.Utils
                         var compSize = br.ReadInt32();
                         var padsize = compSize % 4;
                         compSize = compSize + (4 - padsize);
-                        
+
                         // Retourne en arrière et copie le fichier dans un fichier de destination
                         br.BaseStream.Position -= 12;
-                        
+
                         var file = br.ReadBytes(compSize);
                         Console.WriteLine("");
-                        var output = File.Open(outputFolder + "\\\\" + index.ToString() +".bin", FileMode.Create);
+                        var output = File.Open(outputFolder + "\\\\" + index.ToString() + ".bin", FileMode.Create);
                         using (var bw = new BinaryWriter(output))
                             bw.Write(file);
                         index += 1;
                     }
                 }
                 MessageBox.Show("Done");
-
-
             }
         }
+
+        public void BatchReplace(string mcbInput, string uiInput, string oldFolder, string newFolder)
+        {
+            
+        }
+
+
     }
 }
