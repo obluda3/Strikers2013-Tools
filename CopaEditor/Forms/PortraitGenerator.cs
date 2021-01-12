@@ -74,7 +74,7 @@ namespace CopaEditor
                     new Point(154, 120),
                     strFormat);
                 Pen outlinePen = new Pen(Brushes.Black);
-                outlinePen.Width = 2.5F;
+                outlinePen.Width = 3.5F;
                 g.DrawPath(outlinePen, p);
                 g.FillPath(Brushes.White, p);
             }
