@@ -48,7 +48,7 @@ namespace CopaEditor.Utils
                             }
                         }
 
-                        ber.BaseStream.Position = pointers[i]
+                        ber.BaseStream.Position = pointers[i];
                         var entry = ber.ReadBytes(length);
                         var entryString = "";
                         entryString = sjis.GetString(entry);
