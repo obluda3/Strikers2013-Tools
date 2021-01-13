@@ -32,17 +32,20 @@ namespace CopaEditor
                     _textFile.fileName = ofd.FileName;
                 }
             }
-            using (var ftf = new FileType())
+            /*using (var ftf = new FileType())
             {
                 var result = ftf.ShowDialog();
                 if (result == DialogResult.OK)
                 {
                     _textFile.fileType = ftf.format;
                 }
-            }
-            this.lbl_selected.Text = "The current selected file is "+_textFile.fileName+" of filetype "+_textFile.fileType.ToString()+".bin";
+            }*/
+            this.lbl_selected.Text = "The current selected file is "+_textFile.fileName;
             this.btn_Export.Enabled = true;
             this.btn_Import.Enabled = true;
+
+
+
 
         }
 
@@ -51,14 +54,14 @@ namespace CopaEditor
             string output = "";
             using (var sfd = new SaveFileDialog())
             {
-                sfd.FileName = _textFile.fileType.ToString();
+                sfd.FileName = _textFile.fileName+".txt";
                 sfd.DefaultExt = ".txt";
                 sfd.Filter = "Text documents (.txt)|*.txt";
                 if (sfd.ShowDialog() == DialogResult.OK)
                 {
                     output = sfd.FileName;
                 }
-                _textFile.ExportText(output);
+                _textFile.ExportText(_textFile.fileName,output);
             }
         }
         
@@ -68,7 +71,7 @@ namespace CopaEditor
             string input = "";
             using (var ofd = new OpenFileDialog())
             {
-                ofd.FileName = _textFile.fileType.ToString();
+                ofd.FileName = _textFile.fileName + ".txt";
                 ofd.DefaultExt = ".txt";
                 ofd.Filter = "Text documents (.txt)|*.txt";
                 if (ofd.ShowDialog() == DialogResult.OK)
@@ -76,7 +79,7 @@ namespace CopaEditor
                     input = ofd.FileName;
                 }
             }
-            _textFile.ImportText(input);
+            //_textFile.ImportText(input);
         }
 
         private void tStrip_Portrait_Click(object sender, EventArgs e)
