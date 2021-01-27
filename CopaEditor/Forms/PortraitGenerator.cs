@@ -25,17 +25,15 @@ namespace CopaEditor
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
                     filename = ofd.FileName;
+                    portrait = new Bitmap(filename);
+                    using (Graphics g = Graphics.FromImage(portrait))
+                    {
+                        g.Clip = new Region(new Rectangle(121, 113, 71, 15));
+                        g.Clear(Color.FromArgb(0, Color.White));
+                    }
+                    pictureBox1.Image = portrait;
                 }
             }
-            portrait = new Bitmap(filename);
-            using (Graphics g = Graphics.FromImage(portrait))
-            {
-                g.Clip = new Region(new Rectangle(121, 113, 71, 15));
-                g.Clear(Color.FromArgb(0, Color.White));
-            }
-            pictureBox1.Image = portrait;
-
-
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)
@@ -94,28 +92,30 @@ namespace CopaEditor
                 if (fbd.ShowDialog() == DialogResult.OK)
                 {
                     folder = fbd.SelectedPath;
+                    var fileEntries = Directory.GetFiles(folder);
+                    using (var ofd = new OpenFileDialog())
+                    {
+                        if (ofd.ShowDialog() == DialogResult.OK)
+                        {
+                            file = ofd.FileName;
+                            var playerNames = File.ReadAllLines(file);
+                            if (playerNames.Length != fileEntries.Length)
+                                MessageBox.Show("Not the same number of lines and files", "Error");
+                            else
+                            {
+                                var i = 0;
+                                foreach (var filename in fileEntries)
+                                {
+                                    var portraitFile = new Bitmap(filename);
+                                    updateImage(playerNames[i], portraitFile);
+                                    portraitFile.Save(filename + "_out.png");
+                                    i++;
+                                }
+                            }
+                        }
+                    }
                 }
             }
-
-            var fileEntries = Directory.GetFiles(folder);
-            using (var ofd = new OpenFileDialog())
-            {
-                if (ofd.ShowDialog() == DialogResult.OK)
-                {
-                    file = ofd.FileName;
-                }
-            }
-            var playerNames = File.ReadAllLines(file);
-            var i = 0;
-            foreach(var filename in fileEntries)
-            {
-                var portraitFile = new Bitmap(filename);
-                updateImage(playerNames[i], portraitFile);
-                portraitFile.Save(filename + "_out.png");
-                i++;
-            }
-
-
         }
 
         private void PortraitGenerator_Load(object sender, EventArgs e)

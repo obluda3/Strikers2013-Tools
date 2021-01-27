@@ -14,7 +14,7 @@ namespace CopaEditor
     public partial class Form1 : Form
     {
         TextFile _textFile;
-        BinFiles _binFile;
+        BinFiles _binFile = new BinFiles();
         public Form1()
         {
             InitializeComponent();
@@ -32,53 +32,46 @@ namespace CopaEditor
                     _textFile.fileName = ofd.FileName;
                 }
             }
-            using (var ftf = new FileType())
+            /*using (var ftf = new FileType())
             {
                 var result = ftf.ShowDialog();
                 if (result == DialogResult.OK)
                 {
                     _textFile.fileType = ftf.format;
                 }
-            }
-            this.lbl_selected.Text = "The current selected file is "+_textFile.fileName+" of filetype "+_textFile.fileType.ToString()+".bin";
+            }*/
+            this.lbl_selected.Text = "The current selected file is "+_textFile.fileName;
             this.btn_Export.Enabled = true;
             this.btn_Import.Enabled = true;
+
+
+
 
         }
 
         private void btn_Export_Click(object sender, EventArgs e)
         {
             string output = "";
-            if (_textFile == null && _binFile != null)
+            using (var sfd = new SaveFileDialog())
             {
-                var folderBrowserDialog1 = new FolderBrowserDialog();
-                if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+                sfd.FileName = _textFile.fileName+".txt";
+                sfd.DefaultExt = ".txt";
+                sfd.Filter = "Text documents (.txt)|*.txt";
+                if (sfd.ShowDialog() == DialogResult.OK)
                 {
-                    output = folderBrowserDialog1.SelectedPath;
+                    output = sfd.FileName;
                 }
-                _binFile.ExportFiles(output);
-            }
-            else {
-                using (var sfd = new SaveFileDialog())
-                {
-                    sfd.FileName = _textFile.fileType.ToString();
-                    sfd.DefaultExt = ".txt";
-                    sfd.Filter = "Text documents (.txt)|*.txt";
-                    if (sfd.ShowDialog() == DialogResult.OK)
-                    {
-                        output = sfd.FileName;
-                    }
-                    _textFile.ExportText(output);
-                }
+                _textFile.ExportText(_textFile.fileName,output);
             }
         }
+        
 
         private void btn_Import_Click(object sender, EventArgs e)
         {
             string input = "";
             using (var ofd = new OpenFileDialog())
             {
-                ofd.FileName = _textFile.fileType.ToString();
+                ofd.FileName = _textFile.fileName + ".txt";
                 ofd.DefaultExt = ".txt";
                 ofd.Filter = "Text documents (.txt)|*.txt";
                 if (ofd.ShowDialog() == DialogResult.OK)
@@ -86,7 +79,7 @@ namespace CopaEditor
                     input = ofd.FileName;
                 }
             }
-            _textFile.ImportText(input);
+            //_textFile.ImportText(input);
         }
 
         private void tStrip_Portrait_Click(object sender, EventArgs e)
@@ -98,21 +91,59 @@ namespace CopaEditor
 
         private void extractFilesFrombinToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            _binFile = new BinFiles();
 
             using (var ofd = new OpenFileDialog())
             {
                 ofd.Filter = "bin files (*.bin)|*.bin|All files (*.*)|*.*";
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
-                    _binFile.fileName = ofd.FileName;
+                    using(var fbd = new FolderBrowserDialog())
+                    {
+                        if (fbd.ShowDialog() == DialogResult.OK)
+                        {
+                            _binFile.ExportFiles(ofd.FileName, fbd.SelectedPath);
+                        }
+                    }
                 }
             }
+        }
 
-            this.lbl_selected.Text = "The current selected file is " + _binFile.fileName + " of filetype " + ".bin";
-            this.btn_Export.Enabled = true;
-
-            Console.WriteLine(_binFile.fileName);
+        private void tStrip_replaceMcb_Click(object sender, EventArgs e)
+        {
+            using (var ofd = new OpenFileDialog())
+            {
+                ofd.Filter = "mcb1.bln (*.bln)|*.bln|All files (*.*)|*.*";
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    var mcb = ofd.FileName;
+                    using (var ofd2 = new OpenFileDialog())
+                    {
+                        ofd2.Filter = "ui.bin (*.bin)|*.bin|All files (*.*)|*.*";
+                        if (ofd2.ShowDialog() == DialogResult.OK)
+                        {
+                            var ui = ofd2.FileName;
+                            using (var fbd = new FolderBrowserDialog())
+                            {
+                                fbd.Description = "Select the folder where the old files are located";
+                                if (fbd.ShowDialog() == DialogResult.OK)
+                                {
+                                    var oldfolder = fbd.SelectedPath;
+                                    using (var fbd2 = new FolderBrowserDialog())
+                                    {
+                                        fbd2.Description = "Select the folder where the new files are located";
+                                        if (fbd2.ShowDialog() == DialogResult.OK)
+                                        {
+                                            var newfolder = fbd2.SelectedPath;
+                                            _binFile.BatchReplace(mcb, ui, oldfolder, newfolder);
+                                            MessageBox.Show("Done");
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

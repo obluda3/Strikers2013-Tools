@@ -34,11 +34,11 @@
             this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tStrip_replaceMcb = new System.Windows.Forms.ToolStripMenuItem();
             this.tStrip_Portrait = new System.Windows.Forms.ToolStripMenuItem();
+            this.extractFilesFrombinToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.label1 = new System.Windows.Forms.Label();
             this.lbl_selected = new System.Windows.Forms.Label();
             this.btn_Export = new System.Windows.Forms.Button();
             this.btn_Import = new System.Windows.Forms.Button();
-            this.extractFilesFrombinToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -64,7 +64,7 @@
             // tStrip_Open
             // 
             this.tStrip_Open.Name = "tStrip_Open";
-            this.tStrip_Open.Size = new System.Drawing.Size(180, 22);
+            this.tStrip_Open.Size = new System.Drawing.Size(103, 22);
             this.tStrip_Open.Text = "Open";
             this.tStrip_Open.Click += new System.EventHandler(this.tStrip_Open_Click);
             // 
@@ -81,15 +81,23 @@
             // tStrip_replaceMcb
             // 
             this.tStrip_replaceMcb.Name = "tStrip_replaceMcb";
-            this.tStrip_replaceMcb.Size = new System.Drawing.Size(188, 22);
-            this.tStrip_replaceMcb.Text = "Replace mcb and ui";
+            this.tStrip_replaceMcb.Size = new System.Drawing.Size(224, 22);
+            this.tStrip_replaceMcb.Text = "Batch replace mcb and ui";
+            this.tStrip_replaceMcb.Click += new System.EventHandler(this.tStrip_replaceMcb_Click);
             // 
             // tStrip_Portrait
             // 
             this.tStrip_Portrait.Name = "tStrip_Portrait";
-            this.tStrip_Portrait.Size = new System.Drawing.Size(188, 22);
-            this.tStrip_Portrait.Text = "Player Portrait";
+            this.tStrip_Portrait.Size = new System.Drawing.Size(224, 22);
+            this.tStrip_Portrait.Text = "Player portrait generator";
             this.tStrip_Portrait.Click += new System.EventHandler(this.tStrip_Portrait_Click);
+            // 
+            // extractFilesFrombinToolStripMenuItem
+            // 
+            this.extractFilesFrombinToolStripMenuItem.Name = "extractFilesFrombinToolStripMenuItem";
+            this.extractFilesFrombinToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
+            this.extractFilesFrombinToolStripMenuItem.Text = "Extract files from bin archive";
+            this.extractFilesFrombinToolStripMenuItem.Click += new System.EventHandler(this.extractFilesFrombinToolStripMenuItem_Click);
             // 
             // label1
             // 
@@ -131,13 +139,6 @@
             this.btn_Import.UseVisualStyleBackColor = true;
             this.btn_Import.Click += new System.EventHandler(this.btn_Import_Click);
             // 
-            // extractFilesFrombinToolStripMenuItem
-            // 
-            this.extractFilesFrombinToolStripMenuItem.Name = "extractFilesFrombinToolStripMenuItem";
-            this.extractFilesFrombinToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
-            this.extractFilesFrombinToolStripMenuItem.Text = "Extract Files from .bin";
-            this.extractFilesFrombinToolStripMenuItem.Click += new System.EventHandler(this.extractFilesFrombinToolStripMenuItem_Click);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -149,7 +150,10 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
+            this.MaximumSize = new System.Drawing.Size(478, 406);
+            this.MinimumSize = new System.Drawing.Size(478, 406);
             this.Name = "Form1";
+            this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.Text = "Copa Editor";
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
