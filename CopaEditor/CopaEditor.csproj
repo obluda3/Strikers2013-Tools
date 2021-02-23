@@ -109,5 +109,8 @@
   <ItemGroup>
     <Folder Include="Convertion\" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="logo.ico" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

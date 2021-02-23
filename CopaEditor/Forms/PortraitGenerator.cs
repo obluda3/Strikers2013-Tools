@@ -7,6 +7,7 @@ using System.IO;
 
 namespace CopaEditor
 {
+    // Needs a lot of cleanup but i'm lazy af...
     public partial class PortraitGenerator : Form
     {
         public PortraitGenerator()
@@ -14,18 +15,17 @@ namespace CopaEditor
             InitializeComponent();
         }
         Bitmap portrait;
-        string filename;
+        private string path;
         private void selectFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            filename = "test.png";
             using (var ofd = new OpenFileDialog())
             {
                 ofd.DefaultExt = ".png";
                 ofd.Filter = "Portrait (.png)|*.png";
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
-                    filename = ofd.FileName;
-                    portrait = new Bitmap(filename);
+                    path = ofd.FileName;
+                    portrait = new Bitmap(path);
                     using (Graphics g = Graphics.FromImage(portrait))
                     {
                         g.Clip = new Region(new Rectangle(121, 113, 71, 15));
@@ -54,7 +54,7 @@ namespace CopaEditor
             {
                 g.InterpolationMode = InterpolationMode.High;
                 g.SmoothingMode = SmoothingMode.HighQuality;
-                g.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
+                g.TextRenderingHint = TextRenderingHint.AntiAlias;
                 g.CompositingQuality = CompositingQuality.HighQuality;
                 g.Clip = new Region(new Rectangle(121, 113, 71, 15));
                 g.Clear(Color.FromArgb(0, Color.White));
@@ -63,7 +63,7 @@ namespace CopaEditor
                 strFormat.LineAlignment = StringAlignment.Center;
                 GraphicsPath p = new GraphicsPath();
                 var font = new FontFamily("Arial");
-                var fontsize = 10;
+                var fontsize = 9;
                 p.AddString(
                     text,
                     font,
@@ -73,6 +73,7 @@ namespace CopaEditor
                     strFormat);
                 Pen outlinePen = new Pen(Brushes.Black);
                 outlinePen.Width = 2.5F;
+
                 g.DrawPath(outlinePen, p);
                 g.FillPath(Brushes.White, p);
             }
@@ -80,7 +81,15 @@ namespace CopaEditor
 
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            portrait.Save(filename);
+            using (var sfd = new SaveFileDialog())
+            {
+                sfd.DefaultExt = ".png";
+                sfd.Filter = "Image (.png)|*.png";
+                if (sfd.ShowDialog() == DialogResult.OK)
+                {
+                    portrait.Save(sfd.FileName);
+                }
+            }
         }
 
         private void batchToolStripMenuItem_Click(object sender, EventArgs e)
@@ -93,26 +102,16 @@ namespace CopaEditor
                 {
                     folder = fbd.SelectedPath;
                     var fileEntries = Directory.GetFiles(folder);
-                    using (var ofd = new OpenFileDialog())
+                    foreach (var filename in fileEntries)
                     {
-                        if (ofd.ShowDialog() == DialogResult.OK)
+                        var portraitFile = new Bitmap(filename);
+                        using (Graphics g = Graphics.FromImage(portraitFile))
                         {
-                            file = ofd.FileName;
-                            var playerNames = File.ReadAllLines(file);
-                            if (playerNames.Length != fileEntries.Length)
-                                MessageBox.Show("Not the same number of lines and files", "Error");
-                            else
-                            {
-                                var i = 0;
-                                foreach (var filename in fileEntries)
-                                {
-                                    var portraitFile = new Bitmap(filename);
-                                    updateImage(playerNames[i], portraitFile);
-                                    portraitFile.Save(filename + "_out.png");
-                                    i++;
-                                }
-                            }
+                            g.Clip = new Region(new Rectangle(121, 113, 71, 15));
+                            g.Clear(Color.FromArgb(0, Color.White));
                         }
+                        portraitFile.Save(@"C:\Users\PCHMD\Desktop\Emulateurs\Dolphin-x64\strikers\mcb\extracted\batchPortrait\ouy\" + Path.GetFileName(filename));
+                       
                     }
                 }
             }
@@ -127,5 +126,7 @@ namespace CopaEditor
         {
 
         }
+
+
     }
 }

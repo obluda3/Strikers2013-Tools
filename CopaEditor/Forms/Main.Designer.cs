@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.tStrip_Text = new System.Windows.Forms.ToolStripMenuItem();
             this.tStrip_Open = new System.Windows.Forms.ToolStripMenuItem();
@@ -35,6 +36,8 @@
             this.tStrip_replaceMcb = new System.Windows.Forms.ToolStripMenuItem();
             this.tStrip_Portrait = new System.Windows.Forms.ToolStripMenuItem();
             this.extractFilesFrombinToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.matchSizeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.renamingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.label1 = new System.Windows.Forms.Label();
             this.lbl_selected = new System.Windows.Forms.Label();
             this.btn_Export = new System.Windows.Forms.Button();
@@ -73,7 +76,9 @@
             this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tStrip_replaceMcb,
             this.tStrip_Portrait,
-            this.extractFilesFrombinToolStripMenuItem});
+            this.extractFilesFrombinToolStripMenuItem,
+            this.matchSizeToolStripMenuItem,
+            this.renamingToolStripMenuItem});
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
             this.toolsToolStripMenuItem.Size = new System.Drawing.Size(46, 20);
             this.toolsToolStripMenuItem.Text = "Tools";
@@ -98,6 +103,20 @@
             this.extractFilesFrombinToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
             this.extractFilesFrombinToolStripMenuItem.Text = "Extract files from bin archive";
             this.extractFilesFrombinToolStripMenuItem.Click += new System.EventHandler(this.extractFilesFrombinToolStripMenuItem_Click);
+            // 
+            // matchSizeToolStripMenuItem
+            // 
+            this.matchSizeToolStripMenuItem.Name = "matchSizeToolStripMenuItem";
+            this.matchSizeToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
+            this.matchSizeToolStripMenuItem.Text = "Match size";
+            this.matchSizeToolStripMenuItem.Click += new System.EventHandler(this.matchSizeToolStripMenuItem_Click);
+            // 
+            // renamingToolStripMenuItem
+            // 
+            this.renamingToolStripMenuItem.Name = "renamingToolStripMenuItem";
+            this.renamingToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
+            this.renamingToolStripMenuItem.Text = "Renaming";
+            this.renamingToolStripMenuItem.Click += new System.EventHandler(this.renamingToolStripMenuItem_Click);
             // 
             // label1
             // 
@@ -149,6 +168,7 @@
             this.Controls.Add(this.lbl_selected);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.menuStrip1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
             this.MaximumSize = new System.Drawing.Size(478, 406);
             this.MinimumSize = new System.Drawing.Size(478, 406);
@@ -175,6 +195,8 @@
         private System.Windows.Forms.Button btn_Export;
         private System.Windows.Forms.Button btn_Import;
         private System.Windows.Forms.ToolStripMenuItem extractFilesFrombinToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem matchSizeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem renamingToolStripMenuItem;
     }
 }
 
