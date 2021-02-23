@@ -176,5 +176,14 @@ namespace CopaEditor.Utils
                 unk3 = ber.ReadBytes(unk3Length);
             }
         }
+
+        private string ReplaceAccents(string s, Dictionary<string,string> customEncoding)
+        {
+            var output = new StringBuilder(s);
+            foreach (var kvp in customEncoding)
+                output.Replace(kvp.Key, kvp.Value);
+
+            return output.ToString();
+        }
     }
 }
