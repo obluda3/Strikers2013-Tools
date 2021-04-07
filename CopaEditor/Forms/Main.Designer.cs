@@ -38,10 +38,11 @@
             this.extractFilesFrombinToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.matchSizeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.renamingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.label1 = new System.Windows.Forms.Label();
             this.lbl_selected = new System.Windows.Forms.Label();
             this.btn_Export = new System.Windows.Forms.Button();
             this.btn_Import = new System.Windows.Forms.Button();
+            this.fontToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.f_freTStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -49,7 +50,8 @@
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tStrip_Text,
-            this.toolsToolStripMenuItem});
+            this.toolsToolStripMenuItem,
+            this.fontToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(462, 24);
@@ -67,7 +69,7 @@
             // tStrip_Open
             // 
             this.tStrip_Open.Name = "tStrip_Open";
-            this.tStrip_Open.Size = new System.Drawing.Size(103, 22);
+            this.tStrip_Open.Size = new System.Drawing.Size(180, 22);
             this.tStrip_Open.Text = "Open";
             this.tStrip_Open.Click += new System.EventHandler(this.tStrip_Open_Click);
             // 
@@ -118,19 +120,9 @@
             this.renamingToolStripMenuItem.Text = "Renaming";
             this.renamingToolStripMenuItem.Click += new System.EventHandler(this.renamingToolStripMenuItem_Click);
             // 
-            // label1
-            // 
-            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 17.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(12, 34);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(438, 146);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "Welcome to Copa Editor\r\n";
-            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
             // lbl_selected
             // 
-            this.lbl_selected.Location = new System.Drawing.Point(12, 180);
+            this.lbl_selected.Location = new System.Drawing.Point(12, 259);
             this.lbl_selected.Name = "lbl_selected";
             this.lbl_selected.Size = new System.Drawing.Size(438, 40);
             this.lbl_selected.TabIndex = 2;
@@ -158,6 +150,21 @@
             this.btn_Import.UseVisualStyleBackColor = true;
             this.btn_Import.Click += new System.EventHandler(this.btn_Import_Click);
             // 
+            // fontToolStripMenuItem
+            // 
+            this.fontToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.f_freTStripMenuItem});
+            this.fontToolStripMenuItem.Name = "fontToolStripMenuItem";
+            this.fontToolStripMenuItem.Size = new System.Drawing.Size(43, 20);
+            this.fontToolStripMenuItem.Text = "Font";
+            // 
+            // f_freTStripMenuItem
+            // 
+            this.f_freTStripMenuItem.Name = "f_freTStripMenuItem";
+            this.f_freTStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.f_freTStripMenuItem.Text = "French";
+            this.f_freTStripMenuItem.Click += new System.EventHandler(this.frenchToolStripMenuItem_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -166,7 +173,6 @@
             this.Controls.Add(this.btn_Import);
             this.Controls.Add(this.btn_Export);
             this.Controls.Add(this.lbl_selected);
-            this.Controls.Add(this.label1);
             this.Controls.Add(this.menuStrip1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
@@ -190,13 +196,14 @@
         private System.Windows.Forms.ToolStripMenuItem toolsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem tStrip_replaceMcb;
         private System.Windows.Forms.ToolStripMenuItem tStrip_Portrait;
-        private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label lbl_selected;
         private System.Windows.Forms.Button btn_Export;
         private System.Windows.Forms.Button btn_Import;
         private System.Windows.Forms.ToolStripMenuItem extractFilesFrombinToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem matchSizeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem renamingToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem fontToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem f_freTStripMenuItem;
     }
 }
 

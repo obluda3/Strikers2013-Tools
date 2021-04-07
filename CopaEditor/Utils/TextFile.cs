@@ -12,7 +12,7 @@ namespace CopaEditor.Utils
     {
         public string fileName;
         private int unkCount;
-        private uint fileType, sectNumber, offsetPointer, entryCount, sectLength; // 14, 35 etc...
+        private uint fileType, sectNumber, offsetPointer, entryCount, nextSectOffset; // 14, 35 etc...
         private uint[] pointers;
         private byte[] unk1, unk2, unk3;
         private Encoding sjis = Encoding.GetEncoding("sjis");
@@ -53,7 +53,11 @@ namespace CopaEditor.Utils
                         var entryString = "";
                         entryString = sjis.GetString(entry);
                         entryString = entryString.Replace("\0", string.Empty);
-                        txtFile.WriteLine(entryString);
+                        entryString = entryString.Replace("\n", "{returnline}");
+                        if (i == pointers.Length - 1)
+                            txtFile.Write(entryString);
+                        else
+                            txtFile.WriteLine(entryString);
                     }
                 }
 
@@ -70,14 +74,14 @@ namespace CopaEditor.Utils
             using (var bw = new BeBinaryWriter(file))
             {
                 bw.Write(sectNumber);
-                bw.Write(sectLength);
+                bw.Write(nextSectOffset);
                 bw.Write(unk1);
                 bw.Write(offsetPointer);
                 bw.Write(entryCount);
                 bw.Write(unk2);
                 bw.Write(pointers[0]);
                 var pointersPos = bw.BaseStream.Position;
-                for (var i = 1; i < lines.Length; i++)
+                for (var i = 1; i < lines.Length+1; i++)
                 {
                     /*if (lines.Length > 0)
                     {
@@ -100,12 +104,20 @@ namespace CopaEditor.Utils
                     }*/
                     bw.Write((int)0);
                 }
-                var previous = pointers[0];
+                uint previous = 0;
+                foreach (var pointer in pointers)
+                {
+                    if (pointer != 0)
+                    {
+                        previous = pointer;
+                        break;
+                    }
+                }
                 var j = 0;
                 foreach(var line in lines)
                 {
-
-                    var entry = sjis.GetBytes(line);
+                    var linestring = line.Replace("{returnline}","\n");
+                    var entry = sjis.GetBytes(linestring);
                     if (entry.Length > 0)
                     {
                         var padSize = 4 - ((entry.Length) % 4);
@@ -114,11 +126,13 @@ namespace CopaEditor.Utils
                             bw.Write((byte)0);
                         entriesLength += entry.Length + padSize;
                         uint current = (uint)previous + (uint)entry.Length + (uint)padSize;
-                        pointers[j] = previous;
+                        if(previous != 0)
+                            pointers[j] = previous;
                         previous = current;
                     }
                     else
                     {
+                        pointers[j] = 0;
                     }
                     j++;
                 }
@@ -127,8 +141,8 @@ namespace CopaEditor.Utils
                 foreach (var pointer in pointers)
                     bw.Write(pointer);
                 bw.BaseStream.Position = 4;
-                sectLength =(uint)(unk1.Length + 4 + 4 + unk2.Length + pointers.Length * 4 + entriesLength + 4+ 4);
-                bw.Write(sectLength);
+                nextSectOffset =(uint)(unk1.Length + 4 + 4 + unk2.Length + pointers.Length * 4 + entriesLength + 4+ 4);
+                bw.Write(nextSectOffset);
 
             }
         }
@@ -139,7 +153,7 @@ namespace CopaEditor.Utils
             using (var ber = new BeBinaryReader(file, Encoding.GetEncoding("sjis")))
             {
                 sectNumber = ber.ReadUInt32();
-                sectLength = ber.ReadUInt32();
+                nextSectOffset = ber.ReadUInt32();
 
                 // Takes into account all text files that way
                 unkCount = 0;
@@ -170,8 +184,10 @@ namespace CopaEditor.Utils
                 {
                     pointers[i] = ber.ReadUInt32();
                 }
-
-                ber.BaseStream.Position = pointers[entryCount - 2] + 4; // After the text
+                if (pointers[entryCount - 1] != 0)
+                    ber.BaseStream.Position = pointers[entryCount - 1];
+                else
+                    ber.BaseStream.Position = pointers[entryCount - 2]; // After the text
                 var unk3Length = (int)ber.BaseStream.Length - (int)ber.BaseStream.Position;
                 unk3 = ber.ReadBytes(unk3Length);
             }

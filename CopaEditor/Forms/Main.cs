@@ -15,6 +15,24 @@ namespace CopaEditor
 {
     public partial class Form1 : Form
     {
+        private static Dictionary<string, string> FrenchAccents = new Dictionary<string, string> {
+            ["À"] = "$",
+            ["à"] = "@",
+            ["É"] = "&",
+            ["é"] = "*",
+            ["è"] = "+",
+            ["Ê"] = "[",
+            ["ê"] = "<",
+            ["î"] = "]",
+            ["ï"] = "^",
+            ["ô"] = "_",
+            ["ù"] = ">",
+            ["Ç"] = "{",
+            ["ç"] = "|",
+            ["Ö"] = "}",
+            ["ă"] = @"\",
+        };
+        Dictionary<string, string> Accents = FrenchAccents;
         TextFile _textFile;
         BinFiles _binFile = new BinFiles();
         public Form1()
@@ -248,6 +266,17 @@ namespace CopaEditor
 
         private void progressBar1_Click(object sender, EventArgs e)
         {
+
+        }
+
+        private void optionsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void frenchToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            f_freTStripMenuItem.Checked = true;
 
         }
     }
