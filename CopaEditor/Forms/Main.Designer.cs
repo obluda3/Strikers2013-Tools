@@ -122,7 +122,7 @@
             // f_freTStripMenuItem
             // 
             this.f_freTStripMenuItem.Name = "f_freTStripMenuItem";
-            this.f_freTStripMenuItem.Size = new System.Drawing.Size(110, 22);
+            this.f_freTStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.f_freTStripMenuItem.Text = "French";
             this.f_freTStripMenuItem.Click += new System.EventHandler(this.frenchToolStripMenuItem_Click);
             // 

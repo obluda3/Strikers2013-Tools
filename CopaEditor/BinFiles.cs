@@ -2,7 +2,7 @@
 using System.IO;
 using System.Windows.Forms;
 
-namespace CopaEditor.Utils
+namespace CopaEditor
 {
     class BinFiles
     {

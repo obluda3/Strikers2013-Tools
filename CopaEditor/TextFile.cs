@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.IO;
 using Be.IO;
 
-namespace CopaEditor.Utils
+namespace CopaEditor
 {
     class TextFile
     {
@@ -64,8 +64,7 @@ namespace CopaEditor.Utils
             }
         }
 
-        public void ImportText(string input)
-            // not working properly and i don't want to fix it 
+        public void ImportText(string input, Dictionary<string,string> accents)
         {
             parseTextFile(fileName);
             var lines = File.ReadAllLines(input);
@@ -104,8 +103,12 @@ namespace CopaEditor.Utils
                 var j = 0;
                 foreach(var line in lines)
                 {
-                    var linestring = line.Replace("{returnline}","\n");
-                    var entry = sjis.GetBytes(linestring);
+                    if (line == "@")
+                        Console.WriteLine("tkt");
+
+                    var entrystr = ReplaceAccents(line, accents);
+
+                    var entry = sjis.GetBytes(entrystr);
                     if (entry.Length > 0)
                     {
                         var padSize = 4 - ((entry.Length) % 4); // Every entry is padded to a 4 byte alignment
@@ -176,7 +179,7 @@ namespace CopaEditor.Utils
                 if (pointers[entryCount - 1] != 0)
                     ber.BaseStream.Position = pointers[entryCount - 1];
                 else
-                    ber.BaseStream.Position = pointers[entryCount - 2]; // After the text
+                    ber.BaseStream.Position = pointers[entryCount - 2] + 4; // After the text
                 var unk3Length = (int)ber.BaseStream.Length - (int)ber.BaseStream.Position;
                 unk3 = ber.ReadBytes(unk3Length);
             }
@@ -184,6 +187,9 @@ namespace CopaEditor.Utils
 
         private string ReplaceAccents(string s, Dictionary<string,string> customEncoding)
         {
+            s = s.Replace("{returnline}","\n");
+            s = s.Replace("Ö","\n");
+
             var output = new StringBuilder(s);
             foreach (var kvp in customEncoding)
                 output.Replace(kvp.Key, kvp.Value);
