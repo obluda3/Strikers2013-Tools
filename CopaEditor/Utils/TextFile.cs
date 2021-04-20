@@ -53,7 +53,7 @@ namespace CopaEditor.Utils
                         var entryString = "";
                         entryString = sjis.GetString(entry);
                         entryString = entryString.Replace("\0", string.Empty);
-                        entryString = entryString.Replace("\n", "{returnline}");
+                        entryString = entryString.Replace("\n", "{returnline}"); // Some entries do have returnlines, this is just so we can keep them
                         if (i == pointers.Length - 1)
                             txtFile.Write(entryString);
                         else
@@ -81,29 +81,16 @@ namespace CopaEditor.Utils
                 bw.Write(unk2);
                 bw.Write(pointers[0]);
                 var pointersPos = bw.BaseStream.Position;
+
+                // Pad the pointers with zero, they will be replaced later
                 for (var i = 1; i < lines.Length+1; i++)
                 {
-                    /*if (lines.Length > 0)
-                    {
-                        var previous = pointers[i - 1];
-                        var j = i;
-                        while (previous == 0)
-                        {
-                            j -= 1;
-                            previous = pointers[j];
-                        }
-                        var remainder = 0;
-                        var entryLength = 4 * (Math.DivRem(lines[i].Length + 1, 4, out remainder) + 1);
-                        pointers[i] = previous + (uint)entryLength;
-                        if(i == 7575) { 
-                            Console.WriteLine("cc"); }
-                    }
-                    else
-                    {
-                        pointers[i] = 0;
-                    }*/
                     bw.Write((int)0);
                 }
+
+                // It is useful for later, if it isn't done
+                // the algo will not work for files other than
+                // 14.bin
                 uint previous = 0;
                 foreach (var pointer in pointers)
                 {
@@ -113,6 +100,7 @@ namespace CopaEditor.Utils
                         break;
                     }
                 }
+
                 var j = 0;
                 foreach(var line in lines)
                 {
@@ -120,10 +108,12 @@ namespace CopaEditor.Utils
                     var entry = sjis.GetBytes(linestring);
                     if (entry.Length > 0)
                     {
-                        var padSize = 4 - ((entry.Length) % 4);
+                        var padSize = 4 - ((entry.Length) % 4); // Every entry is padded to a 4 byte alignment
                         bw.Write(entry);
+
                         for (var _i = 0; _i < padSize; _i++)
                             bw.Write((byte)0);
+
                         entriesLength += entry.Length + padSize;
                         uint current = (uint)previous + (uint)entry.Length + (uint)padSize;
                         if(previous != 0)
@@ -131,7 +121,7 @@ namespace CopaEditor.Utils
                         previous = current;
                     }
                     else
-                    {
+                    {   
                         pointers[j] = 0;
                     }
                     j++;
@@ -141,7 +131,7 @@ namespace CopaEditor.Utils
                 foreach (var pointer in pointers)
                     bw.Write(pointer);
                 bw.BaseStream.Position = 4;
-                nextSectOffset =(uint)(unk1.Length + 4 + 4 + unk2.Length + pointers.Length * 4 + entriesLength + 4+ 4);
+                nextSectOffset =(uint)(unk1.Length + 4 + 4 + unk2.Length + pointers.Length * 4 + entriesLength + 4+ 4); // Basically, trust me dude but all these numbers are correct
                 bw.Write(nextSectOffset);
 
             }
@@ -172,7 +162,6 @@ namespace CopaEditor.Utils
                 var unk1Length = unkCount * 4;
                 unk1 = ber.ReadBytes(unk1Length);
 
-                // Gets the the position of the first pointer and the number of entries in the text files
                 offsetPointer = ber.ReadUInt32();
                 entryCount = ber.ReadUInt32();
                 
