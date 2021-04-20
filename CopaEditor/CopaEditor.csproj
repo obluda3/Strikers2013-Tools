@@ -71,9 +71,6 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="BinFiles.cs" />
-    <Compile Include="Utils\hexaJIStoString.cs" />
-    <Compile Include="Utils\HexStringToByteArray.cs" />
-    <Compile Include="Utils\stringToHexaJIS.cs" />
     <Compile Include="TextFile.cs" />
     <EmbeddedResource Include="Forms\FileType.resx">
       <DependentUpon>FileType.cs</DependentUpon>
