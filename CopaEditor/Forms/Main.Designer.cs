@@ -33,10 +33,7 @@
             this.tStrip_Text = new System.Windows.Forms.ToolStripMenuItem();
             this.tStrip_Open = new System.Windows.Forms.ToolStripMenuItem();
             this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.tStrip_Portrait = new System.Windows.Forms.ToolStripMenuItem();
             this.extractFilesFrombinToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.matchSizeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.renamingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fontToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.f_freTStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.lbl_selected = new System.Windows.Forms.Label();
@@ -75,20 +72,10 @@
             // toolsToolStripMenuItem
             // 
             this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tStrip_Portrait,
-            this.extractFilesFrombinToolStripMenuItem,
-            this.matchSizeToolStripMenuItem,
-            this.renamingToolStripMenuItem});
+            this.extractFilesFrombinToolStripMenuItem});
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
             this.toolsToolStripMenuItem.Size = new System.Drawing.Size(46, 20);
             this.toolsToolStripMenuItem.Text = "Tools";
-            // 
-            // tStrip_Portrait
-            // 
-            this.tStrip_Portrait.Name = "tStrip_Portrait";
-            this.tStrip_Portrait.Size = new System.Drawing.Size(224, 22);
-            this.tStrip_Portrait.Text = "Player portrait generator";
-            this.tStrip_Portrait.Click += new System.EventHandler(this.tStrip_Portrait_Click);
             // 
             // extractFilesFrombinToolStripMenuItem
             // 
@@ -96,20 +83,6 @@
             this.extractFilesFrombinToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
             this.extractFilesFrombinToolStripMenuItem.Text = "Extract files from bin archive";
             this.extractFilesFrombinToolStripMenuItem.Click += new System.EventHandler(this.extractFilesFrombinToolStripMenuItem_Click);
-            // 
-            // matchSizeToolStripMenuItem
-            // 
-            this.matchSizeToolStripMenuItem.Name = "matchSizeToolStripMenuItem";
-            this.matchSizeToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
-            this.matchSizeToolStripMenuItem.Text = "Match size";
-            this.matchSizeToolStripMenuItem.Click += new System.EventHandler(this.matchSizeToolStripMenuItem_Click);
-            // 
-            // renamingToolStripMenuItem
-            // 
-            this.renamingToolStripMenuItem.Name = "renamingToolStripMenuItem";
-            this.renamingToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
-            this.renamingToolStripMenuItem.Text = "Renaming";
-            this.renamingToolStripMenuItem.Click += new System.EventHandler(this.renamingToolStripMenuItem_Click);
             // 
             // fontToolStripMenuItem
             // 
@@ -185,13 +158,10 @@
         private System.Windows.Forms.ToolStripMenuItem tStrip_Text;
         private System.Windows.Forms.ToolStripMenuItem tStrip_Open;
         private System.Windows.Forms.ToolStripMenuItem toolsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem tStrip_Portrait;
         private System.Windows.Forms.Label lbl_selected;
         private System.Windows.Forms.Button btn_Export;
         private System.Windows.Forms.Button btn_Import;
         private System.Windows.Forms.ToolStripMenuItem extractFilesFrombinToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem matchSizeToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem renamingToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem fontToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem f_freTStripMenuItem;
     }
