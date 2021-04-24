@@ -2,7 +2,7 @@
 using System.IO;
 using System.Collections.Generic;
 using System.Text;
-using System.Windows.Forms;
+using StrikersTools.IO;
 
 namespace StrikersTools
 {
@@ -17,6 +17,7 @@ namespace StrikersTools
 
             using (var br = new BinaryReader(binfile))
             {
+                // Reads header
                 var fileCount = br.ReadInt32();
                 var padFactor = br.ReadInt32();
                 var mulFactor = br.ReadInt32();
@@ -25,23 +26,83 @@ namespace StrikersTools
 
                 for (var i = 0; i < fileCount; i++)
                 {
-                    var offSize = br.ReadUInt32();
-                    var bkPos = br.BaseStream.Position;
-                    
-                    var offset = (offSize >> shiftFactor) * padFactor;
-                    var size = (offSize & mask) * mulFactor;
+                    // Get offset and size
+                    uint size;
+                    var offset = GetOffsetAndSize(padFactor, mulFactor, shiftFactor, mask, i, binfile, out size);
 
+                    // Create output file
                     var filename = GetFileName(i, binfile);
-                    var output = File.Open(folder+filename, FileMode.Create);
+                    var output = File.Open(folder+"\\"+filename, FileMode.Create);
 
+                    // Write data to output file
+                    br.BaseStream.Position = offset;
                     using (var bw = new BinaryWriter(output))
                     {
                         bw.Write(br.ReadBytes((int)size));
                     }
 
-                    br.BaseStream.Position = bkPos;
                 }
             }
+        }
+
+        public static void ImportFiles(string inputFolder, string binPath)
+        {
+            var binfile = File.Open(binPath, FileMode.Open,FileAccess.ReadWrite);
+
+            using (var br = new BinaryReader(binfile))
+            {
+                using (var bw = new BinaryWriter(binfile))
+                {
+                    // Reads header
+                    var fileCount = br.ReadInt32();
+                    var padFactor = br.ReadInt32();
+                    var mulFactor = br.ReadInt32();
+                    var shiftFactor = br.ReadInt32();
+                    var mask = br.ReadInt32();
+
+                    var files = Directory.GetFiles(inputFolder);
+
+                    foreach(var file in files)
+                    {
+                        // Gets the index of the file in the archive
+                        var index = Convert.ToInt32(Path.GetFileNameWithoutExtension(file).Split('.')[0]);
+
+                        // Can't add files yet
+                        if(index >= fileCount)
+                        {
+                            Console.WriteLine("{0} skipped : index {1} over the file count limit ({2})",Path.GetFileName(file),index,fileCount);
+                            continue;
+                        }
+
+                        var fileStream = File.OpenRead(file);
+
+                        uint originalSize;
+                        var offset = GetOffsetAndSize(padFactor, mulFactor, shiftFactor, mask, index, binfile, out originalSize);
+                        var size = fileStream.Length;
+
+                        // Doesn't support changing the file size
+                        if (size > originalSize)
+                        {
+                            Console.WriteLine("{0} skipped : size {1} over original size of {2}", Path.GetFileName(file), size, originalSize);
+                            continue;
+                        }
+
+                        Console.WriteLine("File {0} :\n\t- Size : {1}\n\t- Offset : {2}\n\t- Index : {3}",Path.GetFileName(file),size,offset,index);
+                        // Write the modified data
+                        binfile.Position = offset;
+                        using (var _br = new BinaryReader(fileStream))
+                        {
+                            bw.Write(_br.ReadBytes((int)size));
+                        }
+
+                        // Pads to original size
+                        var padSize = originalSize - size;
+                        bw.PadWith(0, padSize);
+
+                    }
+                }
+            }
+
         }
 
         public static string GuessExtension(Stream input)
@@ -75,7 +136,7 @@ namespace StrikersTools
         }
         private static uint BufferToUInt32(byte[] buffer)
         {
-            return (uint)((buffer[0] << 24) | (buffer[1] << 16) | (buffer[2] << 8) | buffer[3]);
+            return (uint)((buffer[3] << 24) | (buffer[2] << 16) | (buffer[1] << 8) | buffer[0]);
         }
 
         private static IList<uint> CollectMagicSamples(Stream input)
@@ -115,6 +176,18 @@ namespace StrikersTools
             var extension = GuessExtension(input);
 
             return $"{index:00000000}.{extension}";
+        }
+
+        private static long GetOffsetAndSize(int padFactor, int mulFactor, int shiftFactor, int mask, int index, Stream input, out uint size)
+        {
+            input.Position = 20 + index * 4;
+
+            var offSize = PeekUInt32(input);
+
+            var offset = (offSize >> shiftFactor) * padFactor;
+            size = (uint)((offSize & mask) * mulFactor);
+
+            return offset;
         }
 
 

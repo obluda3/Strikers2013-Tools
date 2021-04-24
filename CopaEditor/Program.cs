@@ -30,7 +30,7 @@ namespace StrikersTools
                     break;
                 case "-r":
                     if (args.Length > 2)
-                        Repack(args[1], args[2]);
+                        ImportFiles(args[1], args[2]);
                     else
                         Repack(args[1]);
                     break;
@@ -50,7 +50,7 @@ namespace StrikersTools
             Console.WriteLine("\t\tStrikers2013Tools.exe -u <path to .bin archive>");
             Console.WriteLine("\t- Export a text file :");
             Console.WriteLine("\t\tStrikers2013Tools.exe -e <path to Strikers text file>");
-            Console.WriteLine("\t- Repack a .bin archive");
+            Console.WriteLine("\t- Import to a .bin archive");
             Console.WriteLine("\t\tStrikers2013Tools.exe -r <path to extracted bin archive> <path to .bin archive>");
             Console.WriteLine("\t- Repack to BLN");
             Console.WriteLine("\t\tStrikers2013Tools.exe -r <path to extracted game files>");
@@ -91,9 +91,15 @@ namespace StrikersTools
         {
 
         }
-        static void Repack(string binPath, string extractedPath)
+        static void ImportFiles(string binPath, string inputPath)
         {
 
+            if (Directory.Exists(inputPath) && File.Exists(binPath))
+            {
+                BIN.ImportFiles(inputPath, binPath);
+            }
+            else
+                PrintUsage();
         }
     }
 }
