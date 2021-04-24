@@ -1,28 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using StrikersTools.Dictionaries;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using Be.IO;
 
-namespace CopaEditor
+namespace StrikersTools
 {
-    class TextFile
+    class TEXT
     {
-        public string fileName;
         private int unkCount;
-        private uint fileType, sectNumber, offsetPointer, entryCount, nextSectOffset; // 14, 35 etc...
+        private uint sectNumber, offsetPointer, entryCount, nextSectOffset;
         private uint[] pointers;
         private byte[] unk1, unk2, unk3;
         private Encoding sjis = Encoding.GetEncoding("sjis");
         private Encoding utf8 = Encoding.GetEncoding("utf-8", new EncoderExceptionFallback(), new DecoderExceptionFallback());
 
 
-        public void ExportText(string output)
+        public void ExportText(string path, string output)
         {
-            parseTextFile(fileName);
-            var file = File.Open(fileName, FileMode.Open);
+            parseTextFile(path);
+            var file = File.Open(path, FileMode.Open);
 
             using (var ber = new BeBinaryReader(file, Encoding.GetEncoding("sjis")))
             {
@@ -64,11 +63,11 @@ namespace CopaEditor
             }
         }
 
-        public void ImportText(string input, Dictionary<string,string> accents)
+        public void ImportText(string input, string orig, string output, int accentIndex)
         {
-            parseTextFile(fileName);
+            parseTextFile(orig);
             var lines = File.ReadAllLines(input);
-            var file = File.Open(input + ".bin", FileMode.Create);
+            var file = File.Open(output, FileMode.Create);
             int entriesLength = 0;
             using (var bw = new BeBinaryWriter(file))
             {
@@ -106,7 +105,7 @@ namespace CopaEditor
                     if (line == "@")
                         Console.WriteLine("tkt");
 
-                    var entrystr = ReplaceAccents(line, accents);
+                    var entrystr = ReplaceAccents(line, accentIndex);
 
                     var entry = sjis.GetBytes(entrystr);
                     if (entry.Length > 0)
@@ -185,10 +184,20 @@ namespace CopaEditor
             }
         }
 
-        private string ReplaceAccents(string s, Dictionary<string,string> customEncoding)
+        private string ReplaceAccents(string s, int accentIndex)
         {
             s = s.Replace("{returnline}","\n");
             s = s.Replace("Ö","\n");
+
+            Dictionary<string, string> customEncoding;
+            switch (accentIndex)
+            {
+                default:
+                    return s;
+                case 1:
+                    customEncoding = SpecialChars.FrenchAccents;
+                    break;
+            }
 
             var output = new StringBuilder(s);
             foreach (var kvp in customEncoding)

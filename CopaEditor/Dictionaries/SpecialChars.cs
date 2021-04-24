@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CopaEditor.Dictionaries
+namespace StrikersTools.Dictionaries
 {
     public static class SpecialChars
     {
