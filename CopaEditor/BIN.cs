@@ -143,34 +143,26 @@ namespace StrikersTools
         {
             var bkPos = input.Position;
 
-            input.Position = bkPos;
-            var magic1 = PeekUInt32(input);
-            input.Position = bkPos + 1;
-            var magic2 = PeekUInt32(input);
-            input.Position = bkPos + 2;
-            var magic3 = PeekUInt32(input);
+            using (var br = new BinaryReader(input))
+            {
+                input.Position = bkPos;
+                var magic1 = br.PeekUInt32();
+                input.Position = bkPos + 1;
+                var magic2 = br.PeekUInt32();
+                input.Position = bkPos + 2;
+                var magic3 = br.PeekUInt32();
 
-            input.Position = bkPos + 12;
-            var magic4 = PeekUInt32(input);
-            input.Position = bkPos + 13;
-            var magic5 = PeekUInt32(input);
-            input.Position = bkPos + 14;
-            var magic6 = PeekUInt32(input);
+                input.Position = bkPos + 12;
+                var magic4 = br.PeekUInt32();
+                input.Position = bkPos + 13;
+                var magic5 = br.PeekUInt32();
+                input.Position = bkPos + 14;
+                var magic6 = br.PeekUInt32();
 
-            return new[] { magic1, magic2, magic3, magic4, magic5, magic6 };
+                return new[] { magic1, magic2, magic3, magic4, magic5, magic6 };
+            }
         }
 
-        private static uint PeekUInt32(Stream input)
-        {
-            var bkPos = input.Position;
-
-            var buffer = new byte[4];
-            input.Read(buffer, 0, 4);
-
-            input.Position = bkPos;
-
-            return BufferToUInt32(buffer);
-        }   
         private static string GetFileName(int index, Stream input)
         {
             var extension = GuessExtension(input);
@@ -182,14 +174,15 @@ namespace StrikersTools
         {
             input.Position = 20 + index * 4;
 
-            var offSize = PeekUInt32(input);
+            using (var br = new BinaryReader(input))
+            {
+                var offSize = br.ReadUInt32();
 
-            var offset = (offSize >> shiftFactor) * padFactor;
-            size = (uint)((offSize & mask) * mulFactor);
+                var offset = (offSize >> shiftFactor) * padFactor;
+                size = (uint)((offSize & mask) * mulFactor);
 
-            return offset;
+                return offset;
+            }
         }
-
-
     }
 }
