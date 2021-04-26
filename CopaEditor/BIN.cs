@@ -2,7 +2,7 @@
 using System.IO;
 using System.Collections.Generic;
 using System.Text;
-using StrikersTools.IO;
+using StrikersTools.Utils;
 
 namespace StrikersTools
 {
@@ -12,7 +12,7 @@ namespace StrikersTools
         public static void ExportFiles(string input)
         {
             var binfile = File.OpenRead(input);
-            var folder = Path.GetDirectoryName(input) + "\\" + Path.GetFileNameWithoutExtension(input);
+            var folder = Path.GetDirectoryName(input) + Path.DirectorySeparatorChar + Path.GetFileNameWithoutExtension(input);
             Directory.CreateDirectory(folder);
 
             using (var br = new BinaryReader(binfile))
@@ -45,9 +45,10 @@ namespace StrikersTools
             }
         }
 
-        public static void ImportFiles(string inputFolder, string binPath)
+        public static List<uint> ImportFiles(string inputFolder, string binPath)
         {
             var binfile = File.Open(binPath, FileMode.Open,FileAccess.ReadWrite);
+            var archiveOffsets = new List<uint>;
 
             using (var br = new BinaryReader(binfile))
             {
@@ -79,6 +80,7 @@ namespace StrikersTools
                         uint originalSize;
                         var offset = GetOffsetAndSize(padFactor, mulFactor, shiftFactor, mask, index, binfile, out originalSize);
                         var size = fileStream.Length;
+                        archiveOffsets.Add((uint)offset);
 
                         // Doesn't support changing the file size
                         if (size > originalSize)
@@ -102,7 +104,7 @@ namespace StrikersTools
                     }
                 }
             }
-
+            return archiveOffsets;
         }
 
         public static string GuessExtension(Stream input)

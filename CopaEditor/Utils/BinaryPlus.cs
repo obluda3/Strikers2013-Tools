@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace StrikersTools.IO
+namespace StrikersTools.Utils
 {
     static class BinaryPlus
     {

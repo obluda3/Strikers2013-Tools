@@ -29,10 +29,12 @@ namespace StrikersTools
                     ExportText(args[1], args[2]);
                     break;
                 case "-r":
-                    if (args.Length > 2)
+                    if (args.Length > 3)
+                        Repack(args[1], args[2], args[3]);
+                    else if (args.Length > 2)
                         ImportFiles(args[1], args[2]);
                     else
-                        Repack(args[1]);
+                        PrintUsage();
                     break;
                 case "-i":
                     ImportText(args[1], args[2], args[3], Convert.ToInt32(args[4]));
@@ -50,10 +52,10 @@ namespace StrikersTools
             Console.WriteLine("\t\tStrikers2013Tools.exe -u <path to .bin archive>");
             Console.WriteLine("\t- Export a text file :");
             Console.WriteLine("\t\tStrikers2013Tools.exe -e <path to Strikers text file>");
-            Console.WriteLine("\t- Import to a .bin archive");
+            Console.WriteLine("\t- Repack to .bin archive");
             Console.WriteLine("\t\tStrikers2013Tools.exe -r <path to extracted bin archive> <path to .bin archive>");
-            Console.WriteLine("\t- Repack to BLN");
-            Console.WriteLine("\t\tStrikers2013Tools.exe -r <path to extracted game files>");
+            Console.WriteLine("\t- Repack to .bin archive and BLN");
+            Console.WriteLine("\t\tStrikers2013Tools.exe -r <path to extracted bin archive> <path to .bin archive> <path to mcb1.bln>");
             Console.WriteLine("\t- Import to text file");
             Console.WriteLine("\t\tStrikers2013Tools.exe -i <path to original text file> <path to modified text file");
         }
@@ -67,6 +69,7 @@ namespace StrikersTools
             }
             BIN.ExportFiles(path);
         }
+
         static void ImportText(string path, string txt, string output, int accentConfig)
         {
             if (!File.Exists(path) | !File.Exists(txt))
@@ -77,6 +80,7 @@ namespace StrikersTools
             var text = new TEXT();
             text.ImportText(txt, path, output, Convert.ToInt32(accentConfig));
         }
+
         static void ExportText(string input, string output)
         {
             if (!File.Exists(input))
@@ -87,10 +91,23 @@ namespace StrikersTools
             var text = new TEXT();
             text.ExportText(input, output);
         }
-        static void Repack(string path)
-        {
 
+        static void Repack(string binPath, string inputPath, string mcbPath)
+        {
+            if (Directory.Exists(inputPath) && File.Exists(binPath) && File.Exists(mcbPath))
+            {
+                if (!File.Exists(Path.GetDirectoryName(mcbPath) + Path.DirectorySeparatorChar + "mcb0.bln")) 
+                {
+                    Console.WriteLine("mcb0.bln not found");
+                    return;
+                }
+
+                BLN.RepackArchiveAndBLN(inputPath, binPath, mcbPath);
+            }
+            else
+                PrintUsage();
         }
+
         static void ImportFiles(string binPath, string inputPath)
         {
 
