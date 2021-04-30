@@ -48,7 +48,7 @@ namespace StrikersTools
         public static List<uint> ImportFiles(string inputFolder, string binPath)
         {
             var binfile = File.Open(binPath, FileMode.Open,FileAccess.ReadWrite);
-            var archiveOffsets = new List<uint>;
+            var archiveOffsets = new List<uint>();
 
             using (var br = new BinaryReader(binfile))
             {
@@ -144,25 +144,23 @@ namespace StrikersTools
         private static IList<uint> CollectMagicSamples(Stream input)
         {
             var bkPos = input.Position;
+            var br = new BinaryReader(input);
 
-            using (var br = new BinaryReader(input))
-            {
-                input.Position = bkPos;
-                var magic1 = br.PeekUInt32();
-                input.Position = bkPos + 1;
-                var magic2 = br.PeekUInt32();
-                input.Position = bkPos + 2;
-                var magic3 = br.PeekUInt32();
+            input.Position = bkPos;
+            var magic1 = br.PeekUInt32();
+            input.Position = bkPos + 1;
+            var magic2 = br.PeekUInt32();
+            input.Position = bkPos + 2;
+            var magic3 = br.PeekUInt32();
 
-                input.Position = bkPos + 12;
-                var magic4 = br.PeekUInt32();
-                input.Position = bkPos + 13;
-                var magic5 = br.PeekUInt32();
-                input.Position = bkPos + 14;
-                var magic6 = br.PeekUInt32();
+            input.Position = bkPos + 12;
+            var magic4 = br.PeekUInt32();
+            input.Position = bkPos + 13;
+            var magic5 = br.PeekUInt32();
+            input.Position = bkPos + 14;
+            var magic6 = br.PeekUInt32();
 
-                return new[] { magic1, magic2, magic3, magic4, magic5, magic6 };
-            }
+            return new[] { magic1, magic2, magic3, magic4, magic5, magic6 };
         }
 
         private static string GetFileName(int index, Stream input)
@@ -176,15 +174,15 @@ namespace StrikersTools
         {
             input.Position = 20 + index * 4;
 
-            using (var br = new BinaryReader(input))
-            {
-                var offSize = br.ReadUInt32();
+            var br = new BinaryReader(input);
 
-                var offset = (offSize >> shiftFactor) * padFactor;
-                size = (uint)((offSize & mask) * mulFactor);
+            var offSize = br.ReadUInt32();
 
-                return offset;
-            }
+            var offset = (offSize >> shiftFactor) * padFactor;
+            size = (uint)((offSize & mask) * mulFactor);
+
+            return offset;
+            
         }
     }
 }

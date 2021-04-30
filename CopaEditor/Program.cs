@@ -17,7 +17,6 @@ namespace StrikersTools
             if(args.Length < 1) 
             {
                 PrintUsage();
-                Console.ReadLine();
                 return;
             }
             switch (args[0])
@@ -26,7 +25,10 @@ namespace StrikersTools
                     UnpackArchive(args[1]);
                     break;
                 case "-e":
-                    ExportText(args[1], args[2]);
+                    if (args.Length > 1)
+                        ExportText(args[1], args[2]);
+                    else
+                        PrintUsage();
                     break;
                 case "-r":
                     if (args.Length > 3)
@@ -51,13 +53,13 @@ namespace StrikersTools
             Console.WriteLine("\t- Unpack archive :");
             Console.WriteLine("\t\tStrikers2013Tools.exe -u <path to .bin archive>");
             Console.WriteLine("\t- Export a text file :");
-            Console.WriteLine("\t\tStrikers2013Tools.exe -e <path to Strikers text file>");
+            Console.WriteLine("\t\tStrikers2013Tools.exe -e <path to Strikers text file> <output>");
             Console.WriteLine("\t- Repack to .bin archive");
             Console.WriteLine("\t\tStrikers2013Tools.exe -r <path to extracted bin archive> <path to .bin archive>");
             Console.WriteLine("\t- Repack to .bin archive and BLN");
             Console.WriteLine("\t\tStrikers2013Tools.exe -r <path to extracted bin archive> <path to .bin archive> <path to mcb1.bln>");
             Console.WriteLine("\t- Import to text file");
-            Console.WriteLine("\t\tStrikers2013Tools.exe -i <path to original text file> <path to modified text file");
+            Console.WriteLine("\t\tStrikers2013Tools.exe -i <path to original text file> <path to modified text file> <output path> <accent configuration>");
         }
 
         static void UnpackArchive(string path)
@@ -117,6 +119,11 @@ namespace StrikersTools
             }
             else
                 PrintUsage();
+        }
+
+        static void GenerateText()
+        {
+            TextRenderer.GenerateBitmap("Mark");
         }
     }
 }
