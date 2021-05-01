@@ -10,18 +10,16 @@ namespace StrikersTools
 {
     class TextRenderer
     {
-        public static void GenerateBitmap(string str)
+        public static Bitmap GenerateBitmap(string str)
         {
-            const double spacing = -4.2;
-
             var assembly = Assembly.GetExecutingAssembly();
             var font = new Bitmap(assembly.GetManifestResourceStream("StrikersTools.Resources.Unnamed.png"));
             var fontMapping = BitmapFonts.BuildDictionnary();
 
-            var size = GetImageDimension(str, spacing, fontMapping);
-            var image = new Bitmap(100, 100);
+            var size = GetImageDimension(str, fontMapping);
+            var image = new Bitmap(size.Width, size.Height);
 
-            var x = 0.0;
+            var x = 0;
             var y = 0;
 
             foreach(var car in str)
@@ -33,15 +31,19 @@ namespace StrikersTools
 
                 CopyRegionIntoImage(font, new Rectangle(fontRect.X, fontRect.Y, width, height), ref image,
                     new Rectangle((int)x + fontEntry.xoffset, 0+fontEntry.yoffset, width, height));
-                x += fontEntry.xadvance + spacing; // Magic number
+                x += fontEntry.xadvance; // Magic number
+                if (car != ' ')
+                    x -= 4;
             }
             Console.WriteLine("ok");
             image.Save(@"C:\Users\PCHMD\source\repos\CopaEditor\CopaEditor\bin\Debug.png");
+            return image;
         }
 
-        private static Size GetImageDimension(string str, double spacing, 
+        private static Size GetImageDimension(string str, 
             Dictionary<char, (int xoffset, int yoffset,int xadvance, Rectangle rect)> fontMapping)
         {
+            
             int width = 0;
             int height = 0;
 
@@ -49,14 +51,14 @@ namespace StrikersTools
             {
                 var fontEntry = fontMapping[car];
 
-                width += fontEntry.xadvance;
+                // The idea of this method is not to get the exact size, but to get one that is big enough
+                width += Math.Max(fontEntry.rect.Width,fontEntry.xadvance);
+                if (fontEntry.xoffset > 0) width += fontEntry.xoffset;
 
-                var entryHeight = fontEntry.rect.Height;
+                var entryHeight = fontEntry.rect.Height + fontEntry.yoffset;
                 if (entryHeight > height)
                     height = entryHeight;
             }
-            var lastEntry = fontMapping[str[str.Length - 1]];
-            width += lastEntry.rect.Width - lastEntry.xadvance + (Convert.ToInt32(spacing) *  str.Length-1); // for the last caracter we should use the width instead of xadvance
 
             return new Size(width, height);
         }

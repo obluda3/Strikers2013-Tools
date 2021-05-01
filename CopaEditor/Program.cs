@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using StrikersTools.FileFormats;
+
 namespace StrikersTools
 {
     static class Program
@@ -14,36 +16,43 @@ namespace StrikersTools
         [STAThread]
         static void Main(string[] args)
         {
-            if(args.Length < 1) 
+            if (args.Length < 1)
             {
-                PrintUsage();
-                return;
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+                Application.Run(new MainForm());
             }
-            switch (args[0])
+            else
             {
-                case "-u":
-                    UnpackArchive(args[1]);
-                    break;
-                case "-e":
-                    if (args.Length > 1)
-                        ExportText(args[1], args[2]);
-                    else
+                switch (args[0])
+                {
+                    case "-h":
                         PrintUsage();
-                    break;
-                case "-r":
-                    if (args.Length > 3)
-                        Repack(args[1], args[2], args[3]);
-                    else if (args.Length > 2)
-                        ImportFiles(args[1], args[2]);
-                    else
+                        break;
+                    case "-u":
+                        UnpackArchive(args[1]);
+                        break;
+                    case "-e":
+                        if (args.Length > 2)
+                            ExportText(args[1], args[2], Convert.ToInt32(args[3]));
+                        else
+                            PrintUsage();
+                        break;
+                    case "-r":
+                        if (args.Length > 3)
+                            Repack(args[1], args[2], args[3]);
+                        else if (args.Length > 2)
+                            ImportFiles(args[1], args[2]);
+                        else
+                            PrintUsage();
+                        break;
+                    case "-i":
+                        ImportText(args[1], args[2], args[3], Convert.ToInt32(args[4]));
+                        break;
+                    default:
                         PrintUsage();
-                    break;
-                case "-i":
-                    ImportText(args[1], args[2], args[3], Convert.ToInt32(args[4]));
-                    break;
-                default:
-                    PrintUsage();
-                    break;
+                        break;
+                }
             }
         }
 
@@ -83,7 +92,7 @@ namespace StrikersTools
             text.ImportText(txt, path, output, Convert.ToInt32(accentConfig));
         }
 
-        static void ExportText(string input, string output)
+        static void ExportText(string input, string output, int accentIndex)
         {
             if (!File.Exists(input))
             {
@@ -91,7 +100,7 @@ namespace StrikersTools
                 return;
             }
             var text = new TEXT();
-            text.ExportText(input, output);
+            text.ExportText(input, output, accentIndex);
         }
 
         static void Repack(string binPath, string inputPath, string mcbPath)

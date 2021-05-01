@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.IO;
 using Be.IO;
 
-namespace StrikersTools
+namespace StrikersTools.FileFormats
 {
     class TEXT
     {
@@ -18,7 +18,7 @@ namespace StrikersTools
         private Encoding utf8 = Encoding.GetEncoding("utf-8", new EncoderExceptionFallback(), new DecoderExceptionFallback());
 
 
-        public void ExportText(string path, string output)
+        public void ExportText(string path, string output, int accentIndex)
         {
             parseTextFile(path);
             var file = File.Open(path, FileMode.Open);
@@ -43,7 +43,11 @@ namespace StrikersTools
                             {
                                 length = (int)pointers[j] - (int)pointers[i];
                                 j++;
-                                if (j > pointers.Length - 1) { length = 4; break; }
+                                if (j > pointers.Length - 1) 
+                                {
+                                    length = 4;
+                                    break; 
+                                }
                             }
                         }
 
@@ -51,8 +55,7 @@ namespace StrikersTools
                         var entry = ber.ReadBytes(length);
                         var entryString = "";
                         entryString = sjis.GetString(entry);
-                        entryString = entryString.Replace("\0", string.Empty);
-                        entryString = entryString.Replace("\n", "{returnline}"); // Some entries do have returnlines, this is just so we can keep them
+                        entryString = ReplaceAccentsEx(entryString, accentIndex);
                         if (i == pointers.Length - 1)
                             txtFile.Write(entryString);
                         else
@@ -105,7 +108,7 @@ namespace StrikersTools
                     if (line == "@")
                         Console.WriteLine("tkt");
 
-                    var entrystr = ReplaceAccents(line, accentIndex);
+                    var entrystr = ReplaceAccentsIn(line, accentIndex);
 
                     var entry = sjis.GetBytes(entrystr);
                     if (entry.Length > 0)
@@ -184,26 +187,41 @@ namespace StrikersTools
             }
         }
 
-        private string ReplaceAccents(string s, int accentIndex)
+        private string ReplaceAccentsIn(string s, int accentIndex)
         {
             s = s.Replace("{returnline}","\n");
-            s = s.Replace("Ö","\n");
 
-            Dictionary<string, string> customEncoding;
-            switch (accentIndex)
-            {
-                default:
-                    return s;
-                case 1:
-                    customEncoding = SpecialChars.FrenchAccents;
-                    break;
-            }
+            var customEncoding = GetCustomEncoding(accentIndex);
 
             var output = new StringBuilder(s);
             foreach (var kvp in customEncoding)
                 output.Replace(kvp.Key, kvp.Value);
 
             return output.ToString();
+        }
+        private string ReplaceAccentsEx(string s, int accentIndex)
+        {
+            s.Replace("\0", string.Empty);
+            s.Replace("\n", "{returnline}");
+
+            var customEncoding = GetCustomEncoding(accentIndex);
+
+            var output = new StringBuilder(s);
+            foreach (var kvp in customEncoding)
+                output.Replace(kvp.Value, kvp.Key);
+
+            return output.ToString();
+        }
+
+        private Dictionary<string,string> GetCustomEncoding(int accentIndex)
+        {
+            switch (accentIndex)
+            {
+                default:
+                    return new Dictionary<string,string>();
+                case 0:
+                    return SpecialChars.FrenchAccents;
+            }
         }
     }
 }

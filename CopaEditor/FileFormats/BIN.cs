@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using StrikersTools.Utils;
 
-namespace StrikersTools
+namespace StrikersTools.FileFormats
 {
     class BIN
     {
