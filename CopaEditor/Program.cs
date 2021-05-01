@@ -129,10 +129,5 @@ namespace StrikersTools
             else
                 PrintUsage();
         }
-
-        static void GenerateText()
-        {
-            TextRenderer.GenerateBitmap("Mark");
-        }
     }
 }
