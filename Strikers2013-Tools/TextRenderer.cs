@@ -10,17 +10,17 @@ namespace StrikersTools
 {
     class TextRenderer
     {
-        public static Bitmap GenerateBitmap(string str)
+        public static Bitmap GenerateBitmap(string str, int mode)
         {
             var assembly = Assembly.GetExecutingAssembly();
             var font = new Bitmap(assembly.GetManifestResourceStream("StrikersTools.Resources.Unnamed.png"));
             var fontMapping = BitmapFonts.BuildDictionnary();
 
             var size = GetImageDimension(str, fontMapping);
-            var image = new Bitmap(size.Width, size.Height);
+            var textBitmap = new Bitmap(size.Width, size.Height);
 
             var x = 0;
-            var y = 0;
+            var y = -4;
 
             foreach(var car in str)
             {
@@ -29,15 +29,41 @@ namespace StrikersTools
                 var width = fontRect.Width;
                 var height = fontRect.Height;
 
-                CopyRegionIntoImage(font, new Rectangle(fontRect.X, fontRect.Y, width, height), ref image,
-                    new Rectangle((int)x + fontEntry.xoffset, 0+fontEntry.yoffset, width, height));
+                CopyRegionIntoImage(font, new Rectangle(fontRect.X, fontRect.Y, width, height), ref textBitmap,
+                    new Rectangle((int)x + fontEntry.xoffset, y+fontEntry.yoffset, width, height));
                 x += fontEntry.xadvance; // Magic number
                 if (car != ' ')
                     x -= 4;
             }
+
+            // Get the appropriate size, depending on the type of portrait
+            var targetSize = new Size(0, 0);
+            switch (mode)
+            {
+                default:
+                    break;
+                case 0:
+                    targetSize = new Size(51, 15);
+                    break;
+            }
+
+            // If text is too long, stretches it
+            if(textBitmap.Width > targetSize.Width)
+                textBitmap = new Bitmap(textBitmap, targetSize.Width, textBitmap.Height);
+            // Centers the text
+            var xoffset = targetSize.Width / 2 - textBitmap.Width / 2;
+            if (xoffset < 0)
+                xoffset = 0;
+            Bitmap centeredBitmap = new Bitmap(targetSize.Width, targetSize.Height);
+            CopyRegionIntoImage(textBitmap, new Rectangle(0, 0, textBitmap.Width, textBitmap.Height), ref centeredBitmap,
+                new Rectangle(xoffset, 0, textBitmap.Width, textBitmap.Height));
+
+
+
+
             Console.WriteLine("ok");
-            image.Save(@"C:\Users\PCHMD\source\repos\CopaEditor\CopaEditor\bin\Debug.png");
-            return image;
+            centeredBitmap.Save(@"C:\Users\PCHMD\source\repos\CopaEditor\Strikers2013-Tools\bin\Debug.png");
+            return centeredBitmap;
         }
 
         private static Size GetImageDimension(string str, 
@@ -45,21 +71,23 @@ namespace StrikersTools
         {
             
             int width = 0;
-            int height = 0;
+            int height = -4;
 
             foreach(char car in str)
             {
                 var fontEntry = fontMapping[car];
 
-                // The idea of this method is not to get the exact size, but to get one that is big enough
-                width += Math.Max(fontEntry.rect.Width,fontEntry.xadvance);
-                if (fontEntry.xoffset > 0) width += fontEntry.xoffset;
+                width += fontEntry.rect.Width;
+                if (fontEntry.xadvance > fontEntry.rect.Width)
+                    width += fontEntry.xadvance - fontEntry.rect.Width;
+                width += fontEntry.xoffset;
 
                 var entryHeight = fontEntry.rect.Height + fontEntry.yoffset;
                 if (entryHeight > height)
                     height = entryHeight;
             }
 
+            if (height < 0) height = 1;
             return new Size(width, height);
         }
 

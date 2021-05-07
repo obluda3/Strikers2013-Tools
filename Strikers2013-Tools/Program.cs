@@ -62,7 +62,7 @@ namespace StrikersTools
             Console.WriteLine("\t- Unpack archive :");
             Console.WriteLine("\t\tStrikers2013Tools.exe -u <path to .bin archive>");
             Console.WriteLine("\t- Export a text file :");
-            Console.WriteLine("\t\tStrikers2013Tools.exe -e <path to Strikers text file> <output>");
+            Console.WriteLine("\t\tStrikers2013Tools.exe -e <path to Strikers text file> <output> <accent configuration>");
             Console.WriteLine("\t- Repack to .bin archive");
             Console.WriteLine("\t\tStrikers2013Tools.exe -r <path to extracted bin archive> <path to .bin archive>");
             Console.WriteLine("\t- Repack to .bin archive and BLN");

@@ -201,14 +201,14 @@ namespace StrikersTools.FileFormats
         }
         private string ReplaceAccentsEx(string s, int accentIndex)
         {
-            s.Replace("\0", string.Empty);
-            s.Replace("\n", "{returnline}");
 
             var customEncoding = GetCustomEncoding(accentIndex);
 
             var output = new StringBuilder(s);
             foreach (var kvp in customEncoding)
                 output.Replace(kvp.Value, kvp.Key);
+            output.Replace("\0", string.Empty);
+            output.Replace("\n", "{returnline}");
 
             return output.ToString();
         }

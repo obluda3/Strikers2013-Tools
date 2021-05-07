@@ -139,27 +139,6 @@ namespace StrikersTools
             MessageBox.Show("Done !", "Done");
         }
 
-        private void textBox1_TextChanged(object sender, EventArgs e)
-        {
-            if (textBox1.Text != "")
-            {
-               var textBitmap = TextRenderer.GenerateBitmap(textBox1.Text);
 
-            }
-        }
-
-        private void btnOpenImage_Click(object sender, EventArgs e)
-        {
-            using (var ofd = new OpenFileDialog())
-            {
-                ofd.Title = "Portrait / Team image";
-                ofd.Filter = "Image (*.png)|*.png|All files (*.*)|*.*";
-                if (ofd.ShowDialog() == DialogResult.OK)
-                {
-                    bitmap = new Bitmap(ofd.FileName);
-                    pictureBox1.Image = bitmap;
-                }
-            }
-        }
     }
 }
