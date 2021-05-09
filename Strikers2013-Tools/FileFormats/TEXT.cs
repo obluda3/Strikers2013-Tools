@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using StrikersTools.Dictionaries;
 using System.Text;
+using System.Linq;
 using System.Threading.Tasks;
 using System.IO;
 using Be.IO;
@@ -11,9 +12,11 @@ namespace StrikersTools.FileFormats
     class TEXT
     {
         private int unkCount;
-        private uint sectNumber, offsetPointer, entryCount, nextSectOffset;
+        private uint END_OF_TEXTOFF, POINTERS_OFF;
+        private uint sectNumber, offsetPointer, entryCount, endOfText;
+        private uint begSec2, endSec2 = 0;
         private uint[] pointers;
-        private byte[] unk1, unk2, unk3;
+        private byte[] unk1, unk2, unk3, unk4, unk5;
         private Encoding sjis = Encoding.GetEncoding("sjis");
         private Encoding utf8 = Encoding.GetEncoding("utf-8", new EncoderExceptionFallback(), new DecoderExceptionFallback());
 
@@ -30,6 +33,11 @@ namespace StrikersTools.FileFormats
                 {
                     for (var i = 0; i < pointers.Length; i++)
                     {
+                        if(i == pointers.Length - 5)
+                        {
+                            Console.WriteLine("deb");
+                        }
+                        /*
                         var length = 0;
                         if (i + 1 == pointers.Length)
                             length = 0;
@@ -49,6 +57,12 @@ namespace StrikersTools.FileFormats
                                     break; 
                                 }
                             }
+                        }*/
+                        ber.BaseStream.Position = pointers[i];
+                        var length = 0;
+                        while(ber.ReadByte() != 0)
+                        {
+                            length += 1;
                         }
 
                         ber.BaseStream.Position = pointers[i];
@@ -75,7 +89,6 @@ namespace StrikersTools.FileFormats
             using (var bw = new BeBinaryWriter(file))
             {
                 bw.Write(sectNumber);
-                bw.Write(nextSectOffset);
                 bw.Write(unk1);
                 bw.Write(offsetPointer);
                 bw.Write(entryCount);
@@ -88,7 +101,7 @@ namespace StrikersTools.FileFormats
                 {
                     bw.Write((int)0);
                 }
-
+                bw.BaseStream.Position = pointers.First(x => x != 0);
                 // It is useful for later, if it isn't done
                 // the algo will not work for files other than
                 // 14.bin
@@ -105,10 +118,9 @@ namespace StrikersTools.FileFormats
                 var j = 0;
                 foreach(var line in lines)
                 {
-                    if (line == "@")
-                        Console.WriteLine("tkt");
-
                     var entrystr = ReplaceAccentsIn(line, accentIndex);
+                    if (line == "#=　")
+                        Console.WriteLine("deb");
 
                     var entry = sjis.GetBytes(entrystr);
                     if (entry.Length > 0)
@@ -131,13 +143,28 @@ namespace StrikersTools.FileFormats
                     }
                     j++;
                 }
+                endOfText = (uint)bw.BaseStream.Position;
                 bw.Write(unk3);
+                begSec2 = (uint)bw.BaseStream.Position;
+                bw.Write(unk4);
+                endSec2 = (uint)bw.BaseStream.Position;
+                bw.Write(unk5);
                 bw.BaseStream.Position = pointersPos - 4;
+
                 foreach (var pointer in pointers)
                     bw.Write(pointer);
-                bw.BaseStream.Position = 4;
-                nextSectOffset =(uint)(unk1.Length + 4 + 4 + unk2.Length + pointers.Length * 4 + entriesLength + 4+ 4); // Basically, trust me dude but all these numbers are correct
-                bw.Write(nextSectOffset);
+
+                bw.BaseStream.Position = END_OF_TEXTOFF;
+                bw.Write(endOfText);
+
+                if(sectNumber == 3)
+                {
+                    bw.BaseStream.Position = 0x1c;
+                    bw.Write(begSec2);
+                    bw.BaseStream.Position = 4;
+                    bw.Write(endSec2);
+                }
+
 
             }
         }
@@ -148,25 +175,35 @@ namespace StrikersTools.FileFormats
             using (var ber = new BeBinaryReader(file, Encoding.GetEncoding("sjis")))
             {
                 sectNumber = ber.ReadUInt32();
-                nextSectOffset = ber.ReadUInt32();
 
                 // Takes into account all text files that way
                 unkCount = 0;
                 switch (sectNumber)
                 {
                     case 1:
-                        unkCount = 1;
+                        POINTERS_OFF = 12;
+                        END_OF_TEXTOFF = 4;
                         break;
                     case 2:
-                        unkCount = 3;
+                        POINTERS_OFF = 0x14;
+                        END_OF_TEXTOFF = 4;
                         break;
                     case 3:
-                        unkCount = 1;
+                        POINTERS_OFF = 12;
+                        END_OF_TEXTOFF = 0x14;
+                        ber.BaseStream.Position = 0x1c;
+                        begSec2 = ber.ReadUInt32();
+                        ber.BaseStream.Position = 4;
+                        endSec2 = ber.ReadUInt32();
+                        ber.BaseStream.Position -= 4;
                         break;
                 }
-                var unk1Length = unkCount * 4;
-                unk1 = ber.ReadBytes(unk1Length);
+                unk1 = ber.ReadBytes((int)POINTERS_OFF - (int)ber.BaseStream.Position);
 
+                ber.BaseStream.Position = END_OF_TEXTOFF;
+                endOfText = ber.ReadUInt32();
+
+                ber.BaseStream.Position = POINTERS_OFF;
                 offsetPointer = ber.ReadUInt32();
                 entryCount = ber.ReadUInt32();
                 
@@ -178,12 +215,29 @@ namespace StrikersTools.FileFormats
                 {
                     pointers[i] = ber.ReadUInt32();
                 }
+                /*
                 if (pointers[entryCount - 1] != 0)
                     ber.BaseStream.Position = pointers[entryCount - 1];
                 else
                     ber.BaseStream.Position = pointers[entryCount - 2] + 4; // After the text
-                var unk3Length = (int)ber.BaseStream.Length - (int)ber.BaseStream.Position;
+                */
+                ber.BaseStream.Position = endOfText;
+
+                int unk3Length = 0;
+                int unk4Length = 0;
+                int unk5Length = 0;
+
+                if (sectNumber != 3)
+                    unk3Length = (int)ber.BaseStream.Length - (int)ber.BaseStream.Position;
+                else
+                {
+                    unk3Length = (int)begSec2 - (int)endOfText;
+                    unk4Length = (int)endSec2 - (int)begSec2;
+                    unk5Length = (int)ber.BaseStream.Length - (int)endSec2;
+                }
                 unk3 = ber.ReadBytes(unk3Length);
+                unk4 = ber.ReadBytes(unk4Length);
+                unk5 = ber.ReadBytes(unk5Length);
             }
         }
 

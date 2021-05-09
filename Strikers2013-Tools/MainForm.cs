@@ -47,17 +47,20 @@ namespace StrikersTools
                     ofd.Title = "Open the txt file to inject";
                     ofd.DefaultExt = ".txt";
                     ofd.Filter = "Text file (*.txt)|*.txt|All files (*.*)|*.*";
-                    using (var sfd = new SaveFileDialog())
+                    if (ofd.ShowDialog() == DialogResult.OK)
                     {
-                        sfd.Title = "Save the bin file";
-                        sfd.DefaultExt = ".bin";
-                        sfd.Filter = "Strikers text file (*.bin)|*.bin|All files (*.*)|*.*";
-                        sfd.FileName = Path.GetFileNameWithoutExtension(txtPathTxt.Text) + ".out";
-                        if (sfd.ShowDialog() == DialogResult.OK)
+                        using (var sfd = new SaveFileDialog())
                         {
-                            TEXT text = new TEXT();
-                            text.ImportText(ofd.FileName, txtPathTxt.Text, sfd.FileName, cmbAccents.SelectedIndex);
-                            MessageBox.Show("Done !", "Done");
+                            sfd.Title = "Save the bin file";
+                            sfd.DefaultExt = ".bin";
+                            sfd.Filter = "Strikers text file (*.bin)|*.bin|All files (*.*)|*.*";
+                            sfd.FileName = Path.GetFileNameWithoutExtension(txtPathTxt.Text) + ".out";
+                            if (sfd.ShowDialog() == DialogResult.OK)
+                            {
+                                TEXT text = new TEXT();
+                                text.ImportText(ofd.FileName, txtPathTxt.Text, sfd.FileName, cmbAccents.SelectedIndex);
+                                MessageBox.Show("Done !", "Done");
+                            }
                         }
                     }
                 }
