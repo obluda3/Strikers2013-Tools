@@ -21,6 +21,8 @@ namespace StrikersTools
             InitializeComponent();  
             cmbAccents.Items.AddRange(new String[] { "French", "German", });
             cmbAccents.SelectedIndex = 0;
+            listBox1.Items.AddRange(Password.hashedPasswords.Select(x => BitConverter.ToString(x.Value)).ToArray());
+
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -142,6 +144,10 @@ namespace StrikersTools
             MessageBox.Show("Done !", "Done");
         }
 
-
+        private void btn_Convert(object sender, EventArgs e)
+        {
+            var hashed = Password.GetHashedPass(textBox1.Text);
+            textBox2.Text = BitConverter.ToString(hashed);
+        }
     }
 }

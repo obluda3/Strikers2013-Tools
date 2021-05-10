@@ -67,6 +67,7 @@
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Password.cs" />
     <Compile Include="TextRenderer.cs" />
     <Compile Include="Utils\BinaryPlus.cs" />
     <Compile Include="Program.cs" />
