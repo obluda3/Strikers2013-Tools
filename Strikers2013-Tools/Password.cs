@@ -8,7 +8,7 @@ namespace StrikersTools
 {
     class Password
     {
-        public static readonly Dictionary<int, byte[]> hashedPasswords = new Dictionary<int, byte[]>()
+        public static readonly Dictionary<int, byte[]> encryptedPasswords = new Dictionary<int, byte[]>()
         {
             [0] = new byte[] { 0x8D, 0xB7, 0xAF, 0xD1, 0xC9, 0xF8, 0xEB, 0xD5, 0x05, 0x52, 0x27, 0x76, 0x41, 0x34, 0x63, 0x52, 0x00, 0x00, },
             [1] = new byte[] { 0x8D, 0xAB, 0xAF, 0xCD, 0xC9, 0xE9, 0xEB, 0xA4, 0x05, 0x28, 0x27, 0x16, 0x41, 0x65, 0x63, 0x5B, 0x00, 0x00, },
@@ -19,31 +19,53 @@ namespace StrikersTools
             [6] = new byte[] { 0x8D, 0xB8, 0xAF, 0x9E, 0xC9, 0xF0, 0xEB, 0xBD, 0x05, 0x26, 0x27, 0x1F, 0x41, 0x14, 0x63, 0x32, 0x00, 0x00, },
             [7] = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, }
         };
-
-        public static byte[] GetHashedPass(string input)
+        public static byte[] Encrypt(byte[] input)
         {
-            byte[] hashed = new byte[16];
-            var stringBytes = Encoding.GetEncoding("sjis").GetBytes(input);
-            Array.Copy(stringBytes, hashed, Math.Min(16, stringBytes.Length));
-
-            var key = 0;
-            for (var i = 0; i < 2; i++)
+            byte[] encrypted = input;
+            byte key = 0xF;
+            for (var i = 0; i < input.Length; i++)
             {
-                var shift = i * 8;
-                hashed[0 + shift] ^= (byte)(key ^ 0xF);
-                hashed[1 + shift] ^= (byte)((key + 0x11) ^ 0xF);
-                hashed[2 + shift] ^= (byte)((key + 0x22) ^ 0xF);
-                hashed[3 + shift] ^= (byte)((key + 0x33) ^ 0xF);
-                hashed[4 + shift] ^= (byte)((key + 0x44) ^ 0xF);
-                hashed[5 + shift] ^= (byte)((key + 0x55) ^ 0xF);
-                hashed[6 + shift] ^= (byte)((key + 0x66) ^ 0xF);
-                hashed[7 + shift] ^= (byte)((key + 0x77) ^ 0xF);
-                key += 0x88;
+                encrypted[i] ^= key;
+                key += 0xF;
             }
 
-            return hashed;
+            return encrypted;
         }
+        public static byte[] Encrypt(string pass)
+        {
+            var input = StringTo16LongArray(pass);
+            return Encrypt(input);
+        }
+        
+        public static string Decrypt(byte[] input)
+        {
+            byte[] decrypted = input;
+            byte key = 0xF;
+            for(var i = 0; i < input.Length; i++)
+            {
+                decrypted[i] ^= key;
+                key += 0xF;
+            }
+            return Encoding.GetEncoding("sjis").GetString(decrypted) ;
+        }
+        public static string Decrypt(string str)
+        {
+            if (str == "")
+                return "";
+            var arr = str.Split('-');
+            var array = new byte[arr.Length];
+            for (int i = 0; i < arr.Length; i++)
+                array[i] = Convert.ToByte(arr[i], 16);
 
+            return Decrypt(array);
+        }
+        private static byte[] StringTo16LongArray(string input)
+        {
+            byte[] output = new byte[16];
+            var stringBytes = Encoding.GetEncoding("sjis").GetBytes(input);
+            Array.Copy(stringBytes, output, Math.Min(16, stringBytes.Length));
+            return output;
+        }
 
     }
 }

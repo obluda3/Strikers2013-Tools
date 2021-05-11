@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // l'ensemble d'attributs suivant. Changez les valeurs de ces attributs pour modifier les informations
 // associées à un assembly.
 [assembly: AssemblyTitle("Strikers2013-Tools")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Collection of tools to help Strikers 2013 translation projects")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Strikers2013-Tools")]

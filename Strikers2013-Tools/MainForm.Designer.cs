@@ -56,6 +56,9 @@
             this.btnConvert = new System.Windows.Forms.Button();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.listBox1 = new System.Windows.Forms.ListBox();
+            this.button2 = new System.Windows.Forms.Button();
+            this.label8 = new System.Windows.Forms.Label();
+            this.label9 = new System.Windows.Forms.Label();
             this.tabPage2.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabControl1.SuspendLayout();
@@ -79,7 +82,7 @@
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(599, 444);
+            this.tabPage2.Size = new System.Drawing.Size(752, 454);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Archive";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -87,7 +90,7 @@
             // btnMcb1
             // 
             this.btnMcb1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnMcb1.Location = new System.Drawing.Point(568, 62);
+            this.btnMcb1.Location = new System.Drawing.Point(721, 62);
             this.btnMcb1.Name = "btnMcb1";
             this.btnMcb1.Size = new System.Drawing.Size(25, 19);
             this.btnMcb1.TabIndex = 17;
@@ -111,7 +114,7 @@
             this.txtMcb.Enabled = false;
             this.txtMcb.Location = new System.Drawing.Point(139, 62);
             this.txtMcb.Name = "txtMcb";
-            this.txtMcb.Size = new System.Drawing.Size(419, 20);
+            this.txtMcb.Size = new System.Drawing.Size(576, 20);
             this.txtMcb.TabIndex = 15;
             // 
             // txtModified
@@ -121,7 +124,7 @@
             this.txtModified.Enabled = false;
             this.txtModified.Location = new System.Drawing.Point(139, 36);
             this.txtModified.Name = "txtModified";
-            this.txtModified.Size = new System.Drawing.Size(419, 20);
+            this.txtModified.Size = new System.Drawing.Size(576, 20);
             this.txtModified.TabIndex = 11;
             // 
             // txtPathArc
@@ -131,7 +134,7 @@
             this.txtPathArc.Enabled = false;
             this.txtPathArc.Location = new System.Drawing.Point(139, 10);
             this.txtPathArc.Name = "txtPathArc";
-            this.txtPathArc.Size = new System.Drawing.Size(419, 20);
+            this.txtPathArc.Size = new System.Drawing.Size(576, 20);
             this.txtPathArc.TabIndex = 4;
             // 
             // label5
@@ -154,7 +157,7 @@
             // btnModified
             // 
             this.btnModified.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnModified.Location = new System.Drawing.Point(568, 35);
+            this.btnModified.Location = new System.Drawing.Point(721, 36);
             this.btnModified.Name = "btnModified";
             this.btnModified.Size = new System.Drawing.Size(25, 19);
             this.btnModified.TabIndex = 12;
@@ -166,7 +169,7 @@
             // 
             this.btnImportArc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnImportArc.Enabled = false;
-            this.btnImportArc.Location = new System.Drawing.Point(518, 415);
+            this.btnImportArc.Location = new System.Drawing.Point(671, 448);
             this.btnImportArc.Name = "btnImportArc";
             this.btnImportArc.Size = new System.Drawing.Size(75, 23);
             this.btnImportArc.TabIndex = 8;
@@ -178,7 +181,7 @@
             // 
             this.btnExportArc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnExportArc.Enabled = false;
-            this.btnExportArc.Location = new System.Drawing.Point(9, 415);
+            this.btnExportArc.Location = new System.Drawing.Point(9, 448);
             this.btnExportArc.Name = "btnExportArc";
             this.btnExportArc.Size = new System.Drawing.Size(75, 23);
             this.btnExportArc.TabIndex = 7;
@@ -190,7 +193,7 @@
             // btnBrowseArc
             // 
             this.btnBrowseArc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnBrowseArc.Location = new System.Drawing.Point(568, 10);
+            this.btnBrowseArc.Location = new System.Drawing.Point(721, 10);
             this.btnBrowseArc.Name = "btnBrowseArc";
             this.btnBrowseArc.Size = new System.Drawing.Size(25, 19);
             this.btnBrowseArc.TabIndex = 5;
@@ -219,7 +222,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(599, 444);
+            this.tabPage1.Size = new System.Drawing.Size(752, 454);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Text";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -228,7 +231,7 @@
             // 
             this.btnTxtImport.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnTxtImport.Enabled = false;
-            this.btnTxtImport.Location = new System.Drawing.Point(518, 415);
+            this.btnTxtImport.Location = new System.Drawing.Point(671, 448);
             this.btnTxtImport.Name = "btnTxtImport";
             this.btnTxtImport.Size = new System.Drawing.Size(75, 23);
             this.btnTxtImport.TabIndex = 6;
@@ -240,7 +243,7 @@
             // 
             this.btnTxtExport.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnTxtExport.Enabled = false;
-            this.btnTxtExport.Location = new System.Drawing.Point(9, 415);
+            this.btnTxtExport.Location = new System.Drawing.Point(9, 448);
             this.btnTxtExport.Name = "btnTxtExport";
             this.btnTxtExport.Size = new System.Drawing.Size(75, 23);
             this.btnTxtExport.TabIndex = 5;
@@ -265,13 +268,13 @@
             this.cmbAccents.FormattingEnabled = true;
             this.cmbAccents.Location = new System.Drawing.Point(117, 36);
             this.cmbAccents.Name = "cmbAccents";
-            this.cmbAccents.Size = new System.Drawing.Size(445, 21);
+            this.cmbAccents.Size = new System.Drawing.Size(598, 21);
             this.cmbAccents.TabIndex = 3;
             // 
             // button1
             // 
             this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button1.Location = new System.Drawing.Point(568, 10);
+            this.button1.Location = new System.Drawing.Point(721, 10);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(25, 19);
             this.button1.TabIndex = 2;
@@ -286,7 +289,7 @@
             this.txtPathTxt.Enabled = false;
             this.txtPathTxt.Location = new System.Drawing.Point(117, 10);
             this.txtPathTxt.Name = "txtPathTxt";
-            this.txtPathTxt.Size = new System.Drawing.Size(445, 20);
+            this.txtPathTxt.Size = new System.Drawing.Size(598, 20);
             this.txtPathTxt.TabIndex = 1;
             // 
             // label1
@@ -309,11 +312,14 @@
             this.tabControl1.Location = new System.Drawing.Point(12, 13);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(664, 515);
+            this.tabControl1.Size = new System.Drawing.Size(793, 480);
             this.tabControl1.TabIndex = 0;
             // 
             // tabPage3
             // 
+            this.tabPage3.Controls.Add(this.label9);
+            this.tabPage3.Controls.Add(this.label8);
+            this.tabPage3.Controls.Add(this.button2);
             this.tabPage3.Controls.Add(this.label7);
             this.tabPage3.Controls.Add(this.textBox2);
             this.tabPage3.Controls.Add(this.btnConvert);
@@ -321,59 +327,98 @@
             this.tabPage3.Controls.Add(this.listBox1);
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
             this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Size = new System.Drawing.Size(656, 489);
+            this.tabPage3.Size = new System.Drawing.Size(785, 454);
             this.tabPage3.TabIndex = 2;
-            this.tabPage3.Text = "HashTests";
+            this.tabPage3.Text = "Passwords";
             this.tabPage3.UseVisualStyleBackColor = true;
             // 
             // label7
             // 
+            this.label7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(298, 13);
+            this.label7.Location = new System.Drawing.Point(418, 13);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(74, 13);
+            this.label7.Size = new System.Drawing.Size(95, 13);
             this.label7.TabIndex = 4;
-            this.label7.Text = "Default Hashs";
+            this.label7.Text = "Default Passwords";
             // 
             // textBox2
             // 
-            this.textBox2.Enabled = false;
-            this.textBox2.Location = new System.Drawing.Point(24, 78);
+            this.textBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox2.Location = new System.Drawing.Point(24, 96);
             this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(262, 20);
+            this.textBox2.ReadOnly = true;
+            this.textBox2.Size = new System.Drawing.Size(391, 20);
             this.textBox2.TabIndex = 3;
             // 
             // btnConvert
             // 
+            this.btnConvert.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.btnConvert.Location = new System.Drawing.Point(24, 49);
             this.btnConvert.Name = "btnConvert";
-            this.btnConvert.Size = new System.Drawing.Size(75, 23);
+            this.btnConvert.Size = new System.Drawing.Size(171, 23);
             this.btnConvert.TabIndex = 2;
-            this.btnConvert.Text = "Hash";
+            this.btnConvert.Text = "Encrypt";
             this.btnConvert.UseVisualStyleBackColor = true;
             this.btnConvert.Click += new System.EventHandler(this.btn_Convert);
             // 
             // textBox1
             // 
+            this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox1.Location = new System.Drawing.Point(24, 23);
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(178, 20);
+            this.textBox1.Size = new System.Drawing.Size(391, 20);
             this.textBox1.TabIndex = 1;
+            this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
             // listBox1
             // 
+            this.listBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.listBox1.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.listBox1.FormattingEnabled = true;
-            this.listBox1.Location = new System.Drawing.Point(292, 29);
+            this.listBox1.Location = new System.Drawing.Point(421, 29);
             this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(361, 446);
+            this.listBox1.Size = new System.Drawing.Size(361, 420);
             this.listBox1.TabIndex = 0;
+            // 
+            // button2
+            // 
+            this.button2.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.button2.Location = new System.Drawing.Point(244, 49);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(171, 23);
+            this.button2.TabIndex = 5;
+            this.button2.Text = "Decrypt";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(21, 80);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(39, 13);
+            this.label8.TabIndex = 6;
+            this.label8.Text = "Output";
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(21, 7);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(31, 13);
+            this.label9.TabIndex = 7;
+            this.label9.Text = "Input";
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(688, 540);
+            this.ClientSize = new System.Drawing.Size(817, 505);
             this.Controls.Add(this.tabControl1);
             this.MinimumSize = new System.Drawing.Size(376, 375);
             this.Name = "MainForm";
@@ -418,5 +463,8 @@
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.ListBox listBox1;
         private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.Label label8;
     }
 }
