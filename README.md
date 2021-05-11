@@ -21,3 +21,6 @@ Tools to help translating Inazuma Eleven Go Strikers 2013
 [Obluda3](https://github.com/obluda3)
 
 [AidenSonic](https://github.com/AidenSonic/)
+
+[Onepiecefreak](https://github.com/onepiecefreak3)
+
