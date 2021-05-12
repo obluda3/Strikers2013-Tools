@@ -51,14 +51,14 @@
             this.label1 = new System.Windows.Forms.Label();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.label9 = new System.Windows.Forms.Label();
+            this.label8 = new System.Windows.Forms.Label();
+            this.button2 = new System.Windows.Forms.Button();
             this.label7 = new System.Windows.Forms.Label();
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.btnConvert = new System.Windows.Forms.Button();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.listBox1 = new System.Windows.Forms.ListBox();
-            this.button2 = new System.Windows.Forms.Button();
-            this.label8 = new System.Windows.Forms.Label();
-            this.label9 = new System.Windows.Forms.Label();
             this.tabPage2.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabControl1.SuspendLayout();
@@ -82,7 +82,7 @@
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(752, 454);
+            this.tabPage2.Size = new System.Drawing.Size(785, 454);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Archive";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -222,7 +222,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(752, 454);
+            this.tabPage1.Size = new System.Drawing.Size(785, 454);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Text";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -231,7 +231,7 @@
             // 
             this.btnTxtImport.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnTxtImport.Enabled = false;
-            this.btnTxtImport.Location = new System.Drawing.Point(671, 448);
+            this.btnTxtImport.Location = new System.Drawing.Point(671, 425);
             this.btnTxtImport.Name = "btnTxtImport";
             this.btnTxtImport.Size = new System.Drawing.Size(75, 23);
             this.btnTxtImport.TabIndex = 6;
@@ -243,7 +243,7 @@
             // 
             this.btnTxtExport.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnTxtExport.Enabled = false;
-            this.btnTxtExport.Location = new System.Drawing.Point(9, 448);
+            this.btnTxtExport.Location = new System.Drawing.Point(9, 425);
             this.btnTxtExport.Name = "btnTxtExport";
             this.btnTxtExport.Size = new System.Drawing.Size(75, 23);
             this.btnTxtExport.TabIndex = 5;
@@ -332,6 +332,35 @@
             this.tabPage3.Text = "Passwords";
             this.tabPage3.UseVisualStyleBackColor = true;
             // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(21, 7);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(31, 13);
+            this.label9.TabIndex = 7;
+            this.label9.Text = "Input";
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(21, 80);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(39, 13);
+            this.label8.TabIndex = 6;
+            this.label8.Text = "Output";
+            // 
+            // button2
+            // 
+            this.button2.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.button2.Location = new System.Drawing.Point(244, 49);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(171, 23);
+            this.button2.TabIndex = 5;
+            this.button2.Text = "Decrypt";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
             // label7
             // 
             this.label7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -384,35 +413,6 @@
             this.listBox1.Name = "listBox1";
             this.listBox1.Size = new System.Drawing.Size(361, 420);
             this.listBox1.TabIndex = 0;
-            // 
-            // button2
-            // 
-            this.button2.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.button2.Location = new System.Drawing.Point(244, 49);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(171, 23);
-            this.button2.TabIndex = 5;
-            this.button2.Text = "Decrypt";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
-            // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(21, 80);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(39, 13);
-            this.label8.TabIndex = 6;
-            this.label8.Text = "Output";
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(21, 7);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(31, 13);
-            this.label9.TabIndex = 7;
-            this.label9.Text = "Input";
             // 
             // MainForm
             // 
