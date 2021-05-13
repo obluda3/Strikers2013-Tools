@@ -17,6 +17,13 @@ namespace StrikersTools.Utils
             br.BaseStream.Position = bkpos;
             return output;
         }
+        public static uint ReadNibble(this BinaryReader br)
+        {
+            var bkpos = br.BaseStream.Position;
+            var output = br.ReadUInt32();
+            br.BaseStream.Position = bkpos;
+            return output;
+        }
 
     }
 }

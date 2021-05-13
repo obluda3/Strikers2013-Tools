@@ -160,5 +160,35 @@ namespace StrikersTools
             var decrypted = Password.Decrypt(textBox1.Text);
             textBox2.Text = decrypted;
         }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            var files = Directory.GetFiles(txtInputFolder.Text);
+            foreach (var file in files)
+            {
+                var fileStream = File.OpenRead(file);
+                byte[] magic = new byte[4];
+                fileStream.Read(magic, 0, 4);
+                fileStream.Close();
+                if (Encoding.ASCII.GetString(magic) == "SHTX")
+                    SHTX.Export(file);
+                else
+                    SHTX.Convert(file);
+            }
+            MessageBox.Show("Done !", "Done");
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            using (var fbd = new FolderBrowserDialog())
+            {
+                fbd.Description = "Browse to the location of your files";
+                if (fbd.ShowDialog() == DialogResult.OK)
+                {
+                    txtInputFolder.Text = fbd.SelectedPath;
+                    button4.Enabled = true;
+                }
+            }
+        }
     }
 }

@@ -49,6 +49,12 @@ namespace StrikersTools
                     case "-i":
                         ImportText(args[1], args[2], args[3], Convert.ToInt32(args[4]));
                         break;
+                    case "-she":
+                        ExportShtx(args[1]);
+                        break;
+                    case "-shi":
+                        ConvertShtx(args[1]);
+                        break;
                     default:
                         PrintUsage();
                         break;
@@ -69,6 +75,10 @@ namespace StrikersTools
             Console.WriteLine("\t\tStrikers2013Tools.exe -r <path to extracted bin archive> <path to .bin archive> <path to mcb1.bln>");
             Console.WriteLine("\t- Import to text file");
             Console.WriteLine("\t\tStrikers2013Tools.exe -i <path to original text file> <path to modified text file> <output path> <accent configuration>");
+            Console.WriteLine("\t- Export SHTXFS file");
+            Console.WriteLine("\t\tStrikers2013Tools.exe -she <path to SHTX>");
+            Console.WriteLine("\t- Import SHTXFS file");
+            Console.WriteLine("\t\tStrikers2013Tools.exe -shi <path to SHTX>");
         }
 
         static void UnpackArchive(string path)
@@ -128,6 +138,14 @@ namespace StrikersTools
             }
             else
                 PrintUsage();
+        }
+        static void ExportShtx(string input)
+        {
+            SHTX.Export(input);
+        }
+        static void ConvertShtx(string input)
+        {
+            SHTX.Convert(input);
         }
     }
 }
