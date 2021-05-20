@@ -54,13 +54,13 @@ namespace StrikersTools.FileFormats
                 textureData = br.ReadBytes(textureDataLength);
 
                 var image = DecodeImage(width, height, colorPalette, textureData);
-                image.Save(input+".png");
+                image.Save(Path.GetFileNameWithoutExtension(input)+".png");
             }
         }
 
         public static void Convert(string input)
         {
-            var output = File.Open(input + ".shtx", FileMode.Create);
+            var output = File.Open(Path.GetDirectoryName(input) + "\\" + Path.GetFileNameWithoutExtension(input) + ".shtx", FileMode.Create);
             var quantizer = new WuQuantizer();
             using (var bitmap = new Bitmap(input))
             {

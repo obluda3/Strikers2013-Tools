@@ -80,7 +80,6 @@ namespace StrikersTools.FileFormats
                         uint originalSize;
                         var offset = GetOffsetAndSize(padFactor, mulFactor, shiftFactor, mask, index, binfile, out originalSize);
                         var size = fileStream.Length;
-                        archiveOffsets.Add((uint)offset);
 
                         // Doesn't support changing the file size
                         if (size > originalSize)
@@ -100,7 +99,7 @@ namespace StrikersTools.FileFormats
                         // Pads to original size
                         var padSize = originalSize - size;
                         bw.PadWith(0, padSize);
-
+                        archiveOffsets.Add((uint)offset);
                     }
                 }
             }

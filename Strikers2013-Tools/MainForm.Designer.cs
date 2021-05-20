@@ -60,10 +60,10 @@
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.listBox1 = new System.Windows.Forms.ListBox();
             this.tabPage4 = new System.Windows.Forms.TabPage();
+            this.button4 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
             this.txtInputFolder = new System.Windows.Forms.TextBox();
             this.label11 = new System.Windows.Forms.Label();
-            this.button4 = new System.Windows.Forms.Button();
             this.tabPage2.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabControl1.SuspendLayout();
@@ -175,7 +175,7 @@
             // 
             this.btnImportArc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnImportArc.Enabled = false;
-            this.btnImportArc.Location = new System.Drawing.Point(671, 448);
+            this.btnImportArc.Location = new System.Drawing.Point(671, 425);
             this.btnImportArc.Name = "btnImportArc";
             this.btnImportArc.Size = new System.Drawing.Size(75, 23);
             this.btnImportArc.TabIndex = 8;
@@ -187,7 +187,7 @@
             // 
             this.btnExportArc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnExportArc.Enabled = false;
-            this.btnExportArc.Location = new System.Drawing.Point(9, 448);
+            this.btnExportArc.Location = new System.Drawing.Point(9, 425);
             this.btnExportArc.Name = "btnExportArc";
             this.btnExportArc.Size = new System.Drawing.Size(75, 23);
             this.btnExportArc.TabIndex = 7;
@@ -435,6 +435,17 @@
             this.tabPage4.Text = "SHTXFS";
             this.tabPage4.UseVisualStyleBackColor = true;
             // 
+            // button4
+            // 
+            this.button4.Enabled = false;
+            this.button4.Location = new System.Drawing.Point(349, 36);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(75, 23);
+            this.button4.TabIndex = 8;
+            this.button4.Text = "Convert";
+            this.button4.UseVisualStyleBackColor = true;
+            this.button4.Click += new System.EventHandler(this.button4_Click);
+            // 
             // button3
             // 
             this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -464,17 +475,6 @@
             this.label11.Size = new System.Drawing.Size(63, 13);
             this.label11.TabIndex = 5;
             this.label11.Text = "Input Folder";
-            // 
-            // button4
-            // 
-            this.button4.Enabled = false;
-            this.button4.Location = new System.Drawing.Point(349, 36);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(75, 23);
-            this.button4.TabIndex = 8;
-            this.button4.Text = "Convert";
-            this.button4.UseVisualStyleBackColor = true;
-            this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
             // MainForm
             // 

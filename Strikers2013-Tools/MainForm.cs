@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -106,12 +108,13 @@ namespace StrikersTools
 
         private void btnModified_Click(object sender, EventArgs e)
         {
-            using (var fbd = new FolderBrowserDialog())
+            using (var cofd = new CommonOpenFileDialog())
             {
-                fbd.Description = "Browse to the location of your modified files";
-                if (fbd.ShowDialog() == DialogResult.OK)
+                cofd.Title = "Browse to the location of your modified files";
+                cofd.IsFolderPicker = true;
+                if (cofd.ShowDialog() == CommonFileDialogResult.Ok)
                 {
-                    txtModified.Text = fbd.SelectedPath;
+                    txtModified.Text = cofd.FileName;
                     btnImportArc.Enabled = true;
                 }
             }
@@ -166,6 +169,7 @@ namespace StrikersTools
             var files = Directory.GetFiles(txtInputFolder.Text);
             foreach (var file in files)
             {
+                
                 var fileStream = File.OpenRead(file);
                 byte[] magic = new byte[4];
                 fileStream.Read(magic, 0, 4);
@@ -174,21 +178,24 @@ namespace StrikersTools
                     SHTX.Export(file);
                 else
                     SHTX.Convert(file);
+                //File.Move(file, Path.GetDirectoryName(file) + "\\" + Path.GetFileName(file).Split('.')[0] + ".bin");
             }
             MessageBox.Show("Done !", "Done");
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
-            using (var fbd = new FolderBrowserDialog())
+            using (var cofd = new CommonOpenFileDialog())
             {
-                fbd.Description = "Browse to the location of your files";
-                if (fbd.ShowDialog() == DialogResult.OK)
+                cofd.Title = "Browse to the location of your modified files";
+                cofd.IsFolderPicker = true;
+                if (cofd.ShowDialog() == CommonFileDialogResult.Ok)
                 {
-                    txtInputFolder.Text = fbd.SelectedPath;
+                    txtInputFolder.Text = cofd.FileName;
                     button4.Enabled = true;
                 }
             }
+            
         }
     }
 }
