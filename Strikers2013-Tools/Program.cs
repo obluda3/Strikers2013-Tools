@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using StrikersTools.FileFormats;
+using StrikersTools.Utils;
 
 namespace StrikersTools
 {
@@ -55,6 +56,22 @@ namespace StrikersTools
                     case "-shi":
                         ConvertShtx(args[1]);
                         break;
+                    case "-p":
+                        var pass = Password.Encrypt(args[1]);
+                        Console.WriteLine(BitConverter.ToString(pass));
+                        break;
+                    case "-d":
+                        Decompress(args[1]);
+                        break;
+                    case "-c":
+                        Compress(args[1]);
+                        break;
+                    case "-f":
+                        Font.ExtractFont(args[1]);
+                        break;
+                    case "-fi":
+                        Font.ImportLetters(args[1], args[2]);
+                        break;
                     default:
                         PrintUsage();
                         break;
@@ -69,16 +86,26 @@ namespace StrikersTools
             Console.WriteLine("\t\tStrikers2013Tools.exe -u <path to .bin archive>");
             Console.WriteLine("\t- Export a text file :");
             Console.WriteLine("\t\tStrikers2013Tools.exe -e <path to Strikers text file> <output> <accent configuration>");
-            Console.WriteLine("\t- Repack to .bin archive");
+            Console.WriteLine("\t- Repack to .bin archive :");
             Console.WriteLine("\t\tStrikers2013Tools.exe -r <path to extracted bin archive> <path to .bin archive>");
-            Console.WriteLine("\t- Repack to .bin archive and BLN");
+            Console.WriteLine("\t- Repack to .bin archive and BLN :");
             Console.WriteLine("\t\tStrikers2013Tools.exe -r <path to extracted bin archive> <path to .bin archive> <path to mcb1.bln>");
-            Console.WriteLine("\t- Import to text file");
+            Console.WriteLine("\t- Import to text file :");
             Console.WriteLine("\t\tStrikers2013Tools.exe -i <path to original text file> <path to modified text file> <output path> <accent configuration>");
-            Console.WriteLine("\t- Export SHTXFS file");
+            Console.WriteLine("\t- Export SHTXFS file :");
             Console.WriteLine("\t\tStrikers2013Tools.exe -she <path to SHTX>");
-            Console.WriteLine("\t- Import SHTXFS file");
+            Console.WriteLine("\t- Import SHTXFS file :");
             Console.WriteLine("\t\tStrikers2013Tools.exe -shi <path to SHTX>");
+            Console.WriteLine("\t- Encrypt password :");
+            Console.WriteLine("\t\tStrikers2013Tools.exe -p <Password>");
+            Console.WriteLine("\t- Decompress file :");
+            Console.WriteLine("\t\tStrikers2013Tools.exe -d <path to file>");
+            Console.WriteLine("\t- Compress file :");
+            Console.WriteLine("\t\tStrikers2013Tools.exe -c <path to file>");
+            Console.WriteLine("\t- Extract font :");
+            Console.WriteLine("\t\tStrikers2013Tools.exe -f <path to font file>");
+            Console.WriteLine("\t- Import letters :");
+            Console.WriteLine("\t\tStrikers2013Tools.exe -fi <path to font file> <path to letters>");
         }
 
         static void UnpackArchive(string path)
@@ -146,6 +173,26 @@ namespace StrikersTools
         static void ConvertShtx(string input)
         {
             SHTX.Convert(input);
+        }
+
+        static void Decompress(string input)
+        {
+            var fileData = File.ReadAllBytes(input);
+            var decompressedData = ShadeLz.Decompress(fileData);
+
+            var output = File.Open(input + ".out", FileMode.Create);
+            output.Write(decompressedData, 0, decompressedData.Length);
+            output.Close();
+
+        }
+        static void Compress(string input)
+        {
+            var fileData = File.ReadAllBytes(input);
+            var compressedData = ShadeLz.Compress(fileData);
+
+            var output = File.Open(input + ".out", FileMode.Create);
+            output.Write(compressedData, 0, compressedData.Length);
+            output.Close();
         }
     }
 }

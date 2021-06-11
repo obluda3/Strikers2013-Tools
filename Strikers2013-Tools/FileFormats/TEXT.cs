@@ -5,7 +5,7 @@ using System.Text;
 using System.Linq;
 using System.Threading.Tasks;
 using System.IO;
-using Be.IO;
+using StrikersTools.Utils;
 
 namespace StrikersTools.FileFormats
 {
@@ -26,7 +26,7 @@ namespace StrikersTools.FileFormats
             parseTextFile(path);
             var file = File.Open(path, FileMode.Open);
 
-            using (var ber = new BeBinaryReader(file, Encoding.GetEncoding("sjis")))
+            using (var ber = new BeBinaryReader(file))
             {
                 var textFile = File.Open(output, FileMode.Create);
                 using (var txtFile = new StreamWriter(textFile))
@@ -172,7 +172,7 @@ namespace StrikersTools.FileFormats
         private void parseTextFile(string input)
         {
             var file = File.OpenRead(input);
-            using (var ber = new BeBinaryReader(file, Encoding.GetEncoding("sjis")))
+            using (var ber = new BeBinaryReader(file))
             {
                 sectNumber = ber.ReadUInt32();
 

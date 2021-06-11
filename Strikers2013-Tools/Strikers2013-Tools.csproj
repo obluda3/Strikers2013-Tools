@@ -88,6 +88,7 @@
     <Compile Include="FileFormats\BLN.cs" />
     <Compile Include="Dictionaries\BitmapFonts.cs" />
     <Compile Include="Dictionaries\SpecialChars.cs" />
+    <Compile Include="FileFormats\Font.cs" />
     <Compile Include="FileFormats\SHTX.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
@@ -96,6 +97,9 @@
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Password.cs" />
+    <Compile Include="Utils\BeBinaryReader.cs" />
+    <Compile Include="Utils\BeBinaryWriter.cs" />
+    <Compile Include="Utils\ShadeLz.cs" />
     <Compile Include="TextRenderer.cs" />
     <Compile Include="Utils\BinaryPlus.cs" />
     <Compile Include="Program.cs" />
@@ -125,16 +129,12 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <EmbeddedResource Include="Resources\Unnamed.fnt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Convertion\" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\Unnamed.png" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.7.2">
@@ -147,6 +147,10 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Kompression.dll" />
+    <Content Include="Kontract.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

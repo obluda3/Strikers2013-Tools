@@ -192,7 +192,7 @@
             this.btnExportArc.Size = new System.Drawing.Size(75, 23);
             this.btnExportArc.TabIndex = 7;
             this.btnExportArc.Tag = "";
-            this.btnExportArc.Text = "Export";
+            this.btnExportArc.Text = "Extract";
             this.btnExportArc.UseVisualStyleBackColor = true;
             this.btnExportArc.Click += new System.EventHandler(this.btnExportArc_Click);
             // 
