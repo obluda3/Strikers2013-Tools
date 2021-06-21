@@ -25,8 +25,8 @@ namespace StrikersTools.Utils
         {
             var magic = new byte[] { 0xFC, 0xAA, 0x55, 0xA7 };
 
-            var decompressedSize = 0;
-            var compressedSize = 0;
+            var decompressedSize = 0L;
+            var compressedSize = 0L;
             var pos = 0;
             if (compressed.Take(4).SequenceEqual(magic))
             {
@@ -115,51 +115,53 @@ namespace StrikersTools.Utils
             return decompressed;
         }
 
-        private static int CalculateDecompressedSize(byte[] compressed)
+        private static long CalculateDecompressedSize(byte[] input)
         {
-            var length = 0;
-
-            int inOffset = 0, outOffset = 0;
-            int windowOffset = 0, count = 0, prevOffset = 0;
-
-            while (inOffset < compressed.Length)
+            // https://github.com/FanTranslatorsInternational/Kuriimu2/blob/dev/src/Kompression/Implementations/Decoders/Headerless/ShadeLzHeaderlessDecoder.cs
+            var decompressedSize = 0L;
+            var inOffset = 0L;
+            while (inOffset < input.Length)
             {
-                byte flags = compressed[inOffset++];
+                var flag = input[inOffset++];
 
-                if ((flags & 0x80) == 0x80)
+                if ((flag & 0x80) == 0x80)
                 {
-                    count = (((flags >> 5) & 0x3) + 4);
-                    windowOffset = (((flags & 0x1F) << 8) + compressed[inOffset++]);
-                    prevOffset = windowOffset;
-
+                    // Lz match start
+                    decompressedSize += ((flag >> 5) & 0x3) + 4;
+                    inOffset++;
                 }
-                else if ((flags & 0x60) == 0x60)
+                else if ((flag & 0x60) == 0x60)
                 {
-                    count = (flags & 0x1F);
-                    windowOffset = prevOffset;
+                    // Lz match continue
+                    decompressedSize += flag & 0x1F;
                 }
-
-                else if ((flags & 0x40) == 0x40)
+                else if ((flag & 0x40) == 0x40)
                 {
-                    if ((flags & 0x10) == 0x00)
-                        count = ((flags & 0x0F) + 4);
+                    // Rle data
+                    int length;
+                    if ((flag & 0x10) == 0x00)
+                        length = (flag & 0xF) + 4;
                     else
-                        count = ((((flags & 0x0F) << 8) + compressed[inOffset++]) + 4);
-                    inOffset += 1;
-                }
+                        length = ((flag & 0xF) << 8) + input[inOffset++] + 4;
 
-                else if ((flags & 0xC0) == 0x00)
+                    inOffset++;
+                    decompressedSize += length;
+                }
+                else
                 {
-                    if ((flags & 0x20) == 0x00)
-                        count = (flags & 0x1F);
+                    // Raw data
+                    int length;
+                    if ((flag & 0x20) == 0x00)
+                        length = flag & 0x1F;
                     else
-                        count = (((flags & 0x1F) << 8) + compressed[inOffset++]);
+                        length = ((flag & 0x1F) << 8) + input[inOffset++];
 
-                    inOffset += count;
+                    inOffset += length;
+                    decompressedSize += length;
                 }
-                length += count;
             }
-            return length;
+
+            return decompressedSize;
         }
 
         // Not a real compressor yet, just produces valid files

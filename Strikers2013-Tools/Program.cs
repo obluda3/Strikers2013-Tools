@@ -27,6 +27,7 @@ namespace StrikersTools
             {
                 switch (args[0])
                 {
+
                     case "-h":
                         PrintUsage();
                         break;

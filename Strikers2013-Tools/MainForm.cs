@@ -16,12 +16,15 @@ namespace StrikersTools
 {
     public partial class MainForm : Form
     {
+
+
+
         private bool importBln = false;
         private Bitmap bitmap = new Bitmap(10,10);
         public MainForm()
         {
             InitializeComponent();  
-            cmbAccents.Items.AddRange(new String[] { "French", "German", });
+            cmbAccents.Items.AddRange(new String[] { "French", "Ignore", });
             cmbAccents.SelectedIndex = 0;
             listBox1.Items.AddRange(Password.encryptedPasswords.Select(x => BitConverter.ToString(x.Value)).ToArray());
 
@@ -197,8 +200,17 @@ namespace StrikersTools
             }
             
         }
-
         private void button5_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void cmbAccents_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void listView1_SelectedIndexChanged(object sender, EventArgs e)
         {
 
         }

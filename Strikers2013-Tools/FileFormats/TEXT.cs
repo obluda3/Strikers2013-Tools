@@ -250,8 +250,12 @@ namespace StrikersTools.FileFormats
             var output = new StringBuilder(s);
             foreach (var kvp in customEncoding)
                 output.Replace(kvp.Key, kvp.Value);
+            var outputValue = output.ToString();
 
-            return output.ToString();
+            if (accentIndex == 1)
+                outputValue = outputValue.Normalize(NormalizationForm.FormD);
+            
+            return outputValue;
         }
         private string ReplaceAccentsEx(string s, int accentIndex)
         {
@@ -263,6 +267,7 @@ namespace StrikersTools.FileFormats
                 output.Replace(kvp.Value, kvp.Key);
             output.Replace("\0", string.Empty);
             output.Replace("\n", "{returnline}");
+
 
             return output.ToString();
         }

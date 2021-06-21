@@ -88,7 +88,7 @@
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(785, 454);
+            this.tabPage2.Size = new System.Drawing.Size(784, 482);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Archive";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -228,7 +228,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(785, 454);
+            this.tabPage1.Size = new System.Drawing.Size(784, 482);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Text";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -276,6 +276,7 @@
             this.cmbAccents.Name = "cmbAccents";
             this.cmbAccents.Size = new System.Drawing.Size(598, 21);
             this.cmbAccents.TabIndex = 3;
+            this.cmbAccents.SelectedIndexChanged += new System.EventHandler(this.cmbAccents_SelectedIndexChanged);
             // 
             // button1
             // 
@@ -319,7 +320,7 @@
             this.tabControl1.Location = new System.Drawing.Point(12, 13);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(793, 480);
+            this.tabControl1.Size = new System.Drawing.Size(792, 508);
             this.tabControl1.TabIndex = 0;
             // 
             // tabPage3
@@ -334,9 +335,9 @@
             this.tabPage3.Controls.Add(this.listBox1);
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
             this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Size = new System.Drawing.Size(785, 454);
+            this.tabPage3.Size = new System.Drawing.Size(784, 482);
             this.tabPage3.TabIndex = 2;
-            this.tabPage3.Text = "Passwords";
+            this.tabPage3.Text = "Password";
             this.tabPage3.UseVisualStyleBackColor = true;
             // 
             // label9
@@ -430,7 +431,7 @@
             this.tabPage4.Location = new System.Drawing.Point(4, 22);
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage4.Size = new System.Drawing.Size(785, 454);
+            this.tabPage4.Size = new System.Drawing.Size(784, 482);
             this.tabPage4.TabIndex = 3;
             this.tabPage4.Text = "SHTXFS";
             this.tabPage4.UseVisualStyleBackColor = true;
@@ -449,7 +450,7 @@
             // button3
             // 
             this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button3.Location = new System.Drawing.Point(721, 10);
+            this.button3.Location = new System.Drawing.Point(722, 10);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(25, 19);
             this.button3.TabIndex = 7;
@@ -464,7 +465,7 @@
             this.txtInputFolder.Enabled = false;
             this.txtInputFolder.Location = new System.Drawing.Point(117, 10);
             this.txtInputFolder.Name = "txtInputFolder";
-            this.txtInputFolder.Size = new System.Drawing.Size(598, 20);
+            this.txtInputFolder.Size = new System.Drawing.Size(599, 20);
             this.txtInputFolder.TabIndex = 6;
             // 
             // label11
@@ -480,7 +481,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(817, 505);
+            this.ClientSize = new System.Drawing.Size(816, 533);
             this.Controls.Add(this.tabControl1);
             this.MinimumSize = new System.Drawing.Size(376, 375);
             this.Name = "MainForm";

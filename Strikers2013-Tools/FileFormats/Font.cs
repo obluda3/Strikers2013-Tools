@@ -59,7 +59,8 @@ namespace StrikersTools.FileFormats
             {
                 var index = Convert.ToInt32(Path.GetFileNameWithoutExtension(file).Split('.')[0]);
                 var letter = letters[index];
-                letter.data = File.ReadAllBytes(file);
+                var data = PNGToA4(file);
+                letter.data = ShadeLz.Compress(data);
                 
                 /*
                 var letterOut = File.Open(Path.GetDirectoryName(file) + "\\out\\" + Path.GetFileNameWithoutExtension(file) + ".bin", FileMode.Create);
@@ -82,10 +83,14 @@ namespace StrikersTools.FileFormats
                 for (var i = 0; i < letters.Count; i++)
                 {
                     var letter = letters[i];
-                    letter.offset = (int)bw.BaseStream.Position;
-                    bw.Write(letter.data);
-
-                    bw.Write((byte)0);
+                    if (letters[0].data.SequenceEqual(letter.data) && letter.index != 0)
+                        letter.offset = letters[0].offset;
+                    else
+                    {
+                        letter.offset = (int)bw.BaseStream.Position;
+                        bw.Write(letter.data);
+                        bw.Write((byte)0);
+                    }
                     letters[i] = letter;
                 }
                 
@@ -95,7 +100,7 @@ namespace StrikersTools.FileFormats
             }
         }
 
-        private static byte[] ImportLetter(string input)
+        private static byte[] PNGToA4(string input)
         {
             var img = new Bitmap(input);
             var output = new byte[img.Width * img.Height / 2];
@@ -164,5 +169,6 @@ namespace StrikersTools.FileFormats
         public int offset;
         public byte[] data;
         public int index;
+        public int firstIndex;
     }
 }
