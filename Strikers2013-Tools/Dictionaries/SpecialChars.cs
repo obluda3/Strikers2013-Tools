@@ -24,6 +24,7 @@ namespace StrikersTools.Dictionaries
             ["Ç"] = "{",
             ["ç"] = "|",
             ["â"] = "}",
+            ["û"] = ";",
             ["ă"] = @"¥",
         };
     }
