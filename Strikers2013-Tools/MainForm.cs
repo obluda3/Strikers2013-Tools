@@ -129,7 +129,7 @@ namespace StrikersTools
             {
                 ofd.Title = "Open the mcb1.bln";
                 ofd.Filter = "mcb1.bln (*.bln)|*.bln|All files (*.*)|*.*";
-                ofd.FileName = "mcb1.bln";
+                
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
                     txtMcb.Text = ofd.FileName;
@@ -211,6 +211,11 @@ namespace StrikersTools
         }
 
         private void listView1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void tabPage2_Click(object sender, EventArgs e)
         {
 
         }

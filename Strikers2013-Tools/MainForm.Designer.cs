@@ -88,15 +88,16 @@
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(784, 482);
+            this.tabPage2.Size = new System.Drawing.Size(784, 285);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Archive";
             this.tabPage2.UseVisualStyleBackColor = true;
+            this.tabPage2.Click += new System.EventHandler(this.tabPage2_Click);
             // 
             // btnMcb1
             // 
             this.btnMcb1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnMcb1.Location = new System.Drawing.Point(721, 62);
+            this.btnMcb1.Location = new System.Drawing.Point(753, 65);
             this.btnMcb1.Name = "btnMcb1";
             this.btnMcb1.Size = new System.Drawing.Size(25, 19);
             this.btnMcb1.TabIndex = 17;
@@ -109,9 +110,9 @@
             this.label6.AutoSize = true;
             this.label6.Location = new System.Drawing.Point(6, 65);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(116, 13);
+            this.label6.Size = new System.Drawing.Size(108, 13);
             this.label6.TabIndex = 16;
-            this.label6.Text = "mcb1 path (if importing)";
+            this.label6.Text = "Modified files location";
             // 
             // txtMcb
             // 
@@ -148,9 +149,9 @@
             this.label5.AutoSize = true;
             this.label5.Location = new System.Drawing.Point(6, 39);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(127, 13);
+            this.label5.Size = new System.Drawing.Size(53, 13);
             this.label5.TabIndex = 14;
-            this.label5.Text = "Modified files (if importing)";
+            this.label5.Text = "MCB1.bln";
             // 
             // label4
             // 
@@ -163,7 +164,7 @@
             // btnModified
             // 
             this.btnModified.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnModified.Location = new System.Drawing.Point(721, 36);
+            this.btnModified.Location = new System.Drawing.Point(753, 35);
             this.btnModified.Name = "btnModified";
             this.btnModified.Size = new System.Drawing.Size(25, 19);
             this.btnModified.TabIndex = 12;
@@ -175,7 +176,7 @@
             // 
             this.btnImportArc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnImportArc.Enabled = false;
-            this.btnImportArc.Location = new System.Drawing.Point(671, 425);
+            this.btnImportArc.Location = new System.Drawing.Point(703, 228);
             this.btnImportArc.Name = "btnImportArc";
             this.btnImportArc.Size = new System.Drawing.Size(75, 23);
             this.btnImportArc.TabIndex = 8;
@@ -187,7 +188,7 @@
             // 
             this.btnExportArc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnExportArc.Enabled = false;
-            this.btnExportArc.Location = new System.Drawing.Point(9, 425);
+            this.btnExportArc.Location = new System.Drawing.Point(9, 228);
             this.btnExportArc.Name = "btnExportArc";
             this.btnExportArc.Size = new System.Drawing.Size(75, 23);
             this.btnExportArc.TabIndex = 7;
@@ -199,7 +200,7 @@
             // btnBrowseArc
             // 
             this.btnBrowseArc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnBrowseArc.Location = new System.Drawing.Point(721, 10);
+            this.btnBrowseArc.Location = new System.Drawing.Point(753, 10);
             this.btnBrowseArc.Name = "btnBrowseArc";
             this.btnBrowseArc.Size = new System.Drawing.Size(25, 19);
             this.btnBrowseArc.TabIndex = 5;
@@ -212,9 +213,9 @@
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(6, 13);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(23, 13);
+            this.label3.Size = new System.Drawing.Size(43, 13);
             this.label3.TabIndex = 3;
-            this.label3.Text = "File";
+            this.label3.Text = "Archive";
             // 
             // tabPage1
             // 
@@ -228,7 +229,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(784, 482);
+            this.tabPage1.Size = new System.Drawing.Size(784, 285);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Text";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -237,7 +238,7 @@
             // 
             this.btnTxtImport.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnTxtImport.Enabled = false;
-            this.btnTxtImport.Location = new System.Drawing.Point(671, 425);
+            this.btnTxtImport.Location = new System.Drawing.Point(671, 228);
             this.btnTxtImport.Name = "btnTxtImport";
             this.btnTxtImport.Size = new System.Drawing.Size(75, 23);
             this.btnTxtImport.TabIndex = 6;
@@ -249,7 +250,7 @@
             // 
             this.btnTxtExport.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnTxtExport.Enabled = false;
-            this.btnTxtExport.Location = new System.Drawing.Point(9, 425);
+            this.btnTxtExport.Location = new System.Drawing.Point(9, 228);
             this.btnTxtExport.Name = "btnTxtExport";
             this.btnTxtExport.Size = new System.Drawing.Size(75, 23);
             this.btnTxtExport.TabIndex = 5;
@@ -320,7 +321,7 @@
             this.tabControl1.Location = new System.Drawing.Point(12, 13);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(792, 508);
+            this.tabControl1.Size = new System.Drawing.Size(792, 311);
             this.tabControl1.TabIndex = 0;
             // 
             // tabPage3
@@ -335,7 +336,7 @@
             this.tabPage3.Controls.Add(this.listBox1);
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
             this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Size = new System.Drawing.Size(784, 482);
+            this.tabPage3.Size = new System.Drawing.Size(784, 285);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Password";
             this.tabPage3.UseVisualStyleBackColor = true;
@@ -419,7 +420,7 @@
             this.listBox1.FormattingEnabled = true;
             this.listBox1.Location = new System.Drawing.Point(421, 29);
             this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(361, 420);
+            this.listBox1.Size = new System.Drawing.Size(361, 238);
             this.listBox1.TabIndex = 0;
             // 
             // tabPage4
@@ -431,7 +432,7 @@
             this.tabPage4.Location = new System.Drawing.Point(4, 22);
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage4.Size = new System.Drawing.Size(784, 482);
+            this.tabPage4.Size = new System.Drawing.Size(784, 285);
             this.tabPage4.TabIndex = 3;
             this.tabPage4.Text = "SHTXFS";
             this.tabPage4.UseVisualStyleBackColor = true;
@@ -481,7 +482,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(816, 533);
+            this.ClientSize = new System.Drawing.Size(816, 336);
             this.Controls.Add(this.tabControl1);
             this.MinimumSize = new System.Drawing.Size(376, 375);
             this.Name = "MainForm";
