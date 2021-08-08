@@ -6,9 +6,22 @@ using StrikersTools.Utils;
 
 namespace StrikersTools.FileFormats
 {
+    struct BinFileInfo 
+    {
+        public uint size;
+        public long offset;
+        public int index;
+        public BinFileInfo(BinaryReader br, int shiftFactor, int padFactor, int mulFactor, int mask, int index)
+        {
+            var offSize = br.ReadUInt32();
+
+            offset = (offSize >> shiftFactor) * padFactor;
+            size = (uint)((offSize & mask) * mulFactor);
+            this.index = index;
+        }
+    }
     class BIN
     {
-
         public static void ExportFiles(string input)
         {
             var binfile = File.OpenRead(input);
@@ -17,28 +30,19 @@ namespace StrikersTools.FileFormats
 
             using (var br = new BinaryReader(binfile))
             {
-                // Reads header
-                var fileCount = br.ReadInt32();
-                var padFactor = br.ReadInt32();
-                var mulFactor = br.ReadInt32();
-                var shiftFactor = br.ReadInt32();
-                var mask = br.ReadInt32();
+                var files = GetFiles(br);
 
-                for (var i = 0; i < fileCount; i++)
+                foreach (var file in files)
                 {
-                    // Get offset and size
-                    uint size;
-                    var offset = GetOffsetAndSize(padFactor, mulFactor, shiftFactor, mask, i, binfile, out size);
-
                     // Create output file
-                    var filename = GetFileName(i, binfile);
+                    var filename = GetFileName(file.index, binfile);
                     var output = File.Open(folder+"\\"+filename, FileMode.Create);
 
                     // Write data to output file
-                    br.BaseStream.Position = offset;
+                    br.BaseStream.Position = file.offset;
                     using (var bw = new BinaryWriter(output))
                     {
-                        bw.Write(br.ReadBytes((int)size));
+                        bw.Write(br.ReadBytes((int)file.size));
                     }
 
                 }
@@ -167,6 +171,30 @@ namespace StrikersTools.FileFormats
             var extension = GuessExtension(input);
 
             return $"{index:00000000}.{extension}";
+        }
+        
+        public static List<BinFileInfo> GetFiles(string folder, string name)
+        {
+            var file = File.OpenRead(folder + "\\" + name + ".bin");
+            var br = new BinaryReader(file);
+
+            var output = GetFiles(br);
+            br.BaseStream.Close();
+            return output;
+        }
+
+        private static List<BinFileInfo> GetFiles(BinaryReader br)
+        {
+            var fileCount = br.ReadInt32();
+            var padFactor = br.ReadInt32();
+            var mulFactor = br.ReadInt32();
+            var shiftFactor = br.ReadInt32();
+            var mask = br.ReadInt32();
+
+            var files = new List<BinFileInfo>();
+            for (var i = 0; i < fileCount; i++)
+                files.Add(new BinFileInfo(br, shiftFactor, padFactor, mulFactor, mask, i));
+            return files;
         }
 
         private static long GetOffsetAndSize(int padFactor, int mulFactor, int shiftFactor, int mask, int index, Stream input, out uint size)

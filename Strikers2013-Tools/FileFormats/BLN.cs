@@ -3,6 +3,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.Text;
 using StrikersTools.Utils;
+using System.Linq;
 
 namespace StrikersTools.FileFormats
 {
@@ -21,9 +22,69 @@ namespace StrikersTools.FileFormats
             this.size = size;
         }
     }
+    class Mcb1File
+    {
+        public int archiveId;
+        public uint archiveOffset;
+        public int size;
+
+        public int index;
+        public Mcb1File(BinaryReader br)
+        {
+            archiveId = br.ReadInt32();
+            archiveOffset = br.ReadUInt32();
+            size = br.ReadInt32();
+        }
+    }
+
+
     
     class BLN
     {
+        public static void BrowseBln(string inputFolder)
+        {
+            var archives = new List<BinFileInfo>[6];
+            archives[0] = BIN.GetFiles(inputFolder, "grp");
+            archives[1] = BIN.GetFiles(inputFolder, "scn");
+            archives[2] = BIN.GetFiles(inputFolder, "scn_sh");
+            archives[3] = BIN.GetFiles(inputFolder, "ui");
+            archives[4] = BIN.GetFiles(inputFolder, "dat");
+            archives[5] = BIN.GetFiles(inputFolder, "strap");
+
+            var mcb0Path = Path.GetDirectoryName(inputFolder) + Path.DirectorySeparatorChar + "mcb0.bln";
+            var mcb0 = File.OpenRead(mcb0Path);
+            var mcb0Entries = GetMcb0Entries(mcb0);
+            mcb0.Close();
+
+            var mcb1 = File.Open(inputFolder + "\\mcb1.bln", FileMode.Open);
+            var subBlns = new List<Mcb1File>[mcb0Entries.Count];
+
+            using (var br = new BinaryReader(mcb1))
+            {
+                foreach (var mcb0Entry in mcb0Entries)
+                {
+                    var subBln = new List<Mcb1File>();
+                    br.BaseStream.Position = mcb0Entry.offset;
+
+                    while (br.BaseStream.Position < mcb0Entry.offset + mcb0Entry.size)
+                    {
+                        var sample = br.ReadInt32();
+                        if (sample == 0x7FFF)
+                            break;
+                        br.BaseStream.Position -= 4;
+
+                        var file = new Mcb1File(br);
+                        file.index = archives[file.archiveId].Where(x => x.offset == file.archiveOffset).First().index;
+
+                        subBln.Add(file);
+
+                        br.BaseStream.Position += file.size;
+                    }
+                }
+            }
+
+
+        }
         public static void RepackArchiveAndBLN(string inputFolder, string binPath, string blnPath)
         {
             var offsets = BIN.ImportFiles(inputFolder, binPath);
