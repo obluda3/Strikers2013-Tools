@@ -51,59 +51,60 @@ namespace StrikersTools.FileFormats
 
         public static List<uint> ImportFiles(string inputFolder, string binPath)
         {
-            var binfile = File.Open(binPath, FileMode.Open,FileAccess.ReadWrite);
             var archiveOffsets = new List<uint>();
-
-            using (var br = new BinaryReader(binfile))
+            using (var binfile = File.Open(binPath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
             {
-                using (var bw = new BinaryWriter(binfile))
+                using (var br = new BinaryReader(binfile))
                 {
-                    // Reads header
-                    var fileCount = br.ReadInt32();
-                    var padFactor = br.ReadInt32();
-                    var mulFactor = br.ReadInt32();
-                    var shiftFactor = br.ReadInt32();
-                    var mask = br.ReadInt32();
-
-                    var files = Directory.GetFiles(inputFolder);
-
-                    foreach(var file in files)
+                    using (var bw = new BinaryWriter(binfile))
                     {
-                        // Gets the index of the file in the archive
-                        var index = Convert.ToInt32(Path.GetFileNameWithoutExtension(file).Split('.')[0]);
+                        // Reads header
+                        var fileCount = br.ReadInt32();
+                        var padFactor = br.ReadInt32();
+                        var mulFactor = br.ReadInt32();
+                        var shiftFactor = br.ReadInt32();
+                        var mask = br.ReadInt32();
 
-                        // Can't add files yet
-                        if(index >= fileCount)
+                        var files = Directory.GetFiles(inputFolder);
+
+                        foreach (var file in files)
                         {
-                            Console.WriteLine("{0} skipped : index {1} over the file count limit ({2})",Path.GetFileName(file),index,fileCount);
-                            continue;
+                            // Gets the index of the file in the archive
+                            var index = Convert.ToInt32(Path.GetFileNameWithoutExtension(file).Split('.')[0]);
+
+                            // Can't add files yet
+                            if (index >= fileCount)
+                            {
+                                Console.WriteLine("{0} skipped : index {1} over the file count limit ({2})", Path.GetFileName(file), index, fileCount);
+                                continue;
+                            }
+
+                            var fileStream = File.OpenRead(file);
+
+                            uint originalSize;
+                            var offset = GetOffsetAndSize(padFactor, mulFactor, shiftFactor, mask, index, binfile, out originalSize);
+                            var size = fileStream.Length;
+
+                            // Doesn't support changing the file size
+                            if (size > originalSize)
+                            {
+                                Console.WriteLine("{0} skipped : size {1} over original size of {2}", Path.GetFileName(file), size, originalSize);
+                                continue;
+                            }
+
+                            Console.WriteLine("File {0} :\n\t- Size : {1}\n\t- Offset : {2}\n\t- Index : {3}", Path.GetFileName(file), size, offset, index);
+                            // Write the modified data
+                            binfile.Position = offset;
+                            using (var _br = new BinaryReader(fileStream))
+                            {
+                                bw.Write(_br.ReadBytes((int)size));
+                            }
+
+                            // Pads to original size
+                            var padSize = originalSize - size;
+                            bw.PadWith(0, padSize);
+                            archiveOffsets.Add((uint)offset);
                         }
-
-                        var fileStream = File.OpenRead(file);
-
-                        uint originalSize;
-                        var offset = GetOffsetAndSize(padFactor, mulFactor, shiftFactor, mask, index, binfile, out originalSize);
-                        var size = fileStream.Length;
-
-                        // Doesn't support changing the file size
-                        if (size > originalSize)
-                        {
-                            Console.WriteLine("{0} skipped : size {1} over original size of {2}", Path.GetFileName(file), size, originalSize);
-                            continue;
-                        }
-
-                        Console.WriteLine("File {0} :\n\t- Size : {1}\n\t- Offset : {2}\n\t- Index : {3}",Path.GetFileName(file),size,offset,index);
-                        // Write the modified data
-                        binfile.Position = offset;
-                        using (var _br = new BinaryReader(fileStream))
-                        {
-                            bw.Write(_br.ReadBytes((int)size));
-                        }
-
-                        // Pads to original size
-                        var padSize = originalSize - size;
-                        bw.PadWith(0, padSize);
-                        archiveOffsets.Add((uint)offset);
                     }
                 }
             }

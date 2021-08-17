@@ -130,52 +130,59 @@ namespace StrikersTools.FileFormats
             var mcb0Entries = GetMcb0Entries(mcb0);
             mcb0.Close();
 
-            var mcb1 = File.Open(blnPath, FileMode.Open, FileAccess.ReadWrite);
-            var binArchive = File.Open(binPath, FileMode.Open, FileAccess.Read);
-            using (var br = new BinaryReader(mcb1))
+            using (var mcb1 = File.Open(blnPath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
             {
-                using (var bw = new BinaryWriter(mcb1))
+                using (var binArchive = File.Open(binPath, FileMode.Open))
                 {
-                    foreach (var mcb0Entry in mcb0Entries)
+                    using (var br = new BinaryReader(mcb1))
                     {
-                        br.BaseStream.Position = mcb0Entry.offset;
-
-                        while (br.BaseStream.Position < mcb0Entry.offset + mcb0Entry.size)
+                        using (var bw = new BinaryWriter(mcb1))
                         {
-                            var sample = br.ReadInt32();
-                            if (sample == 0x7FFF)
-                                break;
-                            br.BaseStream.Position -= 4;
-
-                            var arcIndex = br.ReadInt32();
-                            var arcOffset = br.ReadUInt32();
-                            var size = br.ReadInt32();
-
-                            // Checks if it's the right archive
-                            if (arcIndex != archiveIndex)
+                            foreach (var mcb0Entry in mcb0Entries)
                             {
-                                br.BaseStream.Position += size;
-                                continue;
+                                br.BaseStream.Position = mcb0Entry.offset;
+
+                                while (br.BaseStream.Position < mcb0Entry.offset + mcb0Entry.size)
+                                {
+                                    var sample = br.ReadInt32();
+                                    if (sample == 0x7FFF)
+                                        break;
+                                    br.BaseStream.Position -= 4;
+
+                                    var arcIndex = br.ReadInt32();
+                                    var arcOffset = br.ReadUInt32();
+                                    var size = br.ReadInt32();
+
+                                    // Checks if it's the right archive
+                                    if (arcIndex != archiveIndex)
+                                    {
+                                        br.BaseStream.Position += size;
+                                        continue;
+                                    }
+
+                                    // Checks if it's one of the modified files
+                                    if (offsets.IndexOf(arcOffset) == -1)
+                                    {
+                                        br.BaseStream.Position += size;
+                                        continue;
+                                    }
+
+                                    // If it is, paste the new data
+                                    var prevOffset = br.BaseStream.Position;
+
+                                    binArchive.Position = arcOffset;
+                                    byte[] newData = new byte[size];
+                                    binArchive.Read(newData, 0, size);
+
+                                    bw.Write(newData);
+                                    br.BaseStream.Position = prevOffset + size;
+
+
+                                }
                             }
-
-                            // Checks if it's one of the modified files
-                            if (offsets.IndexOf(arcOffset) == -1)
-                            {
-                                br.BaseStream.Position += size;
-                                continue;
-                            }
-
-                            // If it is, paste the new data
-                            var prevOffset = br.BaseStream.Position;
-
-                            binArchive.Position = arcOffset;
-                            byte[] newData = new byte[size];
-                            binArchive.Read(newData, 0, size);
-
-                            bw.Write(newData);
-                            br.BaseStream.Position = prevOffset + size;
-
-
+                            bw.Close();
+                            br.Close();
+                            mcb1.Close();
                         }
                     }
                 }

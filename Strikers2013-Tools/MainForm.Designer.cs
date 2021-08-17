@@ -97,7 +97,7 @@
             // btnMcb1
             // 
             this.btnMcb1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnMcb1.Location = new System.Drawing.Point(753, 65);
+            this.btnMcb1.Location = new System.Drawing.Point(753, 39);
             this.btnMcb1.Name = "btnMcb1";
             this.btnMcb1.Size = new System.Drawing.Size(25, 19);
             this.btnMcb1.TabIndex = 17;
@@ -119,7 +119,7 @@
             this.txtMcb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtMcb.Enabled = false;
-            this.txtMcb.Location = new System.Drawing.Point(139, 62);
+            this.txtMcb.Location = new System.Drawing.Point(139, 36);
             this.txtMcb.Name = "txtMcb";
             this.txtMcb.Size = new System.Drawing.Size(576, 20);
             this.txtMcb.TabIndex = 15;
@@ -129,7 +129,7 @@
             this.txtModified.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtModified.Enabled = false;
-            this.txtModified.Location = new System.Drawing.Point(139, 36);
+            this.txtModified.Location = new System.Drawing.Point(139, 62);
             this.txtModified.Name = "txtModified";
             this.txtModified.Size = new System.Drawing.Size(576, 20);
             this.txtModified.TabIndex = 11;
@@ -164,7 +164,7 @@
             // btnModified
             // 
             this.btnModified.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnModified.Location = new System.Drawing.Point(753, 35);
+            this.btnModified.Location = new System.Drawing.Point(753, 65);
             this.btnModified.Name = "btnModified";
             this.btnModified.Size = new System.Drawing.Size(25, 19);
             this.btnModified.TabIndex = 12;
