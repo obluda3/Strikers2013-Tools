@@ -67,9 +67,7 @@ namespace StrikersTools.FileFormats
 
                         ber.BaseStream.Position = pointers[i];
                         var entry = ber.ReadBytes(length);
-                        var entryString = "";
-                        entryString = sjis.GetString(entry);
-                        entryString = ReplaceAccentsEx(entryString, accentIndex);
+                        var entryString = TextDecoder.Decode(entry);
                         if (i == pointers.Length - 1)
                             txtFile.Write(entryString);
                         else
@@ -118,11 +116,7 @@ namespace StrikersTools.FileFormats
                 var j = 0;
                 foreach(var line in lines)
                 {
-                    var entrystr = ReplaceAccentsIn(line, accentIndex);
-                    if (line == "#=　")
-                        Console.WriteLine("deb");
-
-                    var entry = sjis.GetBytes(entrystr);
+                    var entry = TextDecoder.Encode(line);
                     if (entry.Length > 0)
                     {
                         var padSize = 4 - ((entry.Length) % 4); // Every entry is padded to a 4 byte alignment
@@ -241,46 +235,5 @@ namespace StrikersTools.FileFormats
             }
         }
 
-        private string ReplaceAccentsIn(string s, int accentIndex)
-        {
-            s = s.Replace("{returnline}","\n");
-
-            var customEncoding = GetCustomEncoding(accentIndex);
-
-            var output = new StringBuilder(s);
-            foreach (var kvp in customEncoding)
-                output.Replace(kvp.Key, kvp.Value);
-            var outputValue = output.ToString();
-
-            if (accentIndex == 1)
-                outputValue = outputValue.Normalize(NormalizationForm.FormD);
-            
-            return outputValue;
-        }
-        private string ReplaceAccentsEx(string s, int accentIndex)
-        {
-
-            var customEncoding = GetCustomEncoding(accentIndex);
-
-            var output = new StringBuilder(s);
-            foreach (var kvp in customEncoding)
-                output.Replace(kvp.Value, kvp.Key);
-            output.Replace("\0", string.Empty);
-            output.Replace("\n", "{returnline}");
-
-
-            return output.ToString();
-        }
-
-        private Dictionary<string,string> GetCustomEncoding(int accentIndex)
-        {
-            switch (accentIndex)
-            {
-                default:
-                    return new Dictionary<string,string>();
-                case 0:
-                    return SpecialChars.FrenchAccents;
-            }
-        }
     }
 }

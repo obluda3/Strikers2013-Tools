@@ -90,7 +90,7 @@ namespace StrikersTools
             Console.WriteLine("\t- Repack to .bin archive :");
             Console.WriteLine("\t\tStrikers2013Tools.exe -r <path to extracted bin archive> <path to .bin archive>");
             Console.WriteLine("\t- Repack to .bin archive and BLN :");
-            Console.WriteLine("\t\tStrikers2013Tools.exe -r <path to extracted bin archive> <path to .bin archive> <path to mcb1.bln>");
+            Console.WriteLine("\t\tStrikers2013Tools.exe -r <path to .bin archive> <path to extracted bin archive> <path to mcb1.bln>");
             Console.WriteLine("\t- Import to text file :");
             Console.WriteLine("\t\tStrikers2013Tools.exe -i <path to original text file> <path to modified text file> <output path> <accent configuration>");
             Console.WriteLine("\t- Export SHTXFS file :");

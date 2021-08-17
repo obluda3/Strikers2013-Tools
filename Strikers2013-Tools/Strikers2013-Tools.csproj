@@ -89,7 +89,7 @@
   <ItemGroup>
     <Compile Include="FileFormats\BLN.cs" />
     <Compile Include="Dictionaries\BitmapFonts.cs" />
-    <Compile Include="Dictionaries\SpecialChars.cs" />
+    <Compile Include="Dictionaries\TextDecoder.cs" />
     <Compile Include="FileFormats\Font.cs" />
     <Compile Include="FileFormats\SHTX.cs" />
     <Compile Include="MainForm.cs">
