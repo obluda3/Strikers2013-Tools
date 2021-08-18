@@ -33,7 +33,7 @@ namespace StrikersTools
             using (var ofd = new OpenFileDialog())
             {
                 ofd.Title = "Open a Strikers Text File (14/35/37.bin)";
-                ofd.Filter = "Strikers text file (*.bin)|*.bin|All files (*.*)|*.*";
+                ofd.Filter = "Strikers text file (*.bin;*.out)|*.bin;*.out|All files (*.*)|*.*";
                 if(ofd.ShowDialog() == DialogResult.OK)
                 {
                     txtPathTxt.Text = ofd.FileName;
@@ -59,7 +59,7 @@ namespace StrikersTools
                             sfd.Title = "Save the bin file";
                             sfd.DefaultExt = ".bin";
                             sfd.Filter = "Strikers text file (*.bin)|*.bin|All files (*.*)|*.*";
-                            sfd.FileName = Path.GetFileNameWithoutExtension(txtPathTxt.Text) + ".out";
+                            sfd.FileName = Path.GetFileNameWithoutExtension(txtPathTxt.Text) + ".out.bin";
                             if (sfd.ShowDialog() == DialogResult.OK)
                             {
                                 TEXT text = new TEXT();
