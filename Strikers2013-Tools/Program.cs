@@ -35,7 +35,7 @@ namespace StrikersTools
                         UnpackArchive(args[1]);
                         break;
                     case "-e":
-                        if (args.Length > 1c)
+                        if (args.Length > 1)
                             ExportText(args[1], args[2]);
                         else
                             PrintUsage();

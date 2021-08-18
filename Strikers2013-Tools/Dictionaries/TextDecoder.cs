@@ -69,7 +69,9 @@ namespace StrikersTools.Dictionaries
         {
             var i = 0;
             var output = "";
-            if (input[0] == 0) return "";
+            if (input.Length < 1)
+                return "";
+
             do
             {
                 // HalfWidth char
@@ -92,7 +94,8 @@ namespace StrikersTools.Dictionaries
                     output += CustomChars[input[i]];
                     i += 1;
                 }
-
+                if (i == input.Length)
+                    break;
             }
             while (input[i] != 0);
 
