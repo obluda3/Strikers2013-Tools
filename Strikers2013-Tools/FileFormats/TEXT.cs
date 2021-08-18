@@ -17,11 +17,8 @@ namespace StrikersTools.FileFormats
         private uint begSec2, endSec2 = 0;
         private uint[] pointers;
         private byte[] unk1, unk2, unk3, unk4, unk5;
-        private Encoding sjis = Encoding.GetEncoding("sjis");
-        private Encoding utf8 = Encoding.GetEncoding("utf-8", new EncoderExceptionFallback(), new DecoderExceptionFallback());
 
-
-        public void ExportText(string path, string output, int accentIndex)
+        public void ExportText(string path, string output)
         {
             parseTextFile(path);
             var file = File.Open(path, FileMode.Open);
@@ -78,7 +75,7 @@ namespace StrikersTools.FileFormats
             }
         }
 
-        public void ImportText(string input, string orig, string output, int accentIndex)
+        public void ImportText(string input, string orig, string output)
         {
             parseTextFile(orig);
             var lines = File.ReadAllLines(input);

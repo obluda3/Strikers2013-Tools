@@ -24,8 +24,6 @@ namespace StrikersTools
         public MainForm()
         {
             InitializeComponent();  
-            cmbAccents.Items.AddRange(new String[] { "French", "Ignore", });
-            cmbAccents.SelectedIndex = 0;
             listBox1.Items.AddRange(Password.encryptedPasswords.Select(x => BitConverter.ToString(x.Value)).ToArray());
 
         }
@@ -65,7 +63,7 @@ namespace StrikersTools
                             if (sfd.ShowDialog() == DialogResult.OK)
                             {
                                 TEXT text = new TEXT();
-                                text.ImportText(ofd.FileName, txtPathTxt.Text, sfd.FileName, cmbAccents.SelectedIndex);
+                                text.ImportText(ofd.FileName, txtPathTxt.Text, sfd.FileName);
                                 MessageBox.Show("Done !", "Done");
                             }
                         }
@@ -87,7 +85,7 @@ namespace StrikersTools
                     if(sfd.ShowDialog() == DialogResult.OK)
                     {
                         TEXT text = new TEXT();
-                        text.ExportText(txtPathTxt.Text, sfd.FileName, cmbAccents.SelectedIndex);
+                        text.ExportText(txtPathTxt.Text, sfd.FileName);
                         MessageBox.Show("Done !", "Done");
                     }
                 }
@@ -167,39 +165,6 @@ namespace StrikersTools
             textBox2.Text = decrypted;
         }
 
-        private void button4_Click(object sender, EventArgs e)
-        {
-            var files = Directory.GetFiles(txtInputFolder.Text);
-            foreach (var file in files)
-            {
-                
-                var fileStream = File.OpenRead(file);
-                byte[] magic = new byte[4];
-                fileStream.Read(magic, 0, 4);
-                fileStream.Close();
-                if (Encoding.ASCII.GetString(magic) == "SHTX")
-                    SHTX.Export(file);
-                else
-                    SHTX.Convert(file);
-                //File.Move(file, Path.GetDirectoryName(file) + "\\" + Path.GetFileName(file).Split('.')[0] + ".bin");
-            }
-            MessageBox.Show("Done !", "Done");
-        }
-
-        private void button3_Click(object sender, EventArgs e)
-        {
-            using (var cofd = new CommonOpenFileDialog())
-            {
-                cofd.Title = "Browse to the location of your modified files";
-                cofd.IsFolderPicker = true;
-                if (cofd.ShowDialog() == CommonFileDialogResult.Ok)
-                {
-                    txtInputFolder.Text = cofd.FileName;
-                    button4.Enabled = true;
-                }
-            }
-            
-        }
         private void button5_Click(object sender, EventArgs e)
         {
 

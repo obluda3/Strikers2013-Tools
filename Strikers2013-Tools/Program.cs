@@ -35,8 +35,8 @@ namespace StrikersTools
                         UnpackArchive(args[1]);
                         break;
                     case "-e":
-                        if (args.Length > 2)
-                            ExportText(args[1], args[2], Convert.ToInt32(args[3]));
+                        if (args.Length > 1c)
+                            ExportText(args[1], args[2]);
                         else
                             PrintUsage();
                         break;
@@ -49,7 +49,7 @@ namespace StrikersTools
                             PrintUsage();
                         break;
                     case "-i":
-                        ImportText(args[1], args[2], args[3], Convert.ToInt32(args[4]));
+                        ImportText(args[1], args[2], args[3]);
                         break;
                     case "-she":
                         ExportShtx(args[1]);
@@ -86,13 +86,13 @@ namespace StrikersTools
             Console.WriteLine("\t- Unpack archive :");
             Console.WriteLine("\t\tStrikers2013Tools.exe -u <path to .bin archive>");
             Console.WriteLine("\t- Export a text file :");
-            Console.WriteLine("\t\tStrikers2013Tools.exe -e <path to Strikers text file> <output> <accent configuration>");
+            Console.WriteLine("\t\tStrikers2013Tools.exe -e <path to Strikers text file> <output>");
             Console.WriteLine("\t- Repack to .bin archive :");
             Console.WriteLine("\t\tStrikers2013Tools.exe -r <path to extracted bin archive> <path to .bin archive>");
             Console.WriteLine("\t- Repack to .bin archive and BLN :");
             Console.WriteLine("\t\tStrikers2013Tools.exe -r <path to .bin archive> <path to extracted bin archive> <path to mcb1.bln>");
             Console.WriteLine("\t- Import to text file :");
-            Console.WriteLine("\t\tStrikers2013Tools.exe -i <path to original text file> <path to modified text file> <output path> <accent configuration>");
+            Console.WriteLine("\t\tStrikers2013Tools.exe -i <path to original text file> <path to modified text file> <output path>");
             Console.WriteLine("\t- Export SHTXFS file :");
             Console.WriteLine("\t\tStrikers2013Tools.exe -she <path to SHTX>");
             Console.WriteLine("\t- Import SHTXFS file :");
@@ -119,7 +119,7 @@ namespace StrikersTools
             BIN.ExportFiles(path);
         }
 
-        static void ImportText(string path, string txt, string output, int accentConfig)
+        static void ImportText(string path, string txt, string output)
         {
             if (!File.Exists(path) | !File.Exists(txt))
             {
@@ -127,10 +127,10 @@ namespace StrikersTools
                 return;
             }
             var text = new TEXT();
-            text.ImportText(txt, path, output, Convert.ToInt32(accentConfig));
+            text.ImportText(txt, path, output);
         }
 
-        static void ExportText(string input, string output, int accentIndex)
+        static void ExportText(string input, string output)
         {
             if (!File.Exists(input))
             {
@@ -138,7 +138,7 @@ namespace StrikersTools
                 return;
             }
             var text = new TEXT();
-            text.ExportText(input, output, accentIndex);
+            text.ExportText(input, output);
         }
 
         static void Repack(string binPath, string inputPath, string mcbPath)
