@@ -82,7 +82,7 @@ namespace StrikersTools.Dictionaries
                 }
                 
                 // FullWidth char
-                else if (input[i] > 0x80 && input[i] < 0xA0)
+                else if ((input[i] > 0x80 && input[i] < 0xA0) || input[i] >= 0xe0)
                 {
                     output += Encoding.GetEncoding("sjis").GetString(input.Skip(i).Take(2).ToArray());
                     i += 2;
