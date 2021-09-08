@@ -77,7 +77,10 @@ namespace StrikersTools.Dictionaries
                 // HalfWidth char
                 if(input[i] < 0x80)
                 {
-                    output += Encoding.GetEncoding("sjis").GetString(input.Skip(i).Take(1).ToArray());
+                    if (input[i] == 0x0a)
+                        output += "{returnline}";
+                    else
+                        output += Encoding.GetEncoding("sjis").GetString(input.Skip(i).Take(1).ToArray());
                     i += 1;
                 }
                 
