@@ -41,15 +41,27 @@ namespace StrikersTools.FileFormats
     
     class BLN
     {
+        // 0x00 => grp.bin
+        // 0x01 => scn.bin
+        // 0x02 => scn_sh.bin
+        // 0x03 => ui.bin
+        // 0x04 => dat.bin
+        public static Dictionary<int, string> ArchiveNames = new Dictionary<int, string>()
+        {
+            [0] = "grp",
+            [1] = "scn",
+            [2] = "scn_sh",
+            [3] = "ui",
+            [4] = "dat"
+        };
         public static void BrowseBln(string inputFolder)
         {
-            var archives = new List<BinFileInfo>[6];
+            var archives = new List<BinFileInfo>[5];
             archives[0] = BIN.GetFiles(inputFolder, "grp");
             archives[1] = BIN.GetFiles(inputFolder, "scn");
             archives[2] = BIN.GetFiles(inputFolder, "scn_sh");
             archives[3] = BIN.GetFiles(inputFolder, "ui");
             archives[4] = BIN.GetFiles(inputFolder, "dat");
-            archives[5] = BIN.GetFiles(inputFolder, "strap");
 
             var mcb0Path = Path.GetDirectoryName(inputFolder) + Path.DirectorySeparatorChar + "mcb0.bln";
             var mcb0 = File.OpenRead(mcb0Path);
@@ -83,6 +95,35 @@ namespace StrikersTools.FileFormats
                 }
             }
 
+            // Now we can actually import files
+
+            // Rebuilding the mcb1.bln (the most tedious part)
+            mcb1 = File.Open(inputFolder + "\\mcb1.bln", FileMode.Create);
+            using (var bw = new BinaryWriter(mcb1))
+            {
+                var i = 0;
+                foreach (var subBln in subBlns)
+                {
+                    var mcb0Entry = mcb0Entries[i];
+                    mcb0Entry.offset = (uint)bw.BaseStream.Position;
+
+                    foreach(var file in subBln)
+                    {
+                        var fileInBin = archives[file.archiveId][file.index];
+                        bw.Write(file.archiveId);
+                        bw.Write(fileInBin.offset);
+                        bw.Write(fileInBin.size);
+
+                        bw.Write(BIN.GetFile(inputFolder, ArchiveNames[file.archiveId], (int)fileInBin.offset, (int)fileInBin.size));
+                        bw.WriteAlignment(0x4000, 0);
+                    }
+                    // terminator
+                    bw.Write(0x7Fff);
+
+                    bw.WriteAlignment(0x800,0);
+                    mcb0Entry.size = (uint)bw.BaseStream.Position - mcb0Entry.offset;
+                }
+            }
 
         }
         public static void RepackArchiveAndBLN(string inputFolder, string binPath, string blnPath)

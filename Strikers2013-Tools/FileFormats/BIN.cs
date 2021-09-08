@@ -11,6 +11,7 @@ namespace StrikersTools.FileFormats
         public uint size;
         public long offset;
         public int index;
+        public bool modified;
         public BinFileInfo(BinaryReader br, int shiftFactor, int padFactor, int mulFactor, int mask, int index)
         {
             var offSize = br.ReadUInt32();
@@ -18,6 +19,7 @@ namespace StrikersTools.FileFormats
             offset = (offSize >> shiftFactor) * padFactor;
             size = (uint)((offSize & mask) * mulFactor);
             this.index = index;
+            modified = false;
         }
     }
     class BIN
@@ -174,6 +176,18 @@ namespace StrikersTools.FileFormats
             return $"{index:00000000}.{extension}";
         }
         
+        public static byte[] GetFile(string folder, string name, int offset, int size)
+        {
+            var file = File.OpenRead(folder + "\\" + name + ".bin");
+            var br = new BinaryReader(file);
+
+            br.BaseStream.Position = offset;
+            var data = br.ReadBytes(size);
+            br.Close();
+
+            return data;
+        }
+
         public static List<BinFileInfo> GetFiles(string folder, string name)
         {
             var file = File.OpenRead(folder + "\\" + name + ".bin");

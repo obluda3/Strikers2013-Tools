@@ -25,5 +25,13 @@ namespace StrikersTools.Utils
             return output;
         }
 
+        public static void WriteAlignment(this BinaryWriter bw, int alignment, byte padByte)
+        {
+            if (bw.BaseStream.Position % alignment == 0)
+                return;
+
+            var count = ((bw.BaseStream.Position / alignment) + 1) * alignment;
+            bw.PadWith(padByte, count);
+        }
     }
 }
