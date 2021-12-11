@@ -16,10 +16,6 @@ namespace StrikersTools
 {
     public partial class MainForm : Form
     {
-
-
-
-        private bool importBln = false;
         private Bitmap bitmap = new Bitmap(10,10);
         public MainForm()
         {

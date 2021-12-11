@@ -9,9 +9,13 @@ using StrikersTools.Utils;
 
 namespace StrikersTools.FileFormats
 {
+    /// Needs a major rewrite
+    /// This was before I managed to really understand the format
+    /// check https://www.github.com/Obluda3/strikers2013-re-notes
+    /// for more info.
+    /// With a rewrite, we might be able to extract the other sections as well
     class TEXT
     {
-        private int unkCount;
         private uint END_OF_TEXTOFF, POINTERS_OFF;
         private uint sectNumber, offsetPointer, entryCount, endOfText;
         private uint begSec2, endSec2 = 0;
@@ -168,7 +172,6 @@ namespace StrikersTools.FileFormats
                 sectNumber = ber.ReadUInt32();
 
                 // Takes into account all text files that way
-                unkCount = 0;
                 switch (sectNumber)
                 {
                     case 1:

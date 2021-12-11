@@ -169,6 +169,5 @@ namespace StrikersTools.FileFormats
         public int offset;
         public byte[] data;
         public int index;
-        public int firstIndex;
     }
 }

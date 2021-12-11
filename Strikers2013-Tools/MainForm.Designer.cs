@@ -102,9 +102,9 @@
             this.label6.AutoSize = true;
             this.label6.Location = new System.Drawing.Point(6, 65);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(108, 13);
+            this.label6.Size = new System.Drawing.Size(68, 13);
             this.label6.TabIndex = 16;
-            this.label6.Text = "Modified files location";
+            this.label6.Text = "Modified files";
             // 
             // txtMcb
             // 
@@ -141,9 +141,9 @@
             this.label5.AutoSize = true;
             this.label5.Location = new System.Drawing.Point(6, 39);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(53, 13);
+            this.label5.Size = new System.Drawing.Size(50, 13);
             this.label5.TabIndex = 14;
-            this.label5.Text = "MCB1.bln";
+            this.label5.Text = "mcb1.bln";
             // 
             // label4
             // 
@@ -205,9 +205,9 @@
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(6, 13);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(43, 13);
+            this.label3.Size = new System.Drawing.Size(110, 13);
             this.label3.TabIndex = 3;
-            this.label3.Text = "Archive";
+            this.label3.Text = "Archive file (ui/grp/...)";
             // 
             // tabPage1
             // 

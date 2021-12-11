@@ -15,7 +15,7 @@ namespace StrikersTools.FileFormats
 
         public static void Export(string input)
         {
-            byte[] unkChunk, textureData;
+            byte[] textureData;
             int textureDataLength = 0;
 
             var file = File.Open(input, FileMode.Open);
