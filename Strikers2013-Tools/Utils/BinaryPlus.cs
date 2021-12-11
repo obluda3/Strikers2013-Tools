@@ -25,13 +25,28 @@ namespace StrikersTools.Utils
             return output;
         }
 
-        public static void WriteAlignment(this BinaryWriter bw, int alignment, byte padByte)
+        public static void WriteAlignment(this BinaryWriter bw, int alignment, byte padByte = 0)
         {
             if (bw.BaseStream.Position % alignment == 0)
                 return;
 
-            var count = ((bw.BaseStream.Position / alignment) + 1) * alignment;
+            var count = (((bw.BaseStream.Position / alignment) + 1) * alignment) - bw.BaseStream.Position;
             bw.PadWith(padByte, count);
+        }
+
+        public static void SeekAlignment(this BinaryReader br, int alignment)
+        {
+            if (br.BaseStream.Position % alignment == 0)
+                return;
+
+            br.BaseStream.Position = ((br.BaseStream.Position / alignment) + 1) * alignment;
+        }
+        public static void SeekAlignment(this BinaryWriter bw, int alignment)
+        {
+            if (bw.BaseStream.Position % alignment == 0)
+                return;
+
+            bw.BaseStream.Position = ((bw.BaseStream.Position / alignment) + 1) * alignment;
         }
     }
 }

@@ -3,27 +3,44 @@ using System.IO;
 using System.Collections.Generic;
 using System.Text;
 using StrikersTools.Utils;
+using System.Linq;
 
 namespace StrikersTools.FileFormats
 {
     struct BinFileInfo 
     {
         public uint size;
+        public uint paddedSize;
+        public uint trueSize;
         public long offset;
+        public long oldOffset;
         public int index;
         public bool modified;
-        public BinFileInfo(BinaryReader br, int shiftFactor, int padFactor, int mulFactor, int mask, int index)
+        public string modifiedFilePath;
+        public BinFileInfo(BinaryReader br, int shiftFactor, int padFactor, int mulFactor, int mask, int i)
         {
             var offSize = br.ReadUInt32();
 
             offset = (offSize >> shiftFactor) * padFactor;
             size = (uint)((offSize & mask) * mulFactor);
-            this.index = index;
+            paddedSize = size;
+            trueSize = size;
+
+            oldOffset = offset;
+            index = i;
             modified = false;
+            modifiedFilePath = "";
         }
     }
     class BIN
     {
+        // https://github.com/FanTranslatorsInternational/Kuriimu2/blob/dev/plugins/Shade/plugin_shade/Archives/BlnSubSupport.cs
+        // 0x00 => grp.bin
+        // 0x01 => scn.bin
+        // 0x02 => scn_sh.bin
+        // 0x03 => ui.bin
+        // 0x04 => dat.bin
+        public static string[] ArchiveNames = { "grp.bin", "scn.bin", "scn_sh.bin", "ui.bin", "dat.bin" };
         public static void ExportFiles(string input)
         {
             var binfile = File.OpenRead(input);
@@ -51,66 +68,114 @@ namespace StrikersTools.FileFormats
             }
         }
 
-        public static List<uint> ImportFiles(string inputFolder, string binPath)
+        public static BinFileInfo[] ImportFiles(string inputFolder, string binPath)
         {
-            var archiveOffsets = new List<uint>();
-            using (var binfile = File.Open(binPath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
+            BinFileInfo[] result;
+            var binfile = File.Open(binPath, FileMode.Open);
+            var tempFile = File.OpenWrite(binPath + ".tmp");
+            using (var br = new BinaryReader(binfile))
             {
-                using (var br = new BinaryReader(binfile))
+                using (var bw = new BinaryWriter(tempFile))
                 {
-                    using (var bw = new BinaryWriter(binfile))
+                    // Reads header
+                    var fileCount = br.ReadInt32();
+                    var padFactor = br.ReadInt32();
+                    var mulFactor = br.ReadInt32();
+                    var shiftFactor = br.ReadInt32();
+                    var mask = br.ReadInt32();
+
+                    var files = Directory.GetFiles(inputFolder);
+
+                    // Get file info
+                    var fileTable = new BinFileInfo[fileCount];
+                    for (var i = 0; i < fileCount; i++)
+                        fileTable[i] = new BinFileInfo(br, shiftFactor, padFactor, mulFactor, mask, i);
+
+                    // Get modified files's filenames
+                    foreach (var file in files)
                     {
-                        // Reads header
-                        var fileCount = br.ReadInt32();
-                        var padFactor = br.ReadInt32();
-                        var mulFactor = br.ReadInt32();
-                        var shiftFactor = br.ReadInt32();
-                        var mask = br.ReadInt32();
-
-                        var files = Directory.GetFiles(inputFolder);
-
-                        foreach (var file in files)
+                        try
                         {
-                            // Gets the index of the file in the archive
                             var index = Convert.ToInt32(Path.GetFileNameWithoutExtension(file).Split('.')[0]);
-
-                            // Can't add files yet
-                            if (index >= fileCount)
-                            {
-                                Console.WriteLine("{0} skipped : index {1} over the file count limit ({2})", Path.GetFileName(file), index, fileCount);
-                                continue;
-                            }
-
-                            var fileStream = File.OpenRead(file);
-
-                            uint originalSize;
-                            var offset = GetOffsetAndSize(padFactor, mulFactor, shiftFactor, mask, index, binfile, out originalSize);
-                            var size = fileStream.Length;
-
-                            // Doesn't support changing the file size
-                            if (size > originalSize)
-                            {
-                                Console.WriteLine("{0} skipped : size {1} over original size of {2}", Path.GetFileName(file), size, originalSize);
-                                continue;
-                            }
-
-                            Console.WriteLine("File {0} :\n\t- Size : {1}\n\t- Offset : {2}\n\t- Index : {3}", Path.GetFileName(file), size, offset, index);
-                            // Write the modified data
-                            binfile.Position = offset;
-                            using (var _br = new BinaryReader(fileStream))
-                            {
-                                bw.Write(_br.ReadBytes((int)size));
-                            }
-
-                            // Pads to original size
-                            var padSize = originalSize - size;
-                            bw.PadWith(0, padSize);
-                            archiveOffsets.Add((uint)offset);
+                            fileTable[index].modified = true;
+                            fileTable[index].modifiedFilePath = file;
+                        }
+                        catch (FormatException)
+                        {
+                            Console.WriteLine("Not a valid filename: ", file);
+                            continue;
                         }
                     }
+
+                    // Write header
+                    bw.Write(fileCount);
+                    bw.Write(padFactor);
+                    bw.Write(mulFactor);
+                    bw.Write(shiftFactor);
+                    bw.Write(mask);
+
+                    // Placeholder for the file table
+                    for(var i = 0; i < fileCount; i++) bw.Write(0);
+
+                    bw.WriteAlignment(padFactor);
+                    br.SeekAlignment(padFactor);
+                    for (var i = 0; i < fileCount; i++)
+                    {
+                        var file = fileTable[i];
+                        // Update offset
+                        var newOffset = bw.BaseStream.Position;
+
+                        if (file.modified)
+                        {
+                            Console.WriteLine("File {0}: Index: {1}", Path.GetFileName(file.modifiedFilePath), file.index);
+                            var data = File.ReadAllBytes(file.modifiedFilePath);
+                            bw.Write(data);
+                            file.size = (uint)(padFactor * ((data.Length + padFactor - 1) / padFactor)); // Align to 0x10 bytes        
+                        }
+                        else
+                        {
+                            br.BaseStream.Position = file.offset;
+
+                            // For some reason, some files do not have the correct size
+                            uint size = 0;
+                            if(br.ReadUInt32() == 0xA755AAFC) // Gets the size from the compression header
+                            {
+                                br.ReadUInt32();
+                                size = br.ReadUInt32();
+                                br.BaseStream.Position -= 8;
+                            }
+                            br.BaseStream.Position -= 4;
+                            file.trueSize = Math.Max(size, file.size);
+
+                            var fileData = br.ReadBytes((int)file.trueSize);
+                            bw.Write(fileData);
+                        }
+
+                        file.paddedSize = (uint)(padFactor * ((file.size + padFactor - 1) / padFactor));
+
+                        bw.WriteAlignment(padFactor);
+                        file.offset = newOffset;
+
+                        fileTable[i] = file;
+                    }
+
+                    bw.BaseStream.Position = 0x14; // After the header
+                    foreach(var fileInfo in fileTable)
+                    {
+                        uint offsize = 0;
+                        offsize |= (uint)(fileInfo.offset / padFactor) << shiftFactor;
+                        offsize |= (uint)(fileInfo.size / mulFactor);
+
+                        bw.Write(offsize);
+                    }
+
+                    result = fileTable;
                 }
             }
-            return archiveOffsets;
+            File.Move(binPath,binPath + ".old");
+            File.Move(binPath + ".tmp", binPath);
+            
+            return result;
         }
 
         public static string GuessExtension(Stream input)
@@ -175,18 +240,6 @@ namespace StrikersTools.FileFormats
 
             return $"{index:00000000}.{extension}";
         }
-        
-        public static byte[] GetFile(string folder, string name, int offset, int size)
-        {
-            var file = File.OpenRead(folder + "\\" + name + ".bin");
-            var br = new BinaryReader(file);
-
-            br.BaseStream.Position = offset;
-            var data = br.ReadBytes(size);
-            br.Close();
-
-            return data;
-        }
 
         public static List<BinFileInfo> GetFiles(string folder, string name)
         {
@@ -210,21 +263,6 @@ namespace StrikersTools.FileFormats
             for (var i = 0; i < fileCount; i++)
                 files.Add(new BinFileInfo(br, shiftFactor, padFactor, mulFactor, mask, i));
             return files;
-        }
-
-        private static long GetOffsetAndSize(int padFactor, int mulFactor, int shiftFactor, int mask, int index, Stream input, out uint size)
-        {
-            input.Position = 20 + index * 4;
-
-            var br = new BinaryReader(input);
-
-            var offSize = br.ReadUInt32();
-
-            var offset = (offSize >> shiftFactor) * padFactor;
-            size = (uint)((offSize & mask) * mulFactor);
-
-            return offset;
-            
         }
     }
 }
