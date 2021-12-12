@@ -41,7 +41,7 @@ namespace StrikersTools.FileFormats
         // 0x03 => ui.bin
         // 0x04 => dat.bin
         public static string[] ArchiveNames = { "grp.bin", "scn.bin", "scn_sh.bin", "ui.bin", "dat.bin" };
-        public static void ExportFiles(string input)
+        public static void ExportFiles(string input, IProgress<int> progress)
         {
             var binfile = File.OpenRead(input);
             var folder = Path.GetDirectoryName(input) + Path.DirectorySeparatorChar + Path.GetFileNameWithoutExtension(input);
@@ -51,8 +51,9 @@ namespace StrikersTools.FileFormats
             {
                 var files = GetFiles(br);
 
-                foreach (var file in files)
+                for (var i = 0; i < files.Count; i++)
                 {
+                    var file = files[i];
                     // Create output file
                     var filename = GetFileName(file.index, binfile);
                     var output = File.Open(folder+"\\"+filename, FileMode.Create);
@@ -63,7 +64,7 @@ namespace StrikersTools.FileFormats
                     {
                         bw.Write(br.ReadBytes((int)file.size));
                     }
-
+                    progress.Report(i * 10000 / files.Count);
                 }
             }
         }
@@ -172,7 +173,7 @@ namespace StrikersTools.FileFormats
                     result = fileTable;
                 }
             }
-            File.Move(binPath,binPath + ".old");
+            File.Move(binPath, binPath.Replace(".bin", ".old"));
             File.Move(binPath + ".tmp", binPath);
             
             return result;

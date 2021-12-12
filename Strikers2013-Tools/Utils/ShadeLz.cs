@@ -59,6 +59,7 @@ namespace StrikersTools.Utils
                     windowOffset = (((flags & 0x1F) << 8) + compressed[inOffset++]);
                     prevOffset = windowOffset;
 
+                    Console.Write($"(LZ <-{windowOffset},{count}>)");
                     for (int i = 0; i < count; i++)
                         decompressed[outOffset + i] = decompressed[(outOffset - windowOffset) + i];
 
@@ -74,6 +75,7 @@ namespace StrikersTools.Utils
                     count = (flags & 0x1F);
                     windowOffset = prevOffset;
 
+                    Console.Write($"(LZ <-{windowOffset},{count}>)");
                     for (int i = 0; i < count; i++)
                         decompressed[outOffset + i] = decompressed[(outOffset - windowOffset) + i];
 
@@ -93,6 +95,7 @@ namespace StrikersTools.Utils
                         count = ((((flags & 0x0F) << 8) + compressed[inOffset++]) + 4);
 
                     byte data = compressed[inOffset++];
+                    Console.Write($"(RLE <{data.ToString("X2")}, {count}>)");
                     for (int i = 0; i < count; i++)
                         decompressed[outOffset++] = data;
                 }
@@ -108,6 +111,8 @@ namespace StrikersTools.Utils
                     else
                         count = (((flags & 0x1F) << 8) + compressed[inOffset++]);
 
+                    var buffer = compressed.Skip(inOffset).Take(count).ToArray();
+                    Console.Write(BitConverter.ToString(buffer).Replace('-', ' '));
                     for (int i = 0; i < count; i++)
                         decompressed[outOffset++] = compressed[inOffset++];
                 }

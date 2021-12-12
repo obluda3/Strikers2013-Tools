@@ -132,16 +132,30 @@ namespace StrikersTools
             }
         }
 
-        private void btnImportArc_Click(object sender, EventArgs e)
+        private async void btnImportArc_Click(object sender, EventArgs e)
         {
-            BLN.RepackArchiveAndBLN(txtModified.Text, txtPathArc.Text, txtMcb.Text);
-            MessageBox.Show("Done !", "Done");
+            var progress = new Progress<int>(value =>
+            {
+                progressBar1.Value = value;
+                lblProgress.Text = $"{value / 100} %";
+            });
+            
+            await Task.Run(() => BLN.RepackArchiveAndBLN(txtModified.Text, txtPathArc.Text, txtMcb.Text, progress));
+            lblProgress.Text = "Done !";
+            progressBar1.Value = 0;
         }
 
-        private void btnExportArc_Click(object sender, EventArgs e)
+        private async void btnExportArc_Click(object sender, EventArgs e)
         {
-            BIN.ExportFiles(txtPathArc.Text);
-            MessageBox.Show("Done !", "Done");
+            var progress = new Progress<int>(value =>
+            {
+                progressBar1.Value = value;
+                lblProgress.Text = $"{value / 100} %";
+            });
+
+            await Task.Run(() => BIN.ExportFiles(txtPathArc.Text, progress));
+            lblProgress.Text = "Done !";
+            progressBar1.Value = 0;
         }
 
         private void btn_Convert(object sender, EventArgs e)

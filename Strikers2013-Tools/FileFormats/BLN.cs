@@ -2,6 +2,7 @@
 using System.IO;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using StrikersTools.Utils;
 using System.Linq;
 
@@ -33,7 +34,7 @@ namespace StrikersTools.FileFormats
         // 0x04 => dat.bin
         public static string[] ArchiveNames = { "grp.bin", "scn.bin", "scn_sh.bin", "ui.bin", "dat.bin" };
         private const int MCB0ENTRYLENGTH = 0xC;
-        public static void RepackArchiveAndBLN(string inputFolder, string binPath, string blnPath)
+        public static async void RepackArchiveAndBLN(string inputFolder, string binPath, string blnPath, IProgress<int> progress)
         {
             var archiveFileName = Path.GetFileName(binPath);
             var archiveIndex = -1;
@@ -49,13 +50,15 @@ namespace StrikersTools.FileFormats
             if (archiveIndex < 0)
                 return;
 
-            var fileTable = BIN.ImportFiles(inputFolder, binPath).ToList();
+            var fileTable = await Task.Run(() => BIN.ImportFiles(inputFolder, binPath));
 
             // Get mcb0 entries offsets
             var mcb0Path = Path.GetDirectoryName(blnPath) + Path.DirectorySeparatorChar + "mcb0.bln";
             var mcb0 = File.OpenRead(mcb0Path);
             var mcb0Entries = GetMcb0Entries(mcb0);
             mcb0.Position = MCB0ENTRYLENGTH * mcb0Entries.Count;
+
+            progress.Report(10000 / (mcb0Entries.Count + 1));
 
             // Saves the unknown data at the end of the mcb0
             var unkMcb0 = new byte[mcb0.Length - mcb0.Position];
@@ -123,7 +126,7 @@ namespace StrikersTools.FileFormats
                             else
                             {
                                 bw.Write(br.ReadBytes(size));
-                            }    
+                            }
                         }
                         bw.WriteAlignment(0x800);
                         var newSize = (uint)bw.BaseStream.Position - newOffset;
@@ -131,15 +134,18 @@ namespace StrikersTools.FileFormats
                         mcb0Entry.size = newSize;
 
                         mcb0Entries[i] = mcb0Entry;
+                        progress.Report(10000 * (i+2) / (mcb0Entries.Count + 1));
                     }
                     bw.Close();
                     br.Close();
                     mcb1.Close();
+                    binArchive.Close();
                 }
             }
-
-            File.Move(blnPath, blnPath + ".old");
+			
+            File.Move(blnPath, blnPath.Replace(".bln", ".old"));
             File.Move(blnPath + ".tmp", blnPath);
+            File.Move(mcb0Path, mcb0Path.Replace(".bln", ".old"));
             mcb0 = File.Open(mcb0Path, FileMode.Create);
             using(var bw = new BinaryWriter(mcb0))
             {

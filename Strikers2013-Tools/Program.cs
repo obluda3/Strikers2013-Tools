@@ -90,13 +90,13 @@ namespace StrikersTools
             Console.WriteLine("\t- Repack to .bin archive :");
             Console.WriteLine("\t\tStrikers2013Tools.exe -r <path to extracted bin archive> <path to .bin archive>");
             Console.WriteLine("\t- Repack to .bin archive and BLN :");
-            Console.WriteLine("\t\tStrikers2013Tools.exe -r <path to .bin archive> <path to extracted bin archive> <path to mcb1.bln>");
+            Console.WriteLine("\t\tStrikers2013Tools.exe -r <path to .bin archive> <path to modified files> <path to mcb1.bln>");
             Console.WriteLine("\t- Import to text file :");
             Console.WriteLine("\t\tStrikers2013Tools.exe -i <path to original text file> <path to modified text file> <output path>");
             Console.WriteLine("\t- Export SHTXFS file :");
             Console.WriteLine("\t\tStrikers2013Tools.exe -she <path to SHTX>");
-            Console.WriteLine("\t- Import SHTXFS file :");
-            Console.WriteLine("\t\tStrikers2013Tools.exe -shi <path to SHTX>");
+            Console.WriteLine("\t- Convert to SHTXFS :");
+            Console.WriteLine("\t\tStrikers2013Tools.exe -shi <path to png>");
             Console.WriteLine("\t- Encrypt password :");
             Console.WriteLine("\t\tStrikers2013Tools.exe -p <Password>");
             Console.WriteLine("\t- Decompress file :");
@@ -116,7 +116,8 @@ namespace StrikersTools
                 PrintUsage();
                 return;
             }
-            BIN.ExportFiles(path);
+            var progress = new Progress<int>();
+            BIN.ExportFiles(path, progress);
         }
 
         static void ImportText(string path, string txt, string output)
@@ -150,11 +151,11 @@ namespace StrikersTools
                     Console.WriteLine("mcb0.bln not found");
                     return;
                 }
-
-                BLN.RepackArchiveAndBLN(inputPath, binPath, mcbPath);
+                var progress = new Progress<int>();
+                BLN.RepackArchiveAndBLN(inputPath, binPath, mcbPath, progress);
             }
             else
-                PrintUsage();
+               PrintUsage();
         }
 
         static void ImportFiles(string binPath, string inputPath)
