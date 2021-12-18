@@ -41,10 +41,10 @@ namespace StrikersTools
                             PrintUsage();
                         break;
                     case "-r":
-                        if (args.Length > 3)
+                        if (args.Length > 4)
                             Repack(args[1], args[2], args[3]);
-                        else if (args.Length > 2)
-                            ImportFiles(args[1], args[2]);
+                        else if (args.Length > 3)
+                            ImportFiles(args[1], args[2], args[3]);
                         else
                             PrintUsage();
                         break;
@@ -88,7 +88,7 @@ namespace StrikersTools
             Console.WriteLine("\t- Export a text file :");
             Console.WriteLine("\t\tStrikers2013Tools.exe -e <path to Strikers text file> <output>");
             Console.WriteLine("\t- Repack to .bin archive :");
-            Console.WriteLine("\t\tStrikers2013Tools.exe -r <path to extracted bin archive> <path to .bin archive>");
+            Console.WriteLine("\t\tStrikers2013Tools.exe -r <path to .bin archive> <path to modified files> <destination>");
             Console.WriteLine("\t- Repack to .bin archive and BLN :");
             Console.WriteLine("\t\tStrikers2013Tools.exe -r <path to .bin archive> <path to modified files> <path to mcb1.bln>");
             Console.WriteLine("\t- Import to text file :");
@@ -117,7 +117,8 @@ namespace StrikersTools
                 return;
             }
             var progress = new Progress<int>();
-            BIN.ExportFiles(path, progress);
+            var arc = new ArchiveFile(Path.GetFullPath(path));
+            arc.ExtractFiles(progress);
         }
 
         static void ImportText(string path, string txt, string output)
@@ -158,12 +159,15 @@ namespace StrikersTools
                PrintUsage();
         }
 
-        static void ImportFiles(string binPath, string inputPath)
+        static void ImportFiles(string binPath, string inputPath, string destPath)
         {
-
-            if (Directory.Exists(inputPath) && File.Exists(binPath))
+            string inputFolder = Path.GetFullPath(inputPath);
+            string actualBinPath = Path.GetFullPath(binPath);
+            if (Directory.Exists(inputFolder) && File.Exists(actualBinPath))
             {
-                BIN.ImportFiles(inputPath, binPath);
+                var arc = new ArchiveFile(actualBinPath);
+                arc.ImportFiles(inputFolder);
+                arc.Save(Path.GetFullPath(destPath));
             }
             else
                 PrintUsage();

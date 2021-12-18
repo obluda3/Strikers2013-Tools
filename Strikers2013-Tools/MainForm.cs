@@ -152,8 +152,8 @@ namespace StrikersTools
                 progressBar1.Value = value;
                 lblProgress.Text = $"{value / 100} %";
             });
-
-            await Task.Run(() => BIN.ExportFiles(txtPathArc.Text, progress));
+            var arc = new ArchiveFile(txtPathArc.Text);
+            await Task.Run(() => arc.ExtractFiles(progress));
             lblProgress.Text = "Done !";
             progressBar1.Value = 0;
         }

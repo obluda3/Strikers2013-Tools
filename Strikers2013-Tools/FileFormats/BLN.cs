@@ -50,7 +50,10 @@ namespace StrikersTools.FileFormats
             if (archiveIndex < 0)
                 return;
 
-            var fileTable = await Task.Run(() => BIN.ImportFiles(inputFolder, binPath));
+            var binFile = new ArchiveFile(binPath);
+            await Task.Run(() => binFile.ImportFiles(inputFolder));
+
+            var fileTable = binFile.Files;
 
             // Get mcb0 entries offsets
             var mcb0Path = Path.GetDirectoryName(blnPath) + Path.DirectorySeparatorChar + "mcb0.bln";
@@ -106,20 +109,20 @@ namespace StrikersTools.FileFormats
 
                             // If it is, gets the fileInfo of the file
                             // using some LINQ magic.
-                            var fileInfo = fileTable.FirstOrDefault(x => x.oldOffset == arcOffset);
-                            if(fileInfo.offset == 0)
+                            var fileInfo = fileTable.FirstOrDefault(x => x.OldOffset == arcOffset);
+                            if(fileInfo.Offset == 0)
                             {
                                 Console.WriteLine("Invalid archive offset in SubBLN {0}: {1}\n\r", i, arcOffset);
                                 return;
                             }
-                            bw.Write((uint)fileInfo.offset);
-                            bw.Write(fileInfo.paddedSize);
+                            bw.Write((uint)fileInfo.Offset);
+                            bw.Write(fileInfo.Size);
                             var backupPos = bw.BaseStream.Position;
-                            if (fileInfo.modified)
+                            if (fileInfo.Modified)
                             {
                                 binArchive.Position = arcOffset;
-                                byte[] newData = new byte[fileInfo.paddedSize];
-                                binArchive.Read(newData, 0, (int)fileInfo.paddedSize);
+                                byte[] newData = new byte[fileInfo.Size];
+                                binArchive.Read(newData, 0, (int)fileInfo.Size);
                                 bw.Write(newData);
                                 br.BaseStream.Position += size;
                             }
