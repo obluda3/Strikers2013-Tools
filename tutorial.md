@@ -7,7 +7,7 @@
 
 With Strikers2013-Tools, you can extract the bin archives by going in **Archive**, selecting the desired one, and **Extract**. You can import files by creating a folder with all of the modified files, browse to the location of the mcb1.bln and the folder, then clicking on **Import**.
 
-The files in the game are compressed with ShadeLz/ShadeLzHeaderless. In most cases it's the regular one, but the files in dat.bin are compressed with the headerless version.
+The files in the game are compressed with an LZ/RLE based compression, "Shade Lz" in Kuriimu. In most cases it's the regular one, but the files in dat.bin are compressed with the headerless version.
 
 You can use [Scarlet](https://cdn.discordapp.com/attachments/697476778989584405/755511582833901578/Scarlet_Update.rar) (with a custom build that i'll describe later) or Kuriimu2 to decompress them all at once.
 
