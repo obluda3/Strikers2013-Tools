@@ -140,7 +140,7 @@ namespace StrikersTools
                 lblProgress.Text = $"{value / 100} %";
             });
             
-            await Task.Run(() => BLN.RepackArchiveAndBLN(txtModified.Text, txtPathArc.Text, txtMcb.Text, progress));
+            await BLN.RepackArchiveAndBLN(txtModified.Text, txtPathArc.Text, txtMcb.Text, progress);
             lblProgress.Text = "Done !";
             progressBar1.Value = 0;
         }
@@ -153,7 +153,7 @@ namespace StrikersTools
                 lblProgress.Text = $"{value / 100} %";
             });
             var arc = new ArchiveFile(txtPathArc.Text);
-            await Task.Run(() => arc.ExtractFiles(progress));
+            await arc.ExtractFiles(progress);
             lblProgress.Text = "Done !";
             progressBar1.Value = 0;
         }

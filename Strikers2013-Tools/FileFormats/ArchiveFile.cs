@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using StrikersTools.Utils;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace StrikersTools.FileFormats
 {
@@ -79,25 +80,28 @@ namespace StrikersTools.FileFormats
                 var paddedSize = (uint) ((size + PadFactor - 1) & ~(PadFactor - 1));
                 var data = br.ReadBytes((int)paddedSize);
 
-                var afi = new ArchiveFileInfo(size, offset, data, i);
+                var afi = new ArchiveFileInfo(paddedSize, offset, data, i);
                 files.Add(afi);
             }
             return files;
         }
-        public void ExtractFiles(IProgress<int> progress)
+        public async Task ExtractFiles(IProgress<int> progress)
         {
-            var folder = Path.GetDirectoryName(FileName) + Path.DirectorySeparatorChar + Path.GetFileNameWithoutExtension(FileName) + Path.DirectorySeparatorChar; 
-            Directory.CreateDirectory(folder);
+            await Task.Run(() =>
+           {
+               var folder = Path.GetDirectoryName(FileName) + Path.DirectorySeparatorChar + Path.GetFileNameWithoutExtension(FileName) + Path.DirectorySeparatorChar;
+               Directory.CreateDirectory(folder);
 
-            foreach (var file in Files)
-            {
-                // Create output file
-                var filename = GetFileName(file.Index);
-                var output = File.Open(folder + filename, FileMode.Create);
+               foreach (var file in Files)
+               {
+                    // Create output file
+                    var filename = GetFileName(file.Index);
+                   var output = File.Open(folder + filename, FileMode.Create);
 
-                output.Write(file.Data, 0, file.Data.Length);
-                progress.Report(file.Index * 10000 / Files.Count);
-            }
+                   output.Write(file.Data, 0, file.Data.Length);
+                   progress.Report(file.Index * 10000 / Files.Count);
+               }
+           });
         }
 
         public void ImportFile(int index, string path)
@@ -132,7 +136,7 @@ namespace StrikersTools.FileFormats
             }
         }
 
-        public void Save(string path)
+        public async Task Save(string path)
         {
             var file = File.Open(path, FileMode.Create);
             using (var bw = new BinaryWriter(file))

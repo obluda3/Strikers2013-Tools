@@ -109,7 +109,7 @@ namespace StrikersTools
             Console.WriteLine("\t\tStrikers2013Tools.exe -fi <path to font file> <path to letters>");
         }
 
-        static void UnpackArchive(string path)
+        static async void UnpackArchive(string path)
         {
             if (!File.Exists(path))
             {
@@ -118,33 +118,40 @@ namespace StrikersTools
             }
             var progress = new Progress<int>();
             var arc = new ArchiveFile(Path.GetFullPath(path));
-            arc.ExtractFiles(progress);
+            await arc.ExtractFiles(progress);
         }
 
         static void ImportText(string path, string txt, string output)
         {
-            if (!File.Exists(path) | !File.Exists(txt))
+            var filePath = Path.GetFullPath(path);
+            var txtPath = Path.GetFullPath(txt);
+            var outPath = Path.GetFullPath(output);
+            if (!File.Exists(filePath) | !File.Exists(txtPath))
             {
                 PrintUsage();
                 return;
             }
             var text = new TEXT();
-            text.ImportText(txt, path, output);
+            text.ImportText(txtPath, filePath, outPath);
         }
 
         static void ExportText(string input, string output)
         {
-            if (!File.Exists(input))
+            var inputPath = Path.GetFullPath(input);
+            if (!File.Exists(inputPath))
             {
                 PrintUsage();
                 return;
             }
             var text = new TEXT();
-            text.ExportText(input, output);
+            text.ExportText(inputPath, Path.GetFullPath(output));
         }
 
-        static void Repack(string binPath, string inputPath, string mcbPath)
+        static async void Repack(string bin, string input, string mcb)
         {
+            var binPath = Path.GetFullPath(bin);
+            var inputPath = Path.GetFullPath(input);
+            var mcbPath = Path.GetFullPath(mcb);
             if (Directory.Exists(inputPath) && File.Exists(binPath) && File.Exists(mcbPath))
             {
                 if (!File.Exists(Path.GetDirectoryName(mcbPath) + Path.DirectorySeparatorChar + "mcb0.bln")) 
@@ -153,13 +160,13 @@ namespace StrikersTools
                     return;
                 }
                 var progress = new Progress<int>();
-                BLN.RepackArchiveAndBLN(inputPath, binPath, mcbPath, progress);
+                await BLN.RepackArchiveAndBLN(inputPath, binPath, mcbPath, progress);
             }
             else
                PrintUsage();
         }
 
-        static void ImportFiles(string binPath, string inputPath, string destPath)
+        static async void ImportFiles(string binPath, string inputPath, string destPath)
         {
             string inputFolder = Path.GetFullPath(inputPath);
             string actualBinPath = Path.GetFullPath(binPath);
@@ -167,7 +174,7 @@ namespace StrikersTools
             {
                 var arc = new ArchiveFile(actualBinPath);
                 arc.ImportFiles(inputFolder);
-                arc.Save(Path.GetFullPath(destPath));
+                await arc.Save(Path.GetFullPath(destPath));
             }
             else
                 PrintUsage();
