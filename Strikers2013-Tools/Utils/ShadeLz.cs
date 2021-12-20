@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using System.IO;
 
@@ -157,7 +158,7 @@ namespace StrikersTools.Utils
                     // Raw data
                     int length;
                     if ((flag & 0x20) == 0x00)
-                        length = flag & 0x1F;
+                        length = flag;
                     else
                         length = ((flag & 0x1F) << 8) + input[inOffset++];
 
@@ -194,8 +195,230 @@ namespace StrikersTools.Utils
             }
             return output;
         }
+
+        enum MatchType
+        {
+            None = 0,
+            LZ,
+            RLE
+        }
+
+        public static byte[] EncodeRawBytes(List<byte> rawBytes, int rawLength)
+        {
+            List<byte> rawSection = new List<byte>();
+            if (rawLength < 0x20)
+            {
+                rawSection.Add((byte)rawLength);
+                rawSection.AddRange(rawBytes);
+                rawBytes.Clear();
+            }
+            else
+            {
+                var curLen = rawLength;
+                while (curLen > 0x1FFF)
+                {
+                    rawSection.Add(0x3F);
+                    rawSection.Add(0xFF);
+                    rawSection.AddRange(rawBytes.Take(curLen));
+                    rawBytes.RemoveRange(0, curLen);
+                    curLen -= 0x1FFF;
+                }
+                if (curLen < 0x1f)
+                {
+                    rawSection.Add((byte)rawLength);
+                    rawSection.AddRange(rawBytes.Take(curLen));
+                    rawBytes.RemoveRange(0, curLen);
+                }
+                else
+                {
+                    rawSection.Add((byte)(0x20 | ((0x1F00 & curLen) >> 8)));
+                    rawSection.Add((byte)(rawLength & 0xFF));
+                    rawSection.AddRange(rawBytes.Take(curLen));
+                    rawBytes.RemoveRange(0, curLen);
+                }
+            }
+            return rawSection.ToArray();
+        }
+        public static byte[] CompressData(byte[] data)
+        {
+            var output = new MemoryStream();
+
+            var pos = 0;
+            var length = data.Length;
+            var rawLength = 0;
+            int runLength = 0;
+            int matchLength = 0;
+            int matchOffset = 0;
+            MatchType match = MatchType.None;
+
+            int[] LastSeenPosition = new int[0x100];
+            Dictionary<int, int> BackPos = new Dictionary<int, int>();
+            List<byte> rawBytes = new List<byte>();
+
+            while(pos + rawLength < length)
+            {
+                var currentPos = pos + rawLength;
+                if (output.Position == 0x19 || output.Position == 0x1A)
+                    Console.WriteLine("z");
+                byte curByte = data[currentPos];
+                if(match == MatchType.None)
+                {
+                    if (length - currentPos > 4) 
+                    {
+                        // check LZ Match
+                        if (LastSeenPosition[curByte] != 0) 
+                        {
+                            var prevPos = LastSeenPosition[curByte];
+                            match = MatchType.LZ;
+                            if (currentPos - prevPos < 0x1FFF)
+                            {
+                                matchLength = 0;
+                                var curMatchLen = 0;
+                                while (data[currentPos + curMatchLen] == data[prevPos + curMatchLen])
+                                {
+                                    curMatchLen++;
+                                    if (currentPos + curMatchLen == data.Length)
+                                        break;
+                                }
+
+                                var longestMatchIndex = prevPos;
+                                matchLength = curMatchLen - 4;
+                                curMatchLen = 0;
+                                while (BackPos.ContainsKey(prevPos) && BackPos[prevPos] != 0)
+                                {
+                                    prevPos = BackPos[prevPos];
+                                    if (currentPos - prevPos > 0x1FFF) break;
+                                    while (data[currentPos + curMatchLen] == data[prevPos + curMatchLen])
+                                    {
+                                        curMatchLen++;
+                                        if (currentPos + curMatchLen == data.Length)
+                                            break;
+                                    }
+                                    longestMatchIndex = curMatchLen - 4 > matchLength ? prevPos : longestMatchIndex ;
+                                    matchLength = Math.Max(matchLength, curMatchLen - 4);
+                                }
+                                matchOffset = currentPos - longestMatchIndex;
+                                if (matchLength < 1) match = MatchType.None;
+                            }
+ 
+                        }
+                        else
+                        {
+                            // checking rle
+                            match = MatchType.RLE;
+                            for (var i = currentPos + 1; i < currentPos + 4; i++)
+                            {
+                                if (data[i] != curByte)
+                                {
+                                    match = MatchType.None;
+                                    break;
+                                }
+                            }
+                            if (match == MatchType.RLE)
+                            {
+                                while (data[currentPos + runLength + 4] == curByte)
+                                {
+                                    runLength++;
+                                    if (currentPos + runLength + 4 == length)
+                                        break;
+                                }
+                            }
+                        }
+                    }
+
+                }
+                if(match != MatchType.None)
+                {
+                    var rawSection = EncodeRawBytes(rawBytes, rawLength);
+                    output.Write(rawSection, 0, rawSection.Length);
+
+                    pos += rawLength;
+                    rawBytes.Clear();
+                    rawLength = 0;
+
+                    if(match == MatchType.RLE)
+                    {
+                        var curLen = runLength;
+                        while (curLen > 0x1000)
+                        {
+                            output.WriteByte(0x5F);
+                            output.WriteByte(0xFF);
+                            output.WriteByte(curByte);
+                            curLen -= 0x1000;
+                        }
+                        if (curLen < 0x10)
+                        {
+                            output.WriteByte((byte)(0x40 | runLength));
+                            output.WriteByte(curByte);
+                        }
+                        else 
+                        {
+                            output.WriteByte((byte)(0x50 | ((0xF00 & curLen) >> 8)));
+                            output.WriteByte((byte)(rawLength & 0xFF));
+                            output.WriteByte(curByte);
+                        }
+                        pos += runLength + 4;
+                        runLength = 0;
+                    }
+                    else if (match == MatchType.LZ)
+                    {
+                        if (matchLength < 4)
+                        {
+                            output.WriteByte((byte)(0x80 | (matchLength << 5) | ((matchOffset & 0x1F00) >> 8)));
+                            output.WriteByte((byte)(matchOffset & 0xFF));
+                        }
+                        else
+                        {
+                            var curMatchLen = matchLength;
+                            output.WriteByte((byte)(0xE0 | ((matchOffset & 0x1F00) >> 8)));
+                            output.WriteByte((byte)(matchOffset & 0xFF));
+
+                            curMatchLen -= 3;
+                            while(curMatchLen > 0x1F)
+                            {
+                                output.WriteByte(0x7F);
+                                curMatchLen -= 0x7F;
+                            }
+                            output.WriteByte((byte)(0x60 | (curMatchLen & 0x1F)));
+                        }
+                        pos += matchLength + 4;
+                        matchLength = 0;
+                        matchOffset = 0;
+
+                        // update positions
+                        for(var i = currentPos; i < currentPos + matchLength; i++)
+                        {
+                            var currentByte = data[i];
+                            var oldPrevPos = LastSeenPosition[currentByte];
+
+                            LastSeenPosition[currentByte] = i;
+                            BackPos[i] = oldPrevPos;
+                        }
+                    }
+                }
+                else
+                {
+                    rawBytes.Add(curByte);
+                    var oldPrevPos = LastSeenPosition[curByte];
+                    LastSeenPosition[curByte] = currentPos;
+                    BackPos[currentPos] = oldPrevPos;
+                    rawLength++;
+                }
+                match = MatchType.None;
+                
+                 
+            }
+            if (rawLength > 0)
+            {
+                var rawSection = EncodeRawBytes(rawBytes, rawLength);
+                output.Write(rawSection, 0, rawSection.Length);
+            }
+            return output.ToArray();
+        }
     }
 }
+
+
 // https://github.com/xdanieldzd/Scarlet/blob/master/Scarlet.IO.CompressionFormats/SpikeDRVita.cs
 /* Copy data from the output.
  * 1xxyyyyy yyyyyyyy
@@ -218,3 +441,21 @@ namespace StrikersTools.Utils
  * 001xxxxx xxxxxxxx
  * Count -> x
  */
+
+// if !wasMatchFound
+
+// Check for LZ Match (table of last usage and everything)
+// if there is, get offset and length
+
+// Check for RLE Run
+// if there is, get length and byte
+
+// Increase raw length
+
+// if wasMatchFound
+// Raw output
+// If LZ
+// Output lz match
+// reset everything
+// If RLE
+// Output RLE run
