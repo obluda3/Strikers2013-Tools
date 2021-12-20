@@ -85,7 +85,7 @@ namespace StrikersTools.FileFormats
             }
             return files;
         }
-        public async Task ExtractFiles(IProgress<int> progress)
+        public async Task ExtractFiles(IProgress<int> progress, bool decompress)
         {
             await Task.Run(() =>
            {
@@ -94,16 +94,36 @@ namespace StrikersTools.FileFormats
 
                foreach (var file in Files)
                {
-                    // Create output file
-                    var filename = GetFileName(file.Index);
-                   var output = File.Open(folder + filename, FileMode.Create);
-
+                   // Create output file
+                   var filename = GetFileName(file.Index);
+                   var extension = Path.GetExtension(filename);
+                   var outputPath = decompress ? Path.GetFileNameWithoutExtension(filename) + ".bin" : filename;
+                   var output = File.Open(folder + outputPath, FileMode.Create);
                    output.Write(file.Data, 0, file.Data.Length);
+                   output.Close();
+
+                   if (decompress)
+                   {
+                       var decompressedData = ShadeLz.Decompress(file.Data);
+                       var outDecompressed = File.Open(folder + Path.GetFileNameWithoutExtension(filename) + "_dec" + extension, FileMode.Create);
+                       outDecompressed.Write(decompressedData, 0, decompressedData.Length);
+                       outDecompressed.Close();
+                   }
+                    
                    progress.Report(file.Index * 10000 / Files.Count);
                }
            });
         }
 
+        public void ImportFile(int index, byte[] data)
+        {
+            var fileInfo = Files[index];
+            fileInfo.Data = data;
+            fileInfo.Modified = true;
+            fileInfo.Size = (uint)((data.Length + PadFactor - 1) & ~(PadFactor - 1));
+
+            Files[index] = fileInfo;
+        }
         public void ImportFile(int index, string path)
         {
             var data = File.ReadAllBytes(path);

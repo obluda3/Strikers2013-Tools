@@ -25,6 +25,7 @@ namespace StrikersTools
             }
             else
             {
+                
                 switch (args[0])
                 {
 
@@ -77,6 +78,7 @@ namespace StrikersTools
                         PrintUsage();
                         break;
                 }
+
             }
         }
 
@@ -118,7 +120,7 @@ namespace StrikersTools
             }
             var progress = new Progress<int>();
             var arc = new ArchiveFile(Path.GetFullPath(path));
-            await arc.ExtractFiles(progress);
+            await arc.ExtractFiles(progress, false);
         }
 
         static void ImportText(string path, string txt, string output)
@@ -201,7 +203,7 @@ namespace StrikersTools
         static void Compress(string input)
         {
             var fileData = File.ReadAllBytes(input);
-            var compressedData = ShadeLz.Compress(fileData);
+            var compressedData = ShadeLz.CompressData(fileData);
 
             var output = File.Open(input + ".out", FileMode.Create);
             output.Write(compressedData, 0, compressedData.Length);
