@@ -169,76 +169,10 @@ namespace StrikersTools.Utils
 
             return decompressedSize;
         }
-
-        // Not a real compressor yet, just produces valid files
-        public static byte[] Compress(byte[] input)
-        {
-            var outputStream = new MemoryStream();
-            byte[] output;
-            using (var bw = new BinaryWriter(outputStream))
-            {
-                var pos = 0;
-                while (pos < input.Length)
-                {
-                    var count = Math.Min(0x1FFF, input.Length - pos);
-                    var controlBytes = new byte[] { (byte)(((count & 0x1F00) >> 8) | 0x20), (byte)(count & 0xFF) };
-
-                    bw.Write(controlBytes);
-                    for(var i = 0; i < count; i++)
-                    {
-                        bw.Write(input[pos + i]);
-                    }
-                    pos += count;
-                }
-                bw.BaseStream.Position = 0;
-                output = outputStream.ToArray();
-            }
-            return output;
-        }
-
-        
-
-        public static byte[] EncodeRawBytes(List<byte> rawBytes, int rawLength)
-        {
-            List<byte> rawSection = new List<byte>();
-            if (rawLength < 0x20)
-            {
-                rawSection.Add((byte)rawLength);
-                rawSection.AddRange(rawBytes);
-                rawBytes.Clear();
-            }
-            else
-            {
-                var curLen = rawLength;
-                while (curLen > 0x1FFF)
-                {
-                    rawSection.Add(0x3F);
-                    rawSection.Add(0xFF);
-                    rawSection.AddRange(rawBytes.Take(curLen));
-                    rawBytes.RemoveRange(0, curLen);
-                    curLen -= 0x1FFF;
-                }
-                if (curLen < 0x1f)
-                {
-                    rawSection.Add((byte)rawLength);
-                    rawSection.AddRange(rawBytes.Take(curLen));
-                    rawBytes.RemoveRange(0, curLen);
-                }
-                else
-                {
-                    rawSection.Add((byte)(0x20 | ((0x1F00 & curLen) >> 8)));
-                    rawSection.Add((byte)(rawLength & 0xFF));
-                    rawSection.AddRange(rawBytes.Take(curLen));
-                    rawBytes.RemoveRange(0, curLen);
-                }
-            }
-            return rawSection.ToArray();
-        }
-        private enum MatchType { None, LZ, RLE }    
         public static byte[] CompressData(byte[] data)
         {
             var output = new MemoryStream();
-            
+
             var pos = 0;
             var length = data.Length;
             var rawLength = 0;
@@ -251,18 +185,18 @@ namespace StrikersTools.Utils
             Dictionary<int, int> BackPos = new Dictionary<int, int>();
             List<byte> rawBytes = new List<byte>();
 
-            while(pos + rawLength < length)
+            while (pos + rawLength < length)
             {
+                if (output.Position > 0x2b3c7)
+                    Console.WriteLine("ee");
                 var currentPos = pos + rawLength;
-                if (output.Position == 0x34 || output.Position == 0x1A || currentPos >= 0x630)
-                    Console.WriteLine("z");
                 byte curByte = data[currentPos];
-                if(match == MatchType.None)
+                if (match == MatchType.None)
                 {
-                    if (length - currentPos > 4) 
+                    if (length - currentPos > 4)
                     {
                         // check LZ Match
-                        if (LastSeenPosition[curByte] != 0) 
+                        if (LastSeenPosition[curByte] != 0)
                         {
                             var prevPos = LastSeenPosition[curByte];
                             match = MatchType.LZ;
@@ -278,8 +212,8 @@ namespace StrikersTools.Utils
                                 }
 
                                 var longestMatchIndex = prevPos;
-                                matchLength = curMatchLen - 4;
-                                
+                                matchLength = curMatchLen;
+
                                 while (BackPos.ContainsKey(prevPos) && BackPos[prevPos] != 0)
                                 {
                                     curMatchLen = 0;
@@ -291,18 +225,19 @@ namespace StrikersTools.Utils
                                         if (currentPos + curMatchLen >= data.Length)
                                             break;
                                     }
-                                    longestMatchIndex = curMatchLen - 4 > matchLength ? prevPos : longestMatchIndex ;
-                                    matchLength = Math.Max(matchLength, curMatchLen - 4);
+                                    longestMatchIndex = curMatchLen > matchLength ? prevPos : longestMatchIndex;
+                                    matchLength = Math.Max(matchLength, curMatchLen);
                                 }
                                 matchOffset = currentPos - longestMatchIndex;
-                                if (matchLength < 1) match = MatchType.None;
+                                if (matchLength < 4) match = MatchType.None;
                             }
- 
+                            else match = MatchType.None;
                         }
-                        if(match != MatchType.LZ)
+                        if (match != MatchType.LZ)
                         {
                             // checking rle
                             match = MatchType.RLE;
+                            runLength = 1;
                             for (var i = currentPos + 1; i < currentPos + 4; i++)
                             {
                                 if (data[i] != curByte)
@@ -310,77 +245,42 @@ namespace StrikersTools.Utils
                                     match = MatchType.None;
                                     break;
                                 }
+                                runLength++;
                             }
                             if (match == MatchType.RLE)
                             {
-                                while (data[currentPos + runLength + 4] == curByte)
+                                while (data[currentPos + runLength] == curByte &&
+                                    currentPos + runLength < length)
                                 {
                                     runLength++;
-                                    if (currentPos + runLength + 4 == length)
-                                        break;
                                 }
                             }
                         }
                     }
 
                 }
-                if(match != MatchType.None)
+                if (match != MatchType.None)
                 {
-                    var rawSection = EncodeRawBytes(rawBytes, rawLength);
-                    output.Write(rawSection, 0, rawSection.Length);
-
-                    pos += rawLength;
-                    rawBytes.Clear();
-                    rawLength = 0;
-
-                    if(match == MatchType.RLE)
+                    if (rawLength > 0)
                     {
-                        var curLen = runLength;
-                        while (curLen > 0x1000)
-                        {
-                            output.WriteByte(0x5F);
-                            output.WriteByte(0xFF);
-                            output.WriteByte(curByte);
-                            curLen -= 0x1000;
-                        }
-                        if (curLen < 0x10)
-                        {
-                            output.WriteByte((byte)(0x40 | curLen));
-                            output.WriteByte(curByte);
-                        }
-                        else 
-                        {
-                            output.WriteByte((byte)(0x50 | ((0xF00 & curLen) >> 8)));
-                            output.WriteByte((byte)(curLen & 0xFF));
-                            output.WriteByte(curByte);
-                        }
-                        pos += runLength + 4;
+                        EncodeRawBytes(rawBytes, rawLength, output);
+                        pos += rawLength;
+                        rawBytes.Clear();
+                        rawLength = 0;
+                    }
+
+                    if (match == MatchType.RLE)
+                    {
+                        EncodeRun(runLength, curByte, output);
+                        pos += runLength;
                         runLength = 0;
                     }
                     else if (match == MatchType.LZ)
                     {
-                        if (matchLength < 4)
-                        {
-                            output.WriteByte((byte)(0x80 | (matchLength << 5) | ((matchOffset & 0x1F00) >> 8)));
-                            output.WriteByte((byte)(matchOffset & 0xFF));
-                        }
-                        else
-                        {
-                            var curMatchLen = matchLength;
-                            output.WriteByte((byte)(0xE0 | ((matchOffset & 0x1F00) >> 8)));
-                            output.WriteByte((byte)(matchOffset & 0xFF));
+                        EncodeMatch(matchLength, matchOffset, output);
 
-                            curMatchLen -= 3;
-                            while(curMatchLen > 0x1F)
-                            {
-                                output.WriteByte(0x7F);
-                                curMatchLen -= 0x7F;
-                            }
-                            output.WriteByte((byte)(0x60 | (curMatchLen & 0x1F)));
-                        }
-                        
                         // update positions
-                        for(var i = currentPos; i < currentPos + matchLength; i++)
+                        for (var i = currentPos; i < currentPos + matchLength; i++)
                         {
                             var currentByte = data[i];
                             var oldPrevPos = LastSeenPosition[currentByte];
@@ -388,10 +288,12 @@ namespace StrikersTools.Utils
                             LastSeenPosition[currentByte] = i;
                             BackPos[i] = oldPrevPos;
                         }
-                        pos += matchLength + 4;
+                        pos += matchLength;
                         matchLength = 0;
                         matchOffset = 0;
                     }
+
+                    match = MatchType.None;
                 }
                 else
                 {
@@ -402,16 +304,129 @@ namespace StrikersTools.Utils
                     rawLength++;
                 }
                 match = MatchType.None;
-                
-                 
+
+
             }
             if (rawLength > 0)
             {
-                var rawSection = EncodeRawBytes(rawBytes, rawLength);
-                output.Write(rawSection, 0, rawSection.Length);
+                EncodeRawBytes(rawBytes, rawLength, output);
             }
+
             return output.ToArray();
         }
+
+        // Not a real compressor yet, just produces valid files
+        private static void EncodeRun(int runLength, byte repeatedByte, Stream output)
+        {
+            var curLen = runLength;
+            while (curLen - 4 > 0xFFF)
+            {
+                output.WriteByte(0x5F);
+                output.WriteByte(0xFF);
+                output.WriteByte(repeatedByte);
+                curLen -= 0xFFF;
+            }
+            if (curLen - 4 < 0x10)
+            {
+                output.WriteByte((byte)(0x40 | (curLen - 4)));
+                output.WriteByte(repeatedByte);
+            }
+            else
+            {
+                output.WriteByte((byte)(0x50 | ((0xF00 & (curLen - 4)) >> 8)));
+                output.WriteByte((byte)((curLen - 4) & 0xFF));
+                output.WriteByte(repeatedByte);
+            }
+        }
+        private static void EncodeMatch(int matchLength, int matchOffset, Stream output)
+        {
+            if (matchLength < 8)
+            {
+                output.WriteByte((byte)(0x80 | ((matchLength - 4) << 5) | ((matchOffset & 0x1F00) >> 8)));
+                output.WriteByte((byte)(matchOffset & 0xFF));
+            }
+            else
+            {
+                var curMatchLen = matchLength;
+                output.WriteByte((byte)(0xE0 | ((matchOffset & 0x1F00) >> 8)));
+                output.WriteByte((byte)(matchOffset & 0xFF));
+
+                curMatchLen -= 7;
+                while (curMatchLen > 0x1f)
+                {
+                    output.WriteByte(0x7F);
+                    curMatchLen -= 0x1F;
+                }
+                output.WriteByte((byte)(0x60 | (curMatchLen & 0x1F)));
+            }
+        }
+
+        private static void EncodeRawBytes(List<byte> rawBytes, int rawLength, Stream output)
+        { 
+            if (rawBytes.Count != rawLength)
+                Console.WriteLine("wtf");
+            if (rawLength < 0x20)
+            {
+                output.WriteByte((byte)rawLength);
+                output.Write(rawBytes.ToArray(), 0, rawLength);
+                rawBytes.Clear();
+            }
+            else
+            {
+                var curLen = rawLength;
+                while (curLen > 0x1FFF)
+                {
+                    
+                    output.WriteByte(0x3F);
+                    output.WriteByte(0xFF);
+                    output.Write(rawBytes.Take(0x1FFF).ToArray(), 0, 0x1FFF);
+                    rawBytes.RemoveRange(0, 0x1FFF);
+                    curLen -= 0x1FFF;
+                    
+                }
+                if (curLen < 0x1f)
+                {
+                    output.WriteByte((byte)rawLength);
+                    output.Write(rawBytes.Take(curLen).ToArray(), 0, curLen);
+                    rawBytes.RemoveRange(0, curLen);
+                }
+                else
+                {
+                    output.WriteByte((byte)(0x20 | ((0x1F00 & curLen) >> 8)));
+                    output.WriteByte((byte)(curLen & 0xFF));
+                    output.Write(rawBytes.Take(curLen).ToArray(), 0, curLen);
+                    rawBytes.RemoveRange(0, curLen);
+                }
+            }
+        }
+        private enum MatchType { None, LZ, RLE }    
+        
+
+        /*
+        public static byte[] LegacyCompress(byte[] input)
+        {
+            var outputStream = new MemoryStream();
+            byte[] output;
+            using (var bw = new BinaryWriter(outputStream))
+            {
+                var pos = 0;
+                while (pos < input.Length)
+                {
+                    var count = Math.Min(0x1FFF, input.Length - pos);
+                    var controlBytes = new byte[] { (byte)(((count & 0x1F00) >> 8) | 0x20), (byte)(count & 0xFF) };
+
+                    bw.Write(controlBytes);
+                    for (var i = 0; i < count; i++)
+                    {
+                        bw.Write(input[pos + i]);
+                    }
+                    pos += count;
+                }
+                bw.BaseStream.Position = 0;
+                output = outputStream.ToArray();
+            }
+            return output;
+        }*/
     }
 }
 
