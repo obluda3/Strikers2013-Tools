@@ -165,9 +165,12 @@ namespace StrikersTools.Utils
 
             return decompressedSize;
         }
-        public static byte[] Compress(byte[] data)
+        public static byte[] Compress(byte[] data, bool needsHeader)
         {
             var output = new MemoryStream();
+
+            if(needsHeader)
+                for(var i = 0; i < 12; i++) output.WriteByte(0);
 
             var pos = 0;
             var length = data.Length;
@@ -304,6 +307,19 @@ namespace StrikersTools.Utils
             if (rawLength > 0)
             {
                 EncodeRawBytes(rawBytes, rawLength, output);
+            }
+
+            if (needsHeader)
+            {
+                output.Position = 0;
+                var magic = new byte[] { 0xFC, 0xAA, 0x55, 0xA7 };
+                var decompressedSize = BitConverter.GetBytes(length);
+                var compressedSize = BitConverter.GetBytes(output.Length);
+
+                output.Write(magic, 0, 4);
+                output.Write(decompressedSize, 0, 4);
+                output.Write(compressedSize, 0, 4);
+
             }
 
             return output.ToArray();

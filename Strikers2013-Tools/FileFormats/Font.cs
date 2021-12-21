@@ -60,7 +60,7 @@ namespace StrikersTools.FileFormats
                 var index = Convert.ToInt32(Path.GetFileNameWithoutExtension(file).Split('.')[0]);
                 var letter = letters[index];
                 var data = PNGToA4(file);
-                letter.data = ShadeLz.Compress(data);
+                letter.data = ShadeLz.Compress(data, false);
                 
                 /*
                 var letterOut = File.Open(Path.GetDirectoryName(file) + "\\out\\" + Path.GetFileNameWithoutExtension(file) + ".bin", FileMode.Create);

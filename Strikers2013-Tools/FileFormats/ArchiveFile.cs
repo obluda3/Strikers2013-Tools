@@ -115,12 +115,20 @@ namespace StrikersTools.FileFormats
            });
         }
 
-        public void ImportFile(int index, byte[] data)
+        public void ImportFile(int index, byte[] data, bool isDecompressed)
         {
             var fileInfo = Files[index];
-            fileInfo.Data = data;
+
+            var fileData = data;
+            if(isDecompressed)
+            {
+                var needsHeader = !FileName.Contains("dat");
+                fileData = ShadeLz.Compress(data, needsHeader);
+            }
+
+            fileInfo.Data = fileData;
             fileInfo.Modified = true;
-            fileInfo.Size = (uint)((data.Length + PadFactor - 1) & ~(PadFactor - 1));
+            fileInfo.Size = (uint)((fileData.Length + PadFactor - 1) & ~(PadFactor - 1));
 
             Files[index] = fileInfo;
         }
@@ -128,12 +136,9 @@ namespace StrikersTools.FileFormats
         {
             var data = File.ReadAllBytes(path);
             var fileInfo = Files[index];
-            fileInfo.Data = data;
-            fileInfo.Modified = true;
+            var isDecompressed = Path.GetExtension(path).EndsWith(".dec");
             fileInfo.Path = path;
-            fileInfo.Size = (uint) ((data.Length + PadFactor - 1) & ~(PadFactor-1));
-
-            Files[index] = fileInfo;
+            ImportFile(index, data, isDecompressed);
         }
 
         public void ImportFiles(string inputFolder)
