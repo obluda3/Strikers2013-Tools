@@ -60,7 +60,6 @@ namespace StrikersTools.Utils
                     windowOffset = (((flags & 0x1F) << 8) + compressed[inOffset++]);
                     prevOffset = windowOffset;
 
-                    Console.Write($"(LZ <-{windowOffset},{count}>)");
                     for (int i = 0; i < count; i++)
                         decompressed[outOffset + i] = decompressed[(outOffset - windowOffset) + i];
 
@@ -76,7 +75,6 @@ namespace StrikersTools.Utils
                     count = (flags & 0x1F);
                     windowOffset = prevOffset;
 
-                    Console.Write($"(LZ <-{windowOffset},{count}>)");
                     for (int i = 0; i < count; i++)
                         decompressed[outOffset + i] = decompressed[(outOffset - windowOffset) + i];
 
@@ -96,7 +94,6 @@ namespace StrikersTools.Utils
                         count = ((((flags & 0x0F) << 8) + compressed[inOffset++]) + 4);
 
                     byte data = compressed[inOffset++];
-                    Console.Write($"(RLE <{data.ToString("X2")}, {count}>)");
                     for (int i = 0; i < count; i++)
                         decompressed[outOffset++] = data;
                 }
@@ -108,12 +105,11 @@ namespace StrikersTools.Utils
                      * Count -> x
                      */
                     if ((flags & 0x20) == 0x00)
-                        count = (flags & 0x1F);
+                        count = flags;
                     else
                         count = (((flags & 0x1F) << 8) + compressed[inOffset++]);
 
-                    var buffer = compressed.Skip(inOffset).Take(count).ToArray();
-                    Console.Write(BitConverter.ToString(buffer).Replace('-', ' '));
+                    //Console.Write(BitConverter.ToString(buffer).Replace('-', ' '));
                     for (int i = 0; i < count; i++)
                         decompressed[outOffset++] = compressed[inOffset++];
                 }
@@ -169,7 +165,7 @@ namespace StrikersTools.Utils
 
             return decompressedSize;
         }
-        public static byte[] CompressData(byte[] data)
+        public static byte[] Compress(byte[] data)
         {
             var output = new MemoryStream();
 
@@ -187,8 +183,6 @@ namespace StrikersTools.Utils
 
             while (pos + rawLength < length)
             {
-                if (output.Position > 0x2b3c7)
-                    Console.WriteLine("ee");
                 var currentPos = pos + rawLength;
                 byte curByte = data[currentPos];
                 if (match == MatchType.None)

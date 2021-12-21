@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using StrikersTools.FileFormats;
@@ -25,7 +26,7 @@ namespace StrikersTools
             }
             else
             {
-                
+                /*
                 switch (args[0])
                 {
 
@@ -77,7 +78,26 @@ namespace StrikersTools
                     default:
                         PrintUsage();
                         break;
-                }
+                }*/
+                var data = File.ReadAllBytes("3.out");
+                var watch = System.Diagnostics.Stopwatch.StartNew();
+                var compressed = ShadeLz.Compress(data);
+                watch.Stop();
+                var elapsedMsComp = watch.ElapsedMilliseconds;
+
+                watch = Stopwatch.StartNew();
+                var decompressed = ShadeLz.Decompress(compressed);
+                watch.Stop();
+                var elapsedMsDec = watch.ElapsedMilliseconds;
+
+                Console.WriteLine($"Compression: {elapsedMsComp}ms");
+                Console.WriteLine($"Decompression: {elapsedMsDec}ms");
+
+                if (decompressed.Length != data.Length) Console.WriteLine("uh uh");
+                for (var i = 0; i < decompressed.Length; i++) 
+                    if (decompressed[i] != data[i]) 
+                        Console.WriteLine($"uh uh, {i}");
+
 
             }
         }
@@ -203,7 +223,7 @@ namespace StrikersTools
         static void Compress(string input)
         {
             var fileData = File.ReadAllBytes(input);
-            var compressedData = ShadeLz.CompressData(fileData);
+            var compressedData = ShadeLz.Compress(fileData);
 
             var output = File.Open(input + ".out", FileMode.Create);
             output.Write(compressedData, 0, compressedData.Length);
