@@ -196,12 +196,7 @@ namespace StrikersTools.Utils
             return output;
         }
 
-        enum MatchType
-        {
-            None = 0,
-            LZ,
-            RLE
-        }
+        
 
         public static byte[] EncodeRawBytes(List<byte> rawBytes, int rawLength)
         {
@@ -239,10 +234,11 @@ namespace StrikersTools.Utils
             }
             return rawSection.ToArray();
         }
+        private enum MatchType { None, LZ, RLE }    
         public static byte[] CompressData(byte[] data)
         {
             var output = new MemoryStream();
-
+            
             var pos = 0;
             var length = data.Length;
             var rawLength = 0;
@@ -258,7 +254,7 @@ namespace StrikersTools.Utils
             while(pos + rawLength < length)
             {
                 var currentPos = pos + rawLength;
-                if (output.Position == 0x19 || output.Position == 0x1A)
+                if (output.Position == 0x34 || output.Position == 0x1A || currentPos >= 0x630)
                     Console.WriteLine("z");
                 byte curByte = data[currentPos];
                 if(match == MatchType.None)
@@ -277,21 +273,22 @@ namespace StrikersTools.Utils
                                 while (data[currentPos + curMatchLen] == data[prevPos + curMatchLen])
                                 {
                                     curMatchLen++;
-                                    if (currentPos + curMatchLen == data.Length)
+                                    if (currentPos + curMatchLen >= data.Length)
                                         break;
                                 }
 
                                 var longestMatchIndex = prevPos;
                                 matchLength = curMatchLen - 4;
-                                curMatchLen = 0;
+                                
                                 while (BackPos.ContainsKey(prevPos) && BackPos[prevPos] != 0)
                                 {
+                                    curMatchLen = 0;
                                     prevPos = BackPos[prevPos];
                                     if (currentPos - prevPos > 0x1FFF) break;
                                     while (data[currentPos + curMatchLen] == data[prevPos + curMatchLen])
                                     {
                                         curMatchLen++;
-                                        if (currentPos + curMatchLen == data.Length)
+                                        if (currentPos + curMatchLen >= data.Length)
                                             break;
                                     }
                                     longestMatchIndex = curMatchLen - 4 > matchLength ? prevPos : longestMatchIndex ;
@@ -302,7 +299,7 @@ namespace StrikersTools.Utils
                             }
  
                         }
-                        else
+                        if(match != MatchType.LZ)
                         {
                             // checking rle
                             match = MatchType.RLE;
@@ -348,13 +345,13 @@ namespace StrikersTools.Utils
                         }
                         if (curLen < 0x10)
                         {
-                            output.WriteByte((byte)(0x40 | runLength));
+                            output.WriteByte((byte)(0x40 | curLen));
                             output.WriteByte(curByte);
                         }
                         else 
                         {
                             output.WriteByte((byte)(0x50 | ((0xF00 & curLen) >> 8)));
-                            output.WriteByte((byte)(rawLength & 0xFF));
+                            output.WriteByte((byte)(curLen & 0xFF));
                             output.WriteByte(curByte);
                         }
                         pos += runLength + 4;
@@ -381,10 +378,7 @@ namespace StrikersTools.Utils
                             }
                             output.WriteByte((byte)(0x60 | (curMatchLen & 0x1F)));
                         }
-                        pos += matchLength + 4;
-                        matchLength = 0;
-                        matchOffset = 0;
-
+                        
                         // update positions
                         for(var i = currentPos; i < currentPos + matchLength; i++)
                         {
@@ -394,6 +388,9 @@ namespace StrikersTools.Utils
                             LastSeenPosition[currentByte] = i;
                             BackPos[i] = oldPrevPos;
                         }
+                        pos += matchLength + 4;
+                        matchLength = 0;
+                        matchOffset = 0;
                     }
                 }
                 else
