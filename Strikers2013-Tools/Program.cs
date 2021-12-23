@@ -75,12 +75,16 @@ namespace StrikersTools
                     case "-fi":
                         Font.ImportLetters(args[1], args[2]);
                         break;
+                    case "-l":
+                        Locate(args[1], Convert.ToInt32(args[2]));
+                        break;
                     default:
                         PrintUsage();
                         break;
                 }
 
             }
+            int a = 0;
         }
 
         static void PrintUsage()
@@ -94,6 +98,8 @@ namespace StrikersTools
             Console.WriteLine("\t\tStrikers2013Tools.exe -r <path to .bin archive> <path to modified files> <destination>");
             Console.WriteLine("\t- Repack to .bin archive and BLN :");
             Console.WriteLine("\t\tStrikers2013Tools.exe -r <path to .bin archive> <path to modified files> <path to mcb1.bln>");
+            Console.WriteLine("\t- Get file locations from BLN Sub :");
+            Console.WriteLine("\t\tStrikers2013Tools.exe -l <path to .bln> <BLN Sub index>");
             Console.WriteLine("\t- Import to text file :");
             Console.WriteLine("\t\tStrikers2013Tools.exe -i <path to original text file> <path to modified text file> <output path>");
             Console.WriteLine("\t- Export SHTXFS file :");
@@ -120,7 +126,7 @@ namespace StrikersTools
                 return;
             }
             var progress = new Progress<int>();
-            var arc = new ArchiveFile(Path.GetFullPath(path));
+            var arc = new ArchiveFile(Path.GetFullPath(path), true);
             await arc.ExtractFiles(progress, false);
         }
 
@@ -138,6 +144,12 @@ namespace StrikersTools
             text.ImportText(txtPath, filePath, outPath);
         }
 
+        static void Locate(string path, int index)
+        {
+            var bln = new BLN(path);
+
+            bln.Locate(index);
+        }
         static void ExportText(string input, string output)
         {
             var inputPath = Path.GetFullPath(input);
@@ -163,7 +175,8 @@ namespace StrikersTools
                     return;
                 }
                 var progress = new Progress<int>();
-                await BLN.RepackArchiveAndBLN(inputPath, binPath, mcbPath, progress);
+                var bln = new BLN(mcbPath);
+                await bln.RepackArchiveAndBLN(inputPath, binPath, progress);
             }
             else
                PrintUsage();
@@ -175,7 +188,7 @@ namespace StrikersTools
             string actualBinPath = Path.GetFullPath(binPath);
             if (Directory.Exists(inputFolder) && File.Exists(actualBinPath))
             {
-                var arc = new ArchiveFile(actualBinPath);
+                var arc = new ArchiveFile(actualBinPath, true);
                 arc.ImportFiles(inputFolder);
                 await arc.Save(Path.GetFullPath(destPath));
             }

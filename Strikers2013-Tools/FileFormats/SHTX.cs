@@ -41,12 +41,11 @@ namespace StrikersTools.FileFormats
                         Console.WriteLine("SHTXF4 not supported");
                         return;
                     default:
-                        var listColor = new List<Color>();
+                        colorPalette = new Color[256];
                         for (var i = 0; i < 256; i++)
                         {
-                            listColor.Add(Int32ToColor(br.ReadInt32()));
+                            colorPalette[i] = Int32ToColor(br.ReadInt32());
                         }
-                        colorPalette = listColor.ToArray();
                         textureDataLength = width * height;
                         break;
                 }

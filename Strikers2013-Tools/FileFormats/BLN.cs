@@ -10,15 +10,13 @@ namespace StrikersTools.FileFormats
 {
     struct Mcb0Entry
     {
-        public short unk1;
-        public short unk2;
+        public int id;
         public uint offset;
         public uint size;
 
-        public Mcb0Entry(short unk1, short unk2, uint offset, uint size)
+        public Mcb0Entry(int id, uint offset, uint size)
         {
-            this.unk1 = unk1;
-            this.unk2 = unk2;
+            this.id = id;
             this.offset = offset;
             this.size = size;
         }
@@ -34,7 +32,63 @@ namespace StrikersTools.FileFormats
         // 0x04 => dat.bin
         public static string[] ArchiveNames = { "grp.bin", "scn.bin", "scn_sh.bin", "ui.bin", "dat.bin" };
         private const int MCB0ENTRYLENGTH = 0xC;
-        public static async Task RepackArchiveAndBLN(string inputFolder, string binPath, string blnPath, IProgress<int> progress)
+        private string RootFolder;
+        private List<Mcb0Entry> Entries = new List<Mcb0Entry>();
+        private byte[] UnkData;
+
+        public BLN(string blnPath)
+        {
+            RootFolder = Path.GetDirectoryName(blnPath) + Path.DirectorySeparatorChar;
+
+            var mcb0 = File.OpenRead(RootFolder + "mcb0.bln");
+            using (var br = new BinaryReader(mcb0))
+            {
+                while (br.PeekUInt32() != 0)
+                {
+                    var id = br.ReadInt32();
+                    var offset = br.ReadUInt32();
+                    var size = br.ReadUInt32();
+
+                    var mcb0Entry = new Mcb0Entry(id, offset, size);
+                    Entries.Add(mcb0Entry);
+                }
+                UnkData = br.ReadBytes((int)(br.BaseStream.Length - br.BaseStream.Position));
+            }
+        }
+        public void Locate(int subBlnIndex)
+        {
+            var entry = Entries[subBlnIndex];
+
+            var archives = new List<List<ArchiveFileInfo>>();
+
+            foreach (var archive in ArchiveNames)
+            {
+                var archiveData = new ArchiveFile(RootFolder + archive, false).Files;
+                archiveData.ForEach(x => x.Data = Array.Empty<byte>()); // frees some memory
+
+                archives.Add(archiveData);
+            }
+
+            var mcb1 = File.OpenRead(RootFolder + "mcb1.bln");
+            using(var br = new BinaryReader(mcb1))
+            {
+                br.BaseStream.Position = entry.offset;
+                var i = 0;
+                while (br.PeekUInt32() != 0x7fff && br.BaseStream.Position < entry.offset + entry.size)
+                {
+                    var arcIndex = br.ReadInt32();
+                    var arcOffset = br.ReadInt32();
+                    var size = br.ReadInt32();
+
+                    var fileIndex = archives[arcIndex].FirstOrDefault(x => x.Offset == arcOffset).Index;
+                    Console.WriteLine($"{subBlnIndex:00000000}\\{i:00000000}.bin => located in {ArchiveNames[arcIndex]}\\{fileIndex:00000000}.bin");
+                    br.BaseStream.Position += size;
+                    i++;
+                }
+            }
+
+        }
+        public async Task RepackArchiveAndBLN(string inputFolder, string binPath, IProgress<int> progress)
         {
             await Task.Run(async () => 
             {
@@ -52,24 +106,15 @@ namespace StrikersTools.FileFormats
                 if (archiveIndex < 0)
                     return;
 
-                var binFile = new ArchiveFile(binPath);
+                var binFile = new ArchiveFile(binPath, true);
                 binFile.ImportFiles(inputFolder);
 
                 await binFile.Save(binPath);
 
+                progress.Report(10000 / (Entries.Count + 1));
+
                 var fileTable = binFile.Files;
-
-                // Get mcb0 entries offsets
-                var mcb0Path = Path.GetDirectoryName(blnPath) + Path.DirectorySeparatorChar + "mcb0.bln";
-                var mcb0 = File.OpenRead(mcb0Path);
-                var mcb0Entries = GetMcb0Entries(mcb0);
-                progress.Report(10000 / (mcb0Entries.Count + 1));
-
-                // Saves the unknown data at the end of the mcb0
-                mcb0.Position = MCB0ENTRYLENGTH * mcb0Entries.Count;
-                var unkMcb0 = new byte[mcb0.Length - mcb0.Position];
-                mcb0.Read(unkMcb0, 0, unkMcb0.Length);
-                mcb0.Close();
+                var blnPath = RootFolder + "mcb1.bln";
 
                 var mcb1 = File.Open(blnPath, FileMode.Open, FileAccess.ReadWrite);
                 var tempMcb1 = File.Open(blnPath + ".tmp", FileMode.Create);
@@ -78,9 +123,9 @@ namespace StrikersTools.FileFormats
                 {
                     using (var bw = new BinaryWriter(tempMcb1))
                     {
-                        for (var i = 0; i < mcb0Entries.Count; i++)
+                        for (var i = 0; i < Entries.Count; i++)
                         {
-                            var mcb0Entry = mcb0Entries[i];
+                            var mcb0Entry = Entries[i];
                             var newOffset = (uint)bw.BaseStream.Position;
 
                             br.BaseStream.Position = mcb0Entry.offset;
@@ -140,8 +185,8 @@ namespace StrikersTools.FileFormats
                             mcb0Entry.offset = newOffset;
                             mcb0Entry.size = newSize;
 
-                            mcb0Entries[i] = mcb0Entry;
-                            progress.Report(10000 * (i + 2) / (mcb0Entries.Count + 1));
+                            Entries[i] = mcb0Entry;
+                            progress.Report(10000 * (i + 2) / (Entries.Count + 1));
                         }
                         br.Close();
                         bw.Close();
@@ -151,109 +196,21 @@ namespace StrikersTools.FileFormats
                 }
                 File.Delete(blnPath);
                 File.Move(blnPath + ".tmp", blnPath);
-                mcb0 = File.Open(mcb0Path, FileMode.Create);
+                var mcb0Path = RootFolder + "mcb0.bln";
+                var mcb0 = File.Open(mcb0Path, FileMode.Create);
                 using (var bw = new BinaryWriter(mcb0))
                 {
-                    foreach (var mcb0entry in mcb0Entries)
+                    foreach (var entry in Entries)
                     {
-                        bw.Write(mcb0entry.unk1);
-                        bw.Write(mcb0entry.unk2);
-                        bw.Write(mcb0entry.offset);
-                        bw.Write(mcb0entry.size);
+                        bw.Write(entry.id);
+                        bw.Write(entry.offset);
+                        bw.Write(entry.size);
                     }
-                    bw.Write(unkMcb0);
+                    bw.Write(UnkData);
                 }
             });
 
         }
-        /*
-        public static void BrowseBln(string inputFolder)
-        {
-            var archives = new List<BinFileInfo>[5];
-            archives[0] = BIN.GetFiles(inputFolder, "grp");
-            archives[1] = BIN.GetFiles(inputFolder, "scn");
-            archives[2] = BIN.GetFiles(inputFolder, "scn_sh");
-            archives[3] = BIN.GetFiles(inputFolder, "ui");
-            archives[4] = BIN.GetFiles(inputFolder, "dat");
 
-            var mcb0Path = Path.GetDirectoryName(inputFolder) + Path.DirectorySeparatorChar + "mcb0.bln";
-            var mcb0 = File.OpenRead(mcb0Path);
-            var mcb0Entries = GetMcb0Entries(mcb0);
-            mcb0.Close();
-
-            var mcb1 = File.Open(inputFolder + "\\mcb1.bln", FileMode.Open);
-            var subBlns = new List<Mcb1File>[mcb0Entries.Count];
-
-            using (var br = new BinaryReader(mcb1))
-            {
-                
-                foreach (var mcb0Entry in mcb0Entries)
-                {
-                    var subBln = new List<Mcb1File>();
-                    br.BaseStream.Position = mcb0Entry.offset;
-
-                    while (br.BaseStream.Position < mcb0Entry.offset + mcb0Entry.size)
-                    {
-                        var sample = br.ReadInt32();
-                        if (sample == 0x7FFF)
-                            break;
-                        br.BaseStream.Position -= 4;
-
-                        var file = new Mcb1File(br);
-                        file.index = archives[file.archiveId].Where(x => x.offset == file.archiveOffset).First().index;
-
-                        subBln.Add(file);
-
-                        br.BaseStream.Position += file.size;
-                    }
-                }
-            }
-
-            // Now we can actually import files
-
-            // Rebuilding the mcb1.bln (the most tedious part)
-            mcb1 = File.Open(inputFolder + "\\mcb1.bln", FileMode.Create);
-            using (var bw = new BinaryWriter(mcb1))
-            {
-                var i = 0;
-                foreach (var subBln in subBlns)
-                {
-                    var mcb0Entry = mcb0Entries[i];
-                    mcb0Entry.offset = (uint)bw.BaseStream.Position;
-
-                    foreach(var file in subBln)
-                    {
-                        var fileInBin = archives[file.archiveId][file.index];
-                        bw.Write(file.archiveId);
-                        bw.Write(fileInBin.offset);
-                        bw.Write(fileInBin.size);
-
-                        bw.Write(BIN.GetFile(inputFolder, ArchiveNames[file.archiveId], (int)fileInBin.offset, (int)fileInBin.size));
-                        bw.WriteAlignment(0x4000, 0);
-                    }
-                    // terminator
-                    bw.Write(0x7Fff);
-
-                    bw.WriteAlignment(0x800,0);
-                    mcb0Entry.size = (uint)bw.BaseStream.Position - mcb0Entry.offset;
-                }
-            }
-        }*/
-        private static List<Mcb0Entry> GetMcb0Entries(Stream mcb0)
-        {
-            var entries = new List<Mcb0Entry>();
-            var br = new BinaryReader(mcb0);
-            while (br.ReadInt32() != 0)
-            {
-                br.BaseStream.Position -= 4;
-                var unk1 = br.ReadInt16();
-                var unk2 = br.ReadInt16();
-                var offset = br.ReadUInt32();
-                var length = br.ReadUInt32();
-
-                entries.Add(new Mcb0Entry(unk1, unk2, offset, length));
-            }
-            return entries;
-        }
     }
 }

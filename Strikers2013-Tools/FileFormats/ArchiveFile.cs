@@ -26,6 +26,14 @@ namespace StrikersTools.FileFormats
             Index = index;
             Data = data;
         }
+        public ArchiveFileInfo(uint size, long offset, int index)
+        {
+            Size = size;
+            Offset = offset;
+            OldOffset = offset;
+            Index = index;
+            Data = Array.Empty<byte>();
+        }
     }
     class ArchiveFile
     {
@@ -47,7 +55,7 @@ namespace StrikersTools.FileFormats
 
         public List<ArchiveFileInfo> Files { get; private set; }
 
-        public ArchiveFile(string filename) 
+        public ArchiveFile(string filename, bool getData) 
         {
             FileName = filename;
 
@@ -60,11 +68,11 @@ namespace StrikersTools.FileFormats
                 ShiftFactor = br.ReadInt32();
                 Mask = br.ReadInt32();
 
-                Files = GetFileInfos(br);
+                Files = GetFileInfos(br, getData);
             }
         }
 
-        private List<ArchiveFileInfo> GetFileInfos(BinaryReader br)
+        private List<ArchiveFileInfo> GetFileInfos(BinaryReader br, bool getData)
         {
             var files = new List<ArchiveFileInfo>();
 
@@ -78,9 +86,17 @@ namespace StrikersTools.FileFormats
 
                 br.BaseStream.Position = offset;
                 var paddedSize = (uint) ((size + PadFactor - 1) & ~(PadFactor - 1));
-                var data = br.ReadBytes((int)paddedSize);
+                ArchiveFileInfo afi;
+                if (getData)
+                {
+                    var data = br.ReadBytes((int)paddedSize);
 
-                var afi = new ArchiveFileInfo(paddedSize, offset, data, i);
+                    afi = new ArchiveFileInfo(paddedSize, offset, data, i);
+                }
+                else
+                {
+                    afi = new ArchiveFileInfo(paddedSize, offset, i);
+                }
                 files.Add(afi);
             }
             return files;
@@ -91,6 +107,9 @@ namespace StrikersTools.FileFormats
            {
                var folder = Path.GetDirectoryName(FileName) + Path.DirectorySeparatorChar + Path.GetFileNameWithoutExtension(FileName) + Path.DirectorySeparatorChar;
                Directory.CreateDirectory(folder);
+               var decompressedFolder = folder + Path.DirectorySeparatorChar + "dec\\";
+               if (decompress)
+                   Directory.CreateDirectory(decompressedFolder);
 
                foreach (var file in Files)
                {
@@ -104,10 +123,17 @@ namespace StrikersTools.FileFormats
 
                    if (decompress)
                    {
-                       var decompressedData = ShadeLz.Decompress(file.Data);
-                       var outDecompressed = File.Open(folder + Path.GetFileNameWithoutExtension(filename) + "_dec" + extension, FileMode.Create);
-                       outDecompressed.Write(decompressedData, 0, decompressedData.Length);
-                       outDecompressed.Close();
+                       try
+                       {
+                           var decompressedData = ShadeLz.Decompress(file.Data);
+                           var outDecompressed = File.Open(decompressedFolder + Path.GetFileNameWithoutExtension(filename) + "_dec" + extension, FileMode.Create);
+                           outDecompressed.Write(decompressedData, 0, decompressedData.Length);
+                           outDecompressed.Close();
+                       }
+                       catch(IndexOutOfRangeException)
+                       {
+                           Console.WriteLine($"File {filename} could not be decompressed");
+                       }
                    }
                     
                    progress.Report(file.Index * 10000 / Files.Count);

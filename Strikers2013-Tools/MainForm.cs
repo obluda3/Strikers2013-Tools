@@ -139,8 +139,9 @@ namespace StrikersTools
                 progressBar1.Value = value;
                 lblProgress.Text = $"{value / 100} %";
             });
-            
-            await BLN.RepackArchiveAndBLN(txtModified.Text, txtPathArc.Text, txtMcb.Text, progress);
+
+            var blnFile = new BLN(txtMcb.Text);
+            await blnFile.RepackArchiveAndBLN(txtModified.Text, txtPathArc.Text, progress);
             lblProgress.Text = "Done !";
             progressBar1.Value = 0;
         }
@@ -152,7 +153,7 @@ namespace StrikersTools
                 progressBar1.Value = value;
                 lblProgress.Text = $"{value / 100} %";
             });
-            var arc = new ArchiveFile(txtPathArc.Text);
+            var arc = new ArchiveFile(txtPathArc.Text, true);
             await arc.ExtractFiles(progress, checkBox1.Checked);
             lblProgress.Text = "Done !";
             progressBar1.Value = 0;
