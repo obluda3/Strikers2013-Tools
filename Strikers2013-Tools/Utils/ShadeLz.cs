@@ -60,6 +60,7 @@ namespace StrikersTools.Utils
                     windowOffset = (((flags & 0x1F) << 8) + compressed[inOffset++]);
                     prevOffset = windowOffset;
 
+                    Console.Write($"(LZ <-{windowOffset:X},{count:X}>) ");
                     for (int i = 0; i < count; i++)
                         decompressed[outOffset + i] = decompressed[(outOffset - windowOffset) + i];
 
@@ -75,6 +76,7 @@ namespace StrikersTools.Utils
                     count = (flags & 0x1F);
                     windowOffset = prevOffset;
 
+                    Console.Write($"(LZ <-{windowOffset:X},{count:X}>) ");
                     for (int i = 0; i < count; i++)
                         decompressed[outOffset + i] = decompressed[(outOffset - windowOffset) + i];
 
@@ -94,6 +96,7 @@ namespace StrikersTools.Utils
                         count = ((((flags & 0x0F) << 8) + compressed[inOffset++]) + 4);
 
                     byte data = compressed[inOffset++];
+                    Console.Write($"(RLE <{data.ToString("X2")}, {count}>) ");
                     for (int i = 0; i < count; i++)
                         decompressed[outOffset++] = data;
                 }
@@ -109,7 +112,9 @@ namespace StrikersTools.Utils
                     else
                         count = (((flags & 0x1F) << 8) + compressed[inOffset++]);
 
-                    //Console.Write(BitConverter.ToString(buffer).Replace('-', ' '));
+                    var buffer = compressed.Skip(inOffset).Take(count).ToArray();
+                    Console.Write(BitConverter.ToString(buffer).Replace('-', ' '));
+                    Console.Write(" ");
                     for (int i = 0; i < count; i++)
                         decompressed[outOffset++] = compressed[inOffset++];
                 }
@@ -169,8 +174,8 @@ namespace StrikersTools.Utils
         {
             var output = new MemoryStream();
 
-            if(needsHeader)
-                for(var i = 0; i < 12; i++) output.WriteByte(0);
+            if (needsHeader)
+                for (var i = 0; i < 12; i++) output.WriteByte(0);
 
             var pos = 0;
             var length = data.Length;
@@ -230,29 +235,30 @@ namespace StrikersTools.Utils
                             }
                             else match = MatchType.None;
                         }
-                        if (match != MatchType.LZ)
+                        // checking rle
+                        match = MatchType.RLE;
+                        runLength = 1;
+                        for (var i = currentPos + 1; i < currentPos + 4; i++)
                         {
-                            // checking rle
-                            match = MatchType.RLE;
-                            runLength = 1;
-                            for (var i = currentPos + 1; i < currentPos + 4; i++)
+                            if (data[i] != curByte)
                             {
-                                if (data[i] != curByte)
-                                {
-                                    match = MatchType.None;
+                                match = MatchType.None;
+                                break;
+                            }
+                            runLength++;
+                        }
+                        if (match == MatchType.RLE)
+                        {
+                            while (currentPos + runLength < length)
+                            {
+                                if (data[currentPos + runLength] != curByte)
                                     break;
-                                }
                                 runLength++;
                             }
-                            if (match == MatchType.RLE)
-                            {
-                                while (data[currentPos + runLength] == curByte &&
-                                    currentPos + runLength < length)
-                                {
-                                    runLength++;
-                                }
-                            }
                         }
+
+                        if (match == MatchType.None && matchLength >= 4) match = MatchType.LZ;
+
                     }
 
                 }
@@ -266,11 +272,19 @@ namespace StrikersTools.Utils
                         rawLength = 0;
                     }
 
+                    if (matchLength > runLength) match = MatchType.LZ;
+                    else match = MatchType.RLE;
                     if (match == MatchType.RLE)
                     {
                         EncodeRun(runLength, curByte, output);
+                        for(var i = currentPos; i < currentPos + runLength; i++)
+                        {
+                            var oldPrevPos = LastSeenPosition[curByte];
+
+                            LastSeenPosition[curByte] = i;
+                            BackPos[i] = oldPrevPos;
+                        }
                         pos += runLength;
-                        runLength = 0;
                     }
                     else if (match == MatchType.LZ)
                     {
@@ -286,8 +300,6 @@ namespace StrikersTools.Utils
                             BackPos[i] = oldPrevPos;
                         }
                         pos += matchLength;
-                        matchLength = 0;
-                        matchOffset = 0;
                     }
 
                     match = MatchType.None;
@@ -301,7 +313,7 @@ namespace StrikersTools.Utils
                     rawLength++;
                 }
                 match = MatchType.None;
-
+                runLength = matchLength = matchOffset = 0;
 
             }
             if (rawLength > 0)
@@ -372,7 +384,7 @@ namespace StrikersTools.Utils
         }
 
         private static void EncodeRawBytes(List<byte> rawBytes, int rawLength, Stream output)
-        { 
+        {
             if (rawBytes.Count != rawLength)
                 Console.WriteLine("wtf");
             if (rawLength < 0x20)
@@ -386,13 +398,13 @@ namespace StrikersTools.Utils
                 var curLen = rawLength;
                 while (curLen > 0x1FFF)
                 {
-                    
+
                     output.WriteByte(0x3F);
                     output.WriteByte(0xFF);
                     output.Write(rawBytes.Take(0x1FFF).ToArray(), 0, 0x1FFF);
                     rawBytes.RemoveRange(0, 0x1FFF);
                     curLen -= 0x1FFF;
-                    
+
                 }
                 if (curLen < 0x1f)
                 {
@@ -409,8 +421,8 @@ namespace StrikersTools.Utils
                 }
             }
         }
-        private enum MatchType { None, LZ, RLE }    
-        
+        private enum MatchType { None, LZ, RLE }
+
 
         /*
         public static byte[] LegacyCompress(byte[] input)
