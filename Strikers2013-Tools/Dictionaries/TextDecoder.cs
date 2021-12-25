@@ -107,6 +107,7 @@ namespace StrikersTools.Dictionaries
 
         public static byte[] Encode(string input)
         {
+            if (input == "") return new byte[0];
             input = input.Replace("{returnline}", "\n");
             var output = new List<byte>();
             foreach(var character in input)

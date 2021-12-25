@@ -24,23 +24,17 @@ namespace StrikersTools
                 Application.SetCompatibleTextRenderingDefault(false);
                 Application.Run(new MainForm());
             }
+            else if (args.Length < 2) PrintUsage();
             else
             {
-                
+
                 switch (args[0])
                 {
-
-                    case "-h":
-                        PrintUsage();
-                        break;
                     case "-u":
                         UnpackArchive(args[1]);
                         break;
                     case "-e":
-                        if (args.Length > 1)
-                            ExportText(args[1], args[2]);
-                        else
-                            PrintUsage();
+                        ExportText(args[1], args[2]);
                         break;
                     case "-r":
                         if (args.Length > 4)
@@ -141,7 +135,9 @@ namespace StrikersTools
                 return;
             }
             var text = new TEXT(filePath);
-            text.ImportText(txtPath, outPath);
+            if (txt.EndsWith(".kup")) text.GetFromKUP(txt);
+            else text.GetEntriesFromTXT(txt);
+            text.Save(outPath);
         }
 
         static void Locate(string path, int index)

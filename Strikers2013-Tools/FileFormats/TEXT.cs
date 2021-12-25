@@ -148,9 +148,28 @@ namespace StrikersTools.FileFormats
             )));;
         }
 
-        public void ImportText(string input, string output)
+        public void GetFromKUP(string kupPath)
+        {
+            var xelement = XElement.Parse(File.ReadAllText(kupPath));
+            var entries = xelement.Elements("entries");
+            for(var i = 0; i < entries.Count(); i++)
+            {
+                var entry = entries.ElementAt(i);
+                var text = entry.Element("entry").Element("edited").ToString().Replace("<edited>", "").Replace("</edited>", "");
+                Entries[i] = text;
+            }
+        }
+
+        public void GetEntriesFromTXT(string input)
         {
             var lines = File.ReadAllLines(input);
+            foreach(var kvp in Entries)
+            {
+                Entries[kvp.Key] = lines[kvp.Key];
+            }
+        }
+        public void Save(string output)
+        {
             var file = File.Open(output, FileMode.Create);
             int entriesLength = 0;
             using (var bw = new BeBinaryWriter(file))
@@ -164,7 +183,7 @@ namespace StrikersTools.FileFormats
                 var pointersPos = bw.BaseStream.Position;
 
                 // Pad the pointers with zero, they will be replaced later
-                for (var i = 1; i < lines.Length+1; i++)
+                for (var i = 1; i < Entries.Count+1; i++)
                 {
                     bw.Write((int)0);
                 }
@@ -183,9 +202,9 @@ namespace StrikersTools.FileFormats
                 }
 
                 var j = 0;
-                foreach(var line in lines)
+                foreach(var line in Entries)
                 {
-                    var entry = TextDecoder.Encode(line);
+                    var entry = TextDecoder.Encode(line.Value);
                     if (entry.Length > 0)
                     {
                         var padSize = 4 - ((entry.Length) % 4); // Every entry is padded to a 4 byte alignment

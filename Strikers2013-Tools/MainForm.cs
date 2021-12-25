@@ -47,7 +47,7 @@ namespace StrikersTools
                 {
                     ofd.Title = "Open the txt file to inject";
                     ofd.DefaultExt = ".txt";
-                    ofd.Filter = "Text file (*.txt)|*.txt|All files (*.*)|*.*";
+                    ofd.Filter = "Text file (*.txt)|*.txt|KUP file (*.kup)|*.kup|All files (*.*)|*.*";
                     if (ofd.ShowDialog() == DialogResult.OK)
                     {
                         using (var sfd = new SaveFileDialog())
@@ -59,7 +59,9 @@ namespace StrikersTools
                             if (sfd.ShowDialog() == DialogResult.OK)
                             {
                                 TEXT text = new TEXT(txtPathTxt.Text);
-                                text.ImportText(ofd.FileName, sfd.FileName);
+                                if (ofd.FileName.EndsWith(".kup")) text.GetFromKUP(ofd.FileName);
+                                else text.GetEntriesFromTXT(ofd.FileName);
+                                text.Save(sfd.FileName);
                                 MessageBox.Show("Done !", "Done");
                             }
                         }
