@@ -58,8 +58,8 @@ namespace StrikersTools
                             sfd.FileName = Path.GetFileNameWithoutExtension(txtPathTxt.Text) + ".out.bin";
                             if (sfd.ShowDialog() == DialogResult.OK)
                             {
-                                TEXT text = new TEXT();
-                                text.ImportText(ofd.FileName, txtPathTxt.Text, sfd.FileName);
+                                TEXT text = new TEXT(txtPathTxt.Text);
+                                text.ImportText(ofd.FileName, sfd.FileName);
                                 MessageBox.Show("Done !", "Done");
                             }
                         }
@@ -74,14 +74,15 @@ namespace StrikersTools
             {
                 using (var sfd = new SaveFileDialog())
                 {
-                    sfd.Title = "Save the txt file";
+                    sfd.Title = "Save";
                     sfd.DefaultExt = ".txt";
-                    sfd.Filter = "Text file (*.txt)|*.txt|All files (*.*)|*.*";
+                    sfd.Filter = "Text file (*.txt)|*.txt|KUP File (*.kup)|*.kup|All files (*.*)|*.*";
                     sfd.FileName = Path.GetFileNameWithoutExtension(txtPathTxt.Text) + ".txt";
                     if(sfd.ShowDialog() == DialogResult.OK)
                     {
-                        TEXT text = new TEXT();
-                        text.ExportText(txtPathTxt.Text, sfd.FileName);
+                        var text = new TEXT(txtPathTxt.Text);
+                        if (sfd.FileName.EndsWith(".kup")) File.WriteAllText(sfd.FileName, text.ToKUP().ToString());
+                        else text.ExportText(Path.GetFullPath(sfd.FileName));
                         MessageBox.Show("Done !", "Done");
                     }
                 }

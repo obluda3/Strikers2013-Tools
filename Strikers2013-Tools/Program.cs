@@ -140,8 +140,8 @@ namespace StrikersTools
                 PrintUsage();
                 return;
             }
-            var text = new TEXT();
-            text.ImportText(txtPath, filePath, outPath);
+            var text = new TEXT(filePath);
+            text.ImportText(txtPath, outPath);
         }
 
         static void Locate(string path, int index)
@@ -158,8 +158,10 @@ namespace StrikersTools
                 PrintUsage();
                 return;
             }
-            var text = new TEXT();
-            text.ExportText(inputPath, Path.GetFullPath(output));
+            var text = new TEXT(Path.GetFullPath(inputPath));
+            if(output.EndsWith(".kup")) File.WriteAllText(output, text.ToKUP().ToString());
+            else text.ExportText(Path.GetFullPath(output));
+
         }
 
         static async void Repack(string bin, string input, string mcb)
@@ -217,11 +219,20 @@ namespace StrikersTools
         static void Compress(string input)
         {
             var fileData = File.ReadAllBytes(input);
+            var timer = new Stopwatch();
+            timer.Start();
             var compressedData = ShadeLz.Compress(fileData, false);
-
+            timer.Stop();
             var output = File.Open(input + ".out", FileMode.Create);
             output.Write(compressedData, 0, compressedData.Length);
             output.Close();
+            
+            float sizeKB = fileData.Length / 1024F;
+            float elapsedMs = timer.ElapsedMilliseconds;
+
+            var avgSpeed = sizeKB / (elapsedMs / 1000);
+
+            Console.WriteLine($"Avg {avgSpeed:0.0} KB/s");
         }
     }
 }
