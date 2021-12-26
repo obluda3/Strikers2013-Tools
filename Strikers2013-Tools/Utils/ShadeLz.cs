@@ -244,21 +244,7 @@ namespace StrikersTools.Utils
                         rawLength = 0;
                     }
 
-                    if (matchLength > runLength) match = MatchType.LZ;
-                    else match = MatchType.RLE;
-                    if (match == MatchType.RLE)
-                    {
-                        EncodeRun(runLength, curByte, output);
-                        for(var i = currentPos; i < currentPos + runLength; i++)
-                        {
-                            var oldPrevPos = LastSeen[curByte];
-
-                            LastSeen[curByte] = i;
-                            SearchHistory[i] = oldPrevPos;
-                        }
-                        pos += runLength;
-                    }
-                    else if (match == MatchType.LZ)
+                    if (matchLength > runLength) // LZ
                     {
                         EncodeMatch(matchLength, matchOffset, output);
 
@@ -273,8 +259,18 @@ namespace StrikersTools.Utils
                         }
                         pos += matchLength;
                     }
+                    else // RLE
+                    {
+                        EncodeRun(runLength, curByte, output);
+                        for(var i = currentPos; i < currentPos + runLength; i++)
+                        {
+                            var oldPrevPos = LastSeen[curByte];
 
-                    match = MatchType.None;
+                            LastSeen[curByte] = i;
+                            SearchHistory[i] = oldPrevPos;
+                        }
+                        pos += runLength;
+                    }
                 }
                 else
                 {
@@ -319,7 +315,7 @@ namespace StrikersTools.Utils
                 output.WriteByte(0x5F);
                 output.WriteByte(0xFF);
                 output.WriteByte(repeatedByte);
-                curLen -= 0xFFF;
+                curLen -= 0x1003;
             }
             if (curLen - 4 < 0x10)
             {
