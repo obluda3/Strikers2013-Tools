@@ -9,9 +9,7 @@ With Strikers2013-Tools, you can extract the bin archives by going in **Archive*
 
 The files in the game are compressed with an LZ/RLE based compression, "Shade Lz" in Kuriimu. In most cases it's the regular one, but the files in dat.bin are compressed with the headerless version.
 
-You can use [Scarlet](https://cdn.discordapp.com/attachments/697476778989584405/755511582833901578/Scarlet_Update.rar) (with a custom build that i'll describe later) or Kuriimu2 to decompress them all at once.
-
-Don't forget to compress files before importing them.
+You can let the tool automatically compress files by adding `.dec` at the end of their filenames.
 
 
 # Text
@@ -66,10 +64,8 @@ X refers to a number that you write
 
 # Textures
 
-Start by extracting the whole **ui.bin** archive (that's the one that contains most of the **SHTXFS/SHTXFF/SHTXF4** - texture files). The regular version of Scarlet can handle the SHTXFS but the colors are inverted, which is why **Alpha** made a custom build : [Scarlet](https://cdn.discordapp.com/attachments/697476778989584405/755511582833901578/Scarlet_Update.rar). 
+Start by extracting the whole **ui.bin** archive (that's the one that contains most of the **SHTXFS/SHTXFF/SHTXF4** - texture files).
 
-Drag-and-drop the extracted folder to Scarlet's executable, and it will convert all the textures to png.
-
-To import a png back into a SHTX file, you can use Kuriimu2.
+To import a png back into a SHTX file, you can use Kuriimu2 or this tool.
 
 
