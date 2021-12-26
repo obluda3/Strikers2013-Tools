@@ -48,10 +48,10 @@ namespace StrikersTools
                         ImportText(args[1], args[2], args[3]);
                         break;
                     case "-she":
-                        ExportShtx(args[1]);
+                        ExportShtx(args[1], args[2]);
                         break;
                     case "-shi":
-                        ConvertShtx(args[1]);
+                        ConvertShtx(args[1], args[2], args[3]);
                         break;
                     case "-p":
                         var pass = Password.Encrypt(args[1]);
@@ -96,10 +96,10 @@ namespace StrikersTools
             Console.WriteLine("\t\tStrikers2013Tools.exe -l <path to .bln> <BLN Sub index>");
             Console.WriteLine("\t- Import to text file :");
             Console.WriteLine("\t\tStrikers2013Tools.exe -i <path to original text file> <path to modified text file> <output path>");
-            Console.WriteLine("\t- Export SHTXFS file :");
-            Console.WriteLine("\t\tStrikers2013Tools.exe -she <path to SHTX>");
-            Console.WriteLine("\t- Convert to SHTXFS :");
-            Console.WriteLine("\t\tStrikers2013Tools.exe -shi <path to png>");
+            Console.WriteLine("\t- Export SHTX file :");
+            Console.WriteLine("\t\tStrikers2013Tools.exe -she <path to SHTX> <output>");
+            Console.WriteLine("\t- Convert to SHTX :");
+            Console.WriteLine("\t\tStrikers2013Tools.exe -shi <path to png> <path to shtx> <output>");
             Console.WriteLine("\t- Encrypt password :");
             Console.WriteLine("\t\tStrikers2013Tools.exe -p <Password>");
             Console.WriteLine("\t- Decompress file :");
@@ -193,13 +193,13 @@ namespace StrikersTools
             else
                 PrintUsage();
         }
-        static void ExportShtx(string input)
+        static void ExportShtx(string input, string output)
         {
-            SHTX.Export(input);
+            SHTX.Export(input, output);
         }
-        static void ConvertShtx(string input)
+        static void ConvertShtx(string input, string original, string output)
         {
-            SHTX.Convert(input);
+            SHTX.Convert(input, original, output);
         }
 
         static void Decompress(string input)

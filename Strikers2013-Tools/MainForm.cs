@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Linq;
-using System.Text;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System.IO;
-using System.Threading.Tasks;
+using StrikersTools.Utils;
 using System.Windows.Forms;
 using StrikersTools.FileFormats;
 
@@ -197,6 +193,85 @@ namespace StrikersTools
         private void tabPage2_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            using (var ofd = new OpenFileDialog())
+            {
+                ofd.Title = "Open a shtx file";
+                ofd.Filter = "SHTX File (*.shtx)|*.shtx|All files (*.*)|*.*";
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    textBox4.Text = ofd.FileName;
+                    button4.Enabled = button5.Enabled = true;
+                }
+            }
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            using (var sfd = new SaveFileDialog())
+            {
+                sfd.Title = "Save";
+                sfd.DefaultExt = ".txt";
+                sfd.Filter = "PNG File (*.png)|*.png|All files (*.*)|*.*";
+                sfd.FileName = Path.GetFileNameWithoutExtension(txtPathTxt.Text) + ".png";
+                if (sfd.ShowDialog() == DialogResult.OK)
+                {
+                    SHTX.Export(textBox4.Text, sfd.FileName);
+                }
+            }
+        }
+
+        private void button5_Click_1(object sender, EventArgs e)
+        {
+            using (var ofd = new OpenFileDialog())
+            {
+                ofd.Title = "Open the png file to inject";
+                ofd.Filter = "PNG File (*.png)|*.png|All files (*.*)|*.*";
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    using (var sfd = new SaveFileDialog())
+                    {
+                        sfd.Title = "Save the shtx file";
+                        sfd.DefaultExt = ".shtx";
+                        sfd.Filter = "SHTX File (*.shtx)|*.shtx|All files (*.*)|*.*";
+                        sfd.FileName = Path.GetFileNameWithoutExtension(txtPathTxt.Text) + ".shtx";
+                        if (sfd.ShowDialog() == DialogResult.OK)
+                        {
+                            SHTX.Convert(ofd.FileName, textBox4.Text, sfd.FileName);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void button8_Click(object sender, EventArgs e)
+        {
+            using(var ofd = new OpenFileDialog())
+            {
+                ofd.Title = "Open the file to compress";
+                ofd.Filter = "All files (*.*)|*.*";
+                if(ofd.ShowDialog() == DialogResult.OK)
+                {
+                    textBox3.Text = ofd.FileName;
+                }
+            }
+        }
+
+        private void btnDecompress_Click(object sender, EventArgs e)
+        {
+            var decData = ShadeLz.Decompress(File.ReadAllBytes(textBox3.Text));
+            var output = File.Open(textBox3.Text + ".out", FileMode.Create);
+            output.Write(decData, 0, decData.Length);
+        }
+
+        private void btnCompress_Click(object sender, EventArgs e)
+        {
+            var cmpData = ShadeLz.Compress(File.ReadAllBytes(textBox3.Text), !chkHeader.Checked);
+            var output = File.Open(textBox3.Text + ".out", FileMode.Create);
+            output.Write(cmpData, 0, cmpData.Length);
         }
     }
 }
