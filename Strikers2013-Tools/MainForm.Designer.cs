@@ -534,6 +534,7 @@
             this.btnCompress.Name = "btnCompress";
             this.btnCompress.Size = new System.Drawing.Size(75, 23);
             this.btnCompress.TabIndex = 11;
+            this.btnCompress.Enabled = false;
             this.btnCompress.Text = "Compress";
             this.btnCompress.UseVisualStyleBackColor = true;
             this.btnCompress.Click += new System.EventHandler(this.btnCompress_Click);
@@ -547,6 +548,7 @@
             this.btnDecompress.Size = new System.Drawing.Size(75, 23);
             this.btnDecompress.TabIndex = 10;
             this.btnDecompress.Tag = "";
+            this.btnDecompress.Enabled = false;
             this.btnDecompress.Text = "Decompress";
             this.btnDecompress.UseVisualStyleBackColor = true;
             this.btnDecompress.Click += new System.EventHandler(this.btnDecompress_Click);

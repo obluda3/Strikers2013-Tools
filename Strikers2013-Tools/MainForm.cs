@@ -216,10 +216,11 @@ namespace StrikersTools
                 sfd.Title = "Save";
                 sfd.DefaultExt = ".txt";
                 sfd.Filter = "PNG File (*.png)|*.png|All files (*.*)|*.*";
-                sfd.FileName = Path.GetFileNameWithoutExtension(txtPathTxt.Text) + ".png";
+                sfd.FileName = Path.GetFileNameWithoutExtension(textBox4.Text) + ".png";
                 if (sfd.ShowDialog() == DialogResult.OK)
                 {
                     SHTX.Export(textBox4.Text, sfd.FileName);
+                    MessageBox.Show("Done !", "Done");
                 }
             }
         }
@@ -237,10 +238,11 @@ namespace StrikersTools
                         sfd.Title = "Save the shtx file";
                         sfd.DefaultExt = ".shtx";
                         sfd.Filter = "SHTX File (*.shtx)|*.shtx|All files (*.*)|*.*";
-                        sfd.FileName = Path.GetFileNameWithoutExtension(txtPathTxt.Text) + ".shtx";
+                        sfd.FileName = textBox4.Text;
                         if (sfd.ShowDialog() == DialogResult.OK)
                         {
                             SHTX.Convert(ofd.FileName, textBox4.Text, sfd.FileName);
+                            MessageBox.Show("Done !", "Done");
                         }
                     }
                 }
@@ -251,11 +253,13 @@ namespace StrikersTools
         {
             using(var ofd = new OpenFileDialog())
             {
-                ofd.Title = "Open the file to compress";
+                ofd.Title = "Open the file to compress/decompress";
                 ofd.Filter = "All files (*.*)|*.*";
                 if(ofd.ShowDialog() == DialogResult.OK)
                 {
                     textBox3.Text = ofd.FileName;
+                    btnDecompress.Enabled = true;
+                    btnCompress.Enabled = true;
                 }
             }
         }
@@ -265,6 +269,7 @@ namespace StrikersTools
             var decData = ShadeLz.Decompress(File.ReadAllBytes(textBox3.Text));
             var output = File.Open(textBox3.Text + ".out", FileMode.Create);
             output.Write(decData, 0, decData.Length);
+            MessageBox.Show("Done !", "Done");
         }
 
         private void btnCompress_Click(object sender, EventArgs e)
@@ -272,6 +277,7 @@ namespace StrikersTools
             var cmpData = ShadeLz.Compress(File.ReadAllBytes(textBox3.Text), !chkHeader.Checked);
             var output = File.Open(textBox3.Text + ".out", FileMode.Create);
             output.Write(cmpData, 0, cmpData.Length);
+            MessageBox.Show("Done !", "Done");
         }
     }
 }

@@ -35,13 +35,16 @@ namespace StrikersTools.FileFormats
                 switch (format)
                 {
                     case 0x4646:
+                        textureDataLength = width * height * 4;
                         break;
                     case 0x3446:
                         colorPalette = new Color[16];
-                        for (var i = 0; i < 16; i++)
+                        var colorList = new List<Color>();
+                        for (var i = 0; i < 256; i++)
                         {
-                            colorPalette[i] = Int32ToColor(br.ReadInt32());
+                            colorList.Add(Int32ToColor(br.ReadInt32()));
                         }
+                        colorPalette = colorList.Take(16).ToArray();
                         textureDataLength = width * height / 2;
                         break;
                     default:
@@ -188,7 +191,7 @@ namespace StrikersTools.FileFormats
                     for (var x = 0; x < width; x++)
                     {
                         index = textureData[pos/2];
-                        index = pos % 2 == 0 ? index & 0xF : (index & 0xF0) >> 4;
+                        index = pos % 2 != 0 ? index & 0xF : (index & 0xF0) >> 4;
                         var color = palette[index];
                         bitmap.SetPixel(x, y, color);
                         pos++;
