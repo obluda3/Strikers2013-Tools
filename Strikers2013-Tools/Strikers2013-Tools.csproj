@@ -85,8 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FileFormats\BLN.cs" />
-    <Compile Include="Dictionaries\BitmapFonts.cs" />
-    <Compile Include="Dictionaries\TextDecoder.cs" />
+    <Compile Include="Utils\TextDecoder.cs" />
     <Compile Include="FileFormats\Font.cs" />
     <Compile Include="FileFormats\SHTX.cs" />
     <Compile Include="MainForm.cs">
@@ -95,11 +94,10 @@
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Password.cs" />
+    <Compile Include="Utils\Password.cs" />
     <Compile Include="Utils\BeBinaryReader.cs" />
     <Compile Include="Utils\BeBinaryWriter.cs" />
     <Compile Include="Utils\ShadeLz.cs" />
-    <Compile Include="TextRenderer.cs" />
     <Compile Include="Utils\BinaryPlus.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -132,10 +130,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Convertion\" />
-    <Folder Include="Resources\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.7.2">
       <Visible>False</Visible>
