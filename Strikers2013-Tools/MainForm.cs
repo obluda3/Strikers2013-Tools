@@ -73,10 +73,10 @@ namespace StrikersTools
                 using (var sfd = new SaveFileDialog())
                 {
                     sfd.Title = "Save";
-                    sfd.DefaultExt = ".txt";
                     sfd.Filter = "Text file (*.txt)|*.txt|KUP File (*.kup)|*.kup|All files (*.*)|*.*";
+                    sfd.AddExtension = true;
                     sfd.FileName = Path.GetFileNameWithoutExtension(txtPathTxt.Text) + ".txt";
-                    if(sfd.ShowDialog() == DialogResult.OK)
+                    if (sfd.ShowDialog() == DialogResult.OK)
                     {
                         var text = new TEXT(txtPathTxt.Text);
                         if (sfd.FileName.EndsWith(".kup")) File.WriteAllText(sfd.FileName, text.ToKUP().ToString());

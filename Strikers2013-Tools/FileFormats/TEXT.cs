@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using StrikersTools.Dictionaries;
+using System.Text;
 using System.Xml.Linq;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,11 +15,18 @@ namespace StrikersTools.FileFormats
     /// check https://www.github.com/Obluda3/strikers2013-re-notes
     /// for more info.
     /// With a rewrite, we might be able to extract the other sections as well
+    /// 
+    struct TextEntry
+    {
+        public string normal;
+        public string formatted;
+        public int index;
+    }
     class TEXT
     {
         private uint END_OF_TEXTOFF, POINTERS_OFF;
         private uint sectNumber, offsetPointer, entryCount, endOfText;
-        private Dictionary<int, string> Entries = new Dictionary<int, string>();
+        private TextEntry[] Entries = new TextEntry[0];
         private uint begSec2, endSec2 = 0;
         private uint[] pointers;
         private byte[] unk1, unk2, unk3, unk4, unk5;
@@ -91,6 +99,7 @@ namespace StrikersTools.FileFormats
                 unk3 = ber.ReadBytes(unk3Length);
                 unk4 = ber.ReadBytes(unk4Length);
                 unk5 = ber.ReadBytes(unk5Length);
+                Entries = new TextEntry[pointers.Length];
                 for (var i = 0; i < pointers.Length; i++)
                 {
                     ber.BaseStream.Position = pointers[i];
@@ -104,10 +113,14 @@ namespace StrikersTools.FileFormats
                         }
 
                         ber.BaseStream.Position = pointers[i];
-                        var entry = ber.ReadBytes(length);
-                        entryString = TextDecoder.Decode(entry);
+                        var entryBytes = ber.ReadBytes(length);
+                        entryString = TextDecoder.Decode(entryBytes);
                     }
-                    Entries[i] = entryString;
+                    var entry = new TextEntry();
+                    entry.index = i;
+                    entry.normal = entryString;
+                    entry.formatted = FormatThing(entryString);
+                    Entries[i] = entry;
                 }
             }
         }
@@ -119,7 +132,7 @@ namespace StrikersTools.FileFormats
             {
                 for (var i = 0; i < pointers.Length; i++)
                 {
-                    var entryString = Entries[i];
+                    var entryString = Entries[i].normal;
                     if (i == pointers.Length - 1)
                         txtFile.Write(entryString);
                     else
@@ -134,12 +147,12 @@ namespace StrikersTools.FileFormats
             return new XElement("kup", new XElement("pointerTables"), new XElement("stringBounds"), 
                 new XElement("entries", Entries.Select(x => new
             {
-                nameAttribute = new XAttribute("name", x.Key.ToString("text_0000")),
+                nameAttribute = new XAttribute("name", x.index.ToString("text_0000")),
                 offsetAttribute = new XAttribute("offset", 0),
                 relocatableAttribute = new XAttribute("relocatable", false),
                 max_lengthAttribute = new XAttribute("max_length", 0),
-                originalElement = new XElement("original", x.Value),
-                editedElement = new XElement("edited", x.Value),
+                originalElement = new XElement("original", x.formatted),
+                editedElement = new XElement("edited", x.formatted),
                 subEntries = new XElement("subEntries")
             }).Select(x => new XElement("entry", new XAttribute(x.nameAttribute), 
             new XAttribute(x.offsetAttribute), new XAttribute(x.relocatableAttribute), 
@@ -155,17 +168,21 @@ namespace StrikersTools.FileFormats
             for(var i = 0; i < entries.Count(); i++)
             {
                 var entry = entries.ElementAt(i);
-                var text = entry.Element("entry").Element("edited").ToString().Replace("<edited>", "").Replace("</edited>", "");
-                Entries[i] = text;
+                var text = entry.Element("entry").Element("edited").ToString().Replace("<edited>", "").Replace("</edited>", "").Replace("<", "").Replace(">","");
+                var entryBase = Entries[i];
+                entryBase.normal = text;
+                Entries[i] = entryBase;
             }
         }
 
         public void GetEntriesFromTXT(string input)
         {
             var lines = File.ReadAllLines(input);
-            foreach(var kvp in Entries)
+            for(var i = 0; i < lines.Length; i++)
             {
-                Entries[kvp.Key] = lines[kvp.Key];
+                var entry = Entries[i];
+                entry.normal = lines[i];
+                Entries[i] = entry;
             }
         }
         public void Save(string output)
@@ -183,7 +200,7 @@ namespace StrikersTools.FileFormats
                 var pointersPos = bw.BaseStream.Position;
 
                 // Pad the pointers with zero, they will be replaced later
-                for (var i = 1; i < Entries.Count+1; i++)
+                for (var i = 1; i < Entries.Length+1; i++)
                 {
                     bw.Write((int)0);
                 }
@@ -204,7 +221,7 @@ namespace StrikersTools.FileFormats
                 var j = 0;
                 foreach(var line in Entries)
                 {
-                    var entry = TextDecoder.Encode(line.Value);
+                    var entry = TextDecoder.Encode(line.normal);
                     if (entry.Length > 0)
                     {
                         var padSize = 4 - ((entry.Length) % 4); // Every entry is padded to a 4 byte alignment
@@ -248,6 +265,106 @@ namespace StrikersTools.FileFormats
 
 
             }
+        }
+
+        // It works!
+        public static string FormatThing(string input)
+        {
+            var ParseNumber = "xXcCqQuUsSiIBbzZxXyYpPr";
+            var Digits = "0123456789-";
+            var output = "";
+            for(var i = 0; i < input.Length; i++)
+            {
+                if(input[i] == '#')
+                {
+                    output += "<#";
+                    while(++i < input.Length)
+                    {
+                        var curChar = input[i];
+                        output += curChar;
+
+                        var parseNumber = false;
+                        if (curChar == 'R' || curChar == 'o')
+                        {
+                            if (i + 1 < input.Length)
+                            {
+                                curChar = input[++i];
+                                output += curChar;
+                            }
+                        }
+
+                        if (curChar == '=')
+                        {
+                            break;
+                        }
+
+                        var endOfCommand = false;
+                        if (ParseNumber.Contains(curChar))
+                        {
+                            var newPos = i + 1;
+                             
+                            while (newPos < input.Length)
+                            {
+                                var newChar = input[newPos];
+                                if(Digits.Contains(newChar))
+                                {
+                                    output += newChar;
+                                    newPos++;
+                                }
+                                else
+                                {
+                                    if(newChar != '#')
+                                    {
+                                        endOfCommand = true;
+                                    }
+                                    else
+                                    {
+                                        output += '#';
+                                        newPos++;
+                                    }           
+                                    break;
+                                }
+                                if (newPos == input.Length)
+                                {
+                                    endOfCommand = true;
+                                    break;
+                                }
+                            }
+                            i = newPos - 1;
+                        }
+                        else
+                        {
+                            if(i + 1 < input.Length)
+                            {
+                                if (input[i + 1] != '#')
+                                {
+                                    endOfCommand = true;
+                                }
+                                else
+                                {
+                                    output += '#';
+                                    i+= 1;
+                                }
+                            }
+                            else
+                            {
+                                endOfCommand = true;
+                            }
+                        }
+                        if (endOfCommand)
+                        {
+                            break;
+                        }
+                    }
+                    output += ">";
+                    var endCommand = i;
+                }
+                else
+                {
+                    output += input[i];
+                }
+            }
+            return output;
         }
 
 
