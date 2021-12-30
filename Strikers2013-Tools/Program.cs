@@ -78,7 +78,8 @@ namespace StrikersTools
                 }
 
             }
-            int a = 0;
+
+
         }
 
         static void PrintUsage()

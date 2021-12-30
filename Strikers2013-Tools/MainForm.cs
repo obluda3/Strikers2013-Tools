@@ -133,6 +133,7 @@ namespace StrikersTools
 
         private async void btnImportArc_Click(object sender, EventArgs e)
         {
+            lblProgress.Text = "Processing...";
             var progress = new Progress<int>(value =>
             {
                 progressBar1.Value = value;
@@ -147,6 +148,7 @@ namespace StrikersTools
 
         private async void btnExportArc_Click(object sender, EventArgs e)
         {
+            lblProgress.Text = "Processing...";
             var progress = new Progress<int>(value =>
             {
                 progressBar1.Value = value;

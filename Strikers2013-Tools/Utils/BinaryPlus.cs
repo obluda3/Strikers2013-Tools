@@ -48,5 +48,16 @@ namespace StrikersTools.Utils
 
             bw.BaseStream.Position = ((bw.BaseStream.Position / alignment) + 1) * alignment;
         }
+
+        public static byte[] Padded(this byte[] input, int alignment)
+        {
+            var length = input.Length;
+            if (length % alignment == 0) return input;
+
+            var newLength = ((length / alignment) + 1) * alignment;
+            var output = new byte[(int)newLength];
+            input.CopyTo(output, 0);
+            return output;
+        }
     }
 }

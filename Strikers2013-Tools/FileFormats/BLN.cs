@@ -132,14 +132,11 @@ namespace StrikersTools.FileFormats
                             while (br.BaseStream.Position < mcb0Entry.offset + mcb0Entry.size)
                             {
                                 if (bw.BaseStream.Position % 4 != 0) 
-                                    Console.WriteLine("paniiiique");
-                                var sample = br.ReadInt32();
-                                if (sample == 0x7FFF)
+                                    Console.WriteLine($"paniiiique {i}");
+                                if (br.PeekUInt32() == 0x7FFF)
                                 {
                                     break;
                                 }
-
-                                br.BaseStream.Position -= 4;
 
                                 var arcIndex = br.ReadInt32();
                                 var arcOffset = br.ReadUInt32();
@@ -164,7 +161,8 @@ namespace StrikersTools.FileFormats
                                     return;
                                 }
                                 bw.Write((uint)fileInfo.Offset);
-                                bw.Write(fileInfo.Size);
+                                var writtenSize = fileInfo.Size > 0 ? (int)fileInfo.Size : size; // hack
+                                bw.Write(writtenSize); 
                                 var backupPos = bw.BaseStream.Position;
                                 if (fileInfo.Modified)
                                 {

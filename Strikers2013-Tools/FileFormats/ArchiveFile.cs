@@ -87,6 +87,10 @@ namespace StrikersTools.FileFormats
                 br.BaseStream.Position = offset;
                 var paddedSize = (uint) ((size + PadFactor - 1) & ~(PadFactor - 1));
                 ArchiveFileInfo afi;
+                if(paddedSize == 0 || size == 0)
+                {
+                    size = paddedSize = (uint)PadFactor; // hack
+                }
                 if (getData)
                 {
                     var data = br.ReadBytes((int)paddedSize);
@@ -152,7 +156,7 @@ namespace StrikersTools.FileFormats
                 fileData = ShadeLz.Compress(data, needsHeader);
             }
 
-            fileInfo.Data = fileData;
+            fileInfo.Data = fileData.Padded(PadFactor);
             fileInfo.Modified = true;
             fileInfo.Size = (uint)((fileData.Length + PadFactor - 1) & ~(PadFactor - 1));
 
@@ -179,7 +183,7 @@ namespace StrikersTools.FileFormats
                 }
                 catch (FormatException)
                 {
-                    Console.WriteLine("Not a valid filename: ", file);
+                    Console.WriteLine($"Not a valid filename: {file}");
                     continue;
                 }
 
@@ -235,118 +239,6 @@ namespace StrikersTools.FileFormats
             offsize |= (uint)(size / MultFactor);
             return offsize;
         }
-
-
-        /*
-        public static ArchiveFileInfo[] ImportFiles(string inputFolder, string binPath)
-        {
-            ArchiveFileInfo[] result;
-            var binfile = File.Open(binPath, FileMode.Open);
-            var tempFile = File.OpenWrite(binPath + ".tmp");
-            using (var br = new BinaryReader(binfile))
-            {
-                using (var bw = new BinaryWriter(tempFile))
-                {
-                    // Reads header
-                    var fileCount = br.ReadInt32();
-                    var padFactor = br.ReadInt32();
-                    var mulFactor = br.ReadInt32();
-                    var shiftFactor = br.ReadInt32();
-                    var mask = br.ReadInt32();
-
-                    var files = Directory.GetFiles(inputFolder);
-
-                    // Get file info
-                    var fileTable = new ArchiveFileInfo[fileCount];
-                    for (var i = 0; i < fileCount; i++)
-                        fileTable[i] = new ArchiveFileInfo(br, shiftFactor, padFactor, mulFactor, mask, i);
-
-                    // Get modified files's filenames
-                    foreach (var file in files)
-                    {
-                        try
-                        {
-                            var index = Convert.ToInt32(Path.GetFileNameWithoutExtension(file).Split('.')[0]);
-                            fileTable[index].Modified = true;
-                            fileTable[index].Path = file;
-                        }
-                        catch (FormatException)
-                        {
-                            Console.WriteLine("Not a valid filename: ", file);
-                            continue;
-                        }
-                    }
-
-                    // Write header
-                    bw.Write(fileCount);
-                    bw.Write(padFactor);
-                    bw.Write(mulFactor);
-                    bw.Write(shiftFactor);
-                    bw.Write(mask);
-
-                    // Placeholder for the file table
-                    for(var i = 0; i < fileCount; i++) bw.Write(0);
-
-                    bw.WriteAlignment(padFactor);
-                    br.SeekAlignment(padFactor);
-                    for (var i = 0; i < fileCount; i++)
-                    {
-                        var file = fileTable[i];
-                        // Update offset
-                        var newOffset = bw.BaseStream.Position;
-
-                        if (file.Modified)
-                        {
-                            Console.WriteLine("File {0}: Index: {1}", Path.GetFileName(file.Path), file.Index);
-                            var data = File.ReadAllBytes(file.Path);
-                            bw.Write(data);
-                            file.Size = (uint)(padFactor * ((data.Length + padFactor - 1) / padFactor)); // Align to 0x10 bytes        
-                        }
-                        else
-                        {
-                            br.BaseStream.Position = file.Offset;
-
-                            // For some reason, some files do not have the correct size
-                            uint size = 0;
-                            if(br.ReadUInt32() == 0xA755AAFC) // Gets the size from the compression header
-                            {
-                                br.ReadUInt32();
-                                size = br.ReadUInt32();
-                                br.BaseStream.Position -= 8;
-                            }
-                            br.BaseStream.Position -= 4;
-                            file.TrueSize = Math.Max(size, file.Size);
-
-                            var fileData = br.ReadBytes((int)file.TrueSize);
-                            bw.Write(fileData);
-                        }
-
-                        file.PaddedSize = (uint)(padFactor * ((file.Size + padFactor - 1) / padFactor));
-
-                        bw.WriteAlignment(padFactor);
-                        file.Offset = newOffset;
-
-                        fileTable[i] = file;
-                    }
-
-                    bw.BaseStream.Position = 0x14; // After the header
-                    foreach(var fileInfo in fileTable)
-                    {
-                        uint offsize = 0;
-                        offsize |= (uint)(fileInfo.Offset / padFactor) << shiftFactor;
-                        offsize |= (uint)(fileInfo.Size / mulFactor);
-
-                        bw.Write(offsize);
-                    }
-
-                    result = fileTable;
-                }
-            }
-            File.Move(binPath, binPath.Replace(".bin", ".old"));
-            File.Move(binPath + ".tmp", binPath);
-            
-            return result;
-        }*/
 
         private string GuessExtension(int index)
         {
