@@ -61,18 +61,18 @@
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.listBox1 = new System.Windows.Forms.ListBox();
             this.tabPage4 = new System.Windows.Forms.TabPage();
-            this.textBox4 = new System.Windows.Forms.TextBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.button3 = new System.Windows.Forms.Button();
-            this.button4 = new System.Windows.Forms.Button();
             this.button5 = new System.Windows.Forms.Button();
+            this.button4 = new System.Windows.Forms.Button();
+            this.button3 = new System.Windows.Forms.Button();
+            this.label2 = new System.Windows.Forms.Label();
+            this.textBox4 = new System.Windows.Forms.TextBox();
             this.tabPage5 = new System.Windows.Forms.TabPage();
+            this.chkHeader = new System.Windows.Forms.CheckBox();
             this.btnCompress = new System.Windows.Forms.Button();
             this.btnDecompress = new System.Windows.Forms.Button();
             this.button8 = new System.Windows.Forms.Button();
             this.textBox3 = new System.Windows.Forms.TextBox();
             this.label10 = new System.Windows.Forms.Label();
-            this.chkHeader = new System.Windows.Forms.CheckBox();
             this.tabPage2.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabControl1.SuspendLayout();
@@ -252,9 +252,9 @@
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(6, 13);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(110, 13);
+            this.label3.Size = new System.Drawing.Size(123, 13);
             this.label3.TabIndex = 3;
-            this.label3.Text = "Archive file (ui/grp/...)";
+            this.label3.Text = "Archive file (ui/dat etc...)";
             // 
             // tabPage1
             // 
@@ -455,35 +455,18 @@
             this.tabPage4.Text = "Texture";
             this.tabPage4.UseVisualStyleBackColor = true;
             // 
-            // textBox4
+            // button5
             // 
-            this.textBox4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox4.Enabled = false;
-            this.textBox4.Location = new System.Drawing.Point(139, 10);
-            this.textBox4.Name = "textBox4";
-            this.textBox4.Size = new System.Drawing.Size(576, 20);
-            this.textBox4.TabIndex = 11;
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(6, 13);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(31, 13);
-            this.label2.TabIndex = 12;
-            this.label2.Text = "Input";
-            // 
-            // button3
-            // 
-            this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button3.Location = new System.Drawing.Point(753, 10);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(25, 19);
-            this.button3.TabIndex = 13;
-            this.button3.Text = "...";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
+            this.button5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.button5.Enabled = false;
+            this.button5.Location = new System.Drawing.Point(703, 228);
+            this.button5.Name = "button5";
+            this.button5.Size = new System.Drawing.Size(75, 23);
+            this.button5.TabIndex = 15;
+            this.button5.Tag = "";
+            this.button5.Text = "Import png";
+            this.button5.UseVisualStyleBackColor = true;
+            this.button5.Click += new System.EventHandler(this.button5_Click_1);
             // 
             // button4
             // 
@@ -498,18 +481,35 @@
             this.button4.UseVisualStyleBackColor = true;
             this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
-            // button5
+            // button3
             // 
-            this.button5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button5.Enabled = false;
-            this.button5.Location = new System.Drawing.Point(703, 228);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(75, 23);
-            this.button5.TabIndex = 15;
-            this.button5.Tag = "";
-            this.button5.Text = "Import png";
-            this.button5.UseVisualStyleBackColor = true;
-            this.button5.Click += new System.EventHandler(this.button5_Click_1);
+            this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.button3.Location = new System.Drawing.Point(753, 10);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(25, 19);
+            this.button3.TabIndex = 13;
+            this.button3.Text = "...";
+            this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.button3_Click);
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(6, 13);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(31, 13);
+            this.label2.TabIndex = 12;
+            this.label2.Text = "Input";
+            // 
+            // textBox4
+            // 
+            this.textBox4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox4.Enabled = false;
+            this.textBox4.Location = new System.Drawing.Point(139, 10);
+            this.textBox4.Name = "textBox4";
+            this.textBox4.Size = new System.Drawing.Size(576, 20);
+            this.textBox4.TabIndex = 11;
             // 
             // tabPage5
             // 
@@ -526,6 +526,16 @@
             this.tabPage5.Text = "Compression";
             this.tabPage5.UseVisualStyleBackColor = true;
             // 
+            // chkHeader
+            // 
+            this.chkHeader.AutoSize = true;
+            this.chkHeader.Location = new System.Drawing.Point(670, 257);
+            this.chkHeader.Name = "chkHeader";
+            this.chkHeader.Size = new System.Drawing.Size(108, 17);
+            this.chkHeader.TabIndex = 12;
+            this.chkHeader.Text = "Remove header?";
+            this.chkHeader.UseVisualStyleBackColor = true;
+            // 
             // btnCompress
             // 
             this.btnCompress.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
@@ -534,7 +544,6 @@
             this.btnCompress.Name = "btnCompress";
             this.btnCompress.Size = new System.Drawing.Size(75, 23);
             this.btnCompress.TabIndex = 11;
-            this.btnCompress.Enabled = false;
             this.btnCompress.Text = "Compress";
             this.btnCompress.UseVisualStyleBackColor = true;
             this.btnCompress.Click += new System.EventHandler(this.btnCompress_Click);
@@ -548,7 +557,6 @@
             this.btnDecompress.Size = new System.Drawing.Size(75, 23);
             this.btnDecompress.TabIndex = 10;
             this.btnDecompress.Tag = "";
-            this.btnDecompress.Enabled = false;
             this.btnDecompress.Text = "Decompress";
             this.btnDecompress.UseVisualStyleBackColor = true;
             this.btnDecompress.Click += new System.EventHandler(this.btnDecompress_Click);
@@ -582,16 +590,6 @@
             this.label10.Size = new System.Drawing.Size(23, 13);
             this.label10.TabIndex = 7;
             this.label10.Text = "File";
-            // 
-            // chkHeader
-            // 
-            this.chkHeader.AutoSize = true;
-            this.chkHeader.Location = new System.Drawing.Point(670, 257);
-            this.chkHeader.Name = "chkHeader";
-            this.chkHeader.Size = new System.Drawing.Size(108, 17);
-            this.chkHeader.TabIndex = 12;
-            this.chkHeader.Text = "Remove header?";
-            this.chkHeader.UseVisualStyleBackColor = true;
             // 
             // MainForm
             // 

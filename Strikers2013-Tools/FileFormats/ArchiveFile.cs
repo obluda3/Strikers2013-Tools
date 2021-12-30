@@ -130,9 +130,16 @@ namespace StrikersTools.FileFormats
                        try
                        {
                            var decompressedData = ShadeLz.Decompress(file.Data);
-                           var outDecompressed = File.Open(decompressedFolder + Path.GetFileNameWithoutExtension(filename) + "_dec" + extension, FileMode.Create);
+                           var outPath = decompressedFolder + Path.GetFileNameWithoutExtension(filename) + "_dec" + extension;
+                           var outDecompressed = File.Open(outPath, FileMode.Create);
                            outDecompressed.Write(decompressedData, 0, decompressedData.Length);
                            outDecompressed.Close();
+
+                           var shtxMagic = new List<byte> { 0x53, 0x48, 0x54, 0x58 };
+                           if (decompressedData.Take(4).SequenceEqual(shtxMagic))
+                           {
+                               SHTX.Export(outPath, outPath + ".png");
+                           }
                        }
                        catch(IndexOutOfRangeException)
                        {

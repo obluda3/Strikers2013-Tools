@@ -66,7 +66,7 @@ namespace StrikersTools.FileFormats
 
         public static void Convert(string input, string original, string outputPath)
         {
-            var output = File.Open(outputPath, FileMode.Create);
+            var output = new MemoryStream();
             var quantizer = new WuQuantizer();
             var magic = "";
             byte[] unkData = new byte[2];
@@ -92,39 +92,54 @@ namespace StrikersTools.FileFormats
                     var paletteLength = 0;
                     if (magic == "FS") paletteLength = 256;
                     else paletteLength = 16;
-                    using (var quantized = new Bitmap(quantizer.QuantizeImage(bitmap, maxColors:paletteLength)))
+                    var quantizedImage = quantizer.QuantizeImage(bitmap, maxColors: paletteLength);
+                    using (var quantized = new Bitmap(quantizedImage))
                     {
-                        var colorList = new List<int>();
-                        for (var y = 0; y < quantized.Height; y++)
+                        var palette = quantizedImage.Palette.Entries.ToList().Select(x => x.ToArgb()).ToList();
+
+                        var bw = new BinaryWriter(output);
+                        bw.Write(Encoding.ASCII.GetBytes("SHTX"));
+                        bw.Write(Encoding.ASCII.GetBytes(magic));
+                        bw.Write((short)quantized.Width);
+                        bw.Write((short)quantized.Height);
+                        bw.Write((short)0);
+                        palette.ForEach(x => bw.Write(x));
+                        if (magic == "F4") bw.Write(unkData);
+
+                        if (magic == "FS")
                         {
-                            for (var x = 0; x < quantized.Width; x++)
-                            {
-                                var color = quantized.GetPixel(x, y).ToArgb();
-                                if (colorList.IndexOf(color) == -1)
-                                {
-                                    colorList.Add(color);
-                                }
-                            }
-                        }
-
-                        var palette = new int[paletteLength];
-                        colorList.Take(paletteLength).ToList().CopyTo(palette);
-
-                        using (var bw = new BinaryWriter(output))
-                        {
-                            bw.Write(Encoding.ASCII.GetBytes("SHTX"));
-                            bw.Write(Encoding.ASCII.GetBytes(magic));
-                            bw.Write((short)quantized.Width);
-                            bw.Write((short)quantized.Height);
-                            bw.Write((short)0);
-                            palette.ToList().ForEach(x => bw.Write(x));
-
                             for (var y = 0; y < quantized.Height; y++)
                             {
                                 for (var x = 0; x < quantized.Width; x++)
                                 {
                                     var color = quantized.GetPixel(x, y).ToArgb();
-                                    bw.Write((byte)colorList.IndexOf(color));
+                                    bw.Write((byte)palette.IndexOf(color));
+                                }
+                            }
+                        }
+                        else
+                        {
+                            byte bufferedByte = 0;
+                            var pos = 0;
+                            for (var y = 0; y < quantized.Height; y++)
+                            {
+                                for (var x = 0; x < quantized.Width; x++)
+                                {
+                                    var color = quantized.GetPixel(x, y).ToArgb();
+                                    var index = palette.IndexOf(color);
+                                    if(pos == 0)
+                                    {
+                                        bufferedByte |= (byte)(index << 4);
+                                        pos++;
+                                    }
+                                    else
+                                    {
+                                        bufferedByte |= (byte)index;
+                                        pos = 0;
+                                        bw.Write(bufferedByte);
+                                        bufferedByte = 0;
+                                    }
+                                    
                                 }
                             }
                         }
@@ -132,23 +147,26 @@ namespace StrikersTools.FileFormats
                 }
                 else
                 {
-                    using (var bw = new BinaryWriter(output))
+                    var bw = new BinaryWriter(output);
+                    bw.Write(Encoding.ASCII.GetBytes("SHTXFF"));
+                    bw.Write((short)bitmap.Width);
+                    bw.Write((short)bitmap.Height);
+                    bw.Write((short)0);
+                    for (var y = 0; y < bitmap.Height; y++)
                     {
-                        bw.Write(Encoding.ASCII.GetBytes("SHTXFF"));
-                        bw.Write((short)bitmap.Width);
-                        bw.Write((short)bitmap.Height);
-                        bw.Write((short)0);
-                        for (var y = 0; y < bitmap.Height; y++)
+                        for (var x = 0; x < bitmap.Width; x++)
                         {
-                            for (var x = 0; x < bitmap.Width; x++)
-                            {
-                                var pixel = bitmap.GetPixel(x, y).ToArgb();
-                                bw.Write(pixel);
-                            }
+                            var pixel = bitmap.GetPixel(x, y).ToArgb();
+                            bw.Write(pixel);
                         }
                     }
                 }
             }
+            var outputStream = File.Open(outputPath, FileMode.Create);
+            output.Position = 0;
+            output.CopyTo(outputStream);
+            output.Close();
+            outputStream.Close();
         }
         private static Bitmap DecodeImage(short width, short height, Color[] palette, byte[] textureData)
         {
