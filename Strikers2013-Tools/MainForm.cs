@@ -141,16 +141,20 @@ namespace StrikersTools
                 lblProgress.Text = $"{value / 100} %";
             });
 
-            if(IsFileOpened(txtMcb.Text) || IsFileOpened(txtPathArc.Text)) 
+            if (IsFileOpened(txtMcb.Text) || IsFileOpened(txtPathArc.Text))
             {
                 MessageBox.Show("Can't process, files are already in use.");
                 lblProgress.Text = "";
+                btnImportArc.Enabled = true;
             }
-            var blnFile = new BLN(txtMcb.Text);
-            await blnFile.RepackArchiveAndBLN(txtModified.Text, txtPathArc.Text, progress);
-            lblProgress.Text = "Done !";
-            progressBar1.Value = 0;
-            btnImportArc.Enabled = true;
+            else
+            {
+                var blnFile = new BLN(txtMcb.Text);
+                await blnFile.RepackArchiveAndBLN(txtModified.Text, txtPathArc.Text, progress);
+                lblProgress.Text = "Done !";
+                progressBar1.Value = 0;
+                btnImportArc.Enabled = true;
+            }
         }
 
         private bool IsFileOpened(string path)
