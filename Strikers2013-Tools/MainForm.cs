@@ -155,7 +155,7 @@ namespace StrikersTools
                 lblProgress.Text = $"{value / 100} %";
             });
             var arc = new ArchiveFile(txtPathArc.Text, true);
-            await arc.ExtractFiles(progress, checkBox1.Checked);
+            await arc.ExtractFiles(progress);
             lblProgress.Text = "Done !";
             progressBar1.Value = 0;
         }

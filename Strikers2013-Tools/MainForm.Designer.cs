@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.lblProgress = new System.Windows.Forms.Label();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.btnMcb1 = new System.Windows.Forms.Button();
@@ -83,7 +82,6 @@
             // 
             // tabPage2
             // 
-            this.tabPage2.Controls.Add(this.checkBox1);
             this.tabPage2.Controls.Add(this.lblProgress);
             this.tabPage2.Controls.Add(this.progressBar1);
             this.tabPage2.Controls.Add(this.btnMcb1);
@@ -106,16 +104,6 @@
             this.tabPage2.Text = "Archive";
             this.tabPage2.UseVisualStyleBackColor = true;
             this.tabPage2.Click += new System.EventHandler(this.tabPage2_Click);
-            // 
-            // checkBox1
-            // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(9, 257);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(94, 17);
-            this.checkBox1.TabIndex = 20;
-            this.checkBox1.Text = "Decompress ?";
-            this.checkBox1.UseVisualStyleBackColor = true;
             // 
             // lblProgress
             // 
@@ -648,7 +636,6 @@
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.ProgressBar progressBar1;
         private System.Windows.Forms.Label lblProgress;
-        private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.TabPage tabPage4;
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Label label2;

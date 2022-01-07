@@ -122,7 +122,7 @@ namespace StrikersTools
             }
             var progress = new Progress<int>();
             var arc = new ArchiveFile(Path.GetFullPath(path), true);
-            await arc.ExtractFiles(progress, false);
+            await arc.ExtractFiles(progress);
         }
 
         static void ImportText(string path, string txt, string output)

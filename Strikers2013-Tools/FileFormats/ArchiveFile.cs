@@ -105,46 +105,56 @@ namespace StrikersTools.FileFormats
             }
             return files;
         }
-        public async Task ExtractFiles(IProgress<int> progress, bool decompress)
+
+        public byte[] ExtractFile(int index)
+        {
+            byte[] output = new byte[0];
+            try
+            {
+                output = ShadeLz.Decompress(Files[index].Data);
+            }
+            catch (IndexOutOfRangeException)
+            {
+                Console.WriteLine($"File could not be decompressed");
+            }
+            return output;
+        }
+
+        public async Task ExtractFiles(IProgress<int> progress)
         {
             await Task.Run(() =>
            {
                var folder = Path.GetDirectoryName(FileName) + Path.DirectorySeparatorChar + Path.GetFileNameWithoutExtension(FileName) + Path.DirectorySeparatorChar;
                Directory.CreateDirectory(folder);
                var decompressedFolder = folder + Path.DirectorySeparatorChar + "dec\\";
-               if (decompress)
-                   Directory.CreateDirectory(decompressedFolder);
+               Directory.CreateDirectory(decompressedFolder);
 
                foreach (var file in Files)
                {
                    // Create output file
                    var filename = GetFileName(file.Index);
                    var extension = Path.GetExtension(filename);
-                   var outputPath = decompress ? Path.GetFileNameWithoutExtension(filename) + ".bin" : filename;
+                   var outputPath = Path.GetFileNameWithoutExtension(filename) + ".bin";
                    var output = File.Open(folder + outputPath, FileMode.Create);
                    output.Write(file.Data, 0, file.Data.Length);
                    output.Close();
-
-                   if (decompress)
+                   try
                    {
-                       try
-                       {
-                           var decompressedData = ShadeLz.Decompress(file.Data);
-                           var outPath = decompressedFolder + Path.GetFileNameWithoutExtension(filename) + "_dec" + extension;
-                           var outDecompressed = File.Open(outPath, FileMode.Create);
-                           outDecompressed.Write(decompressedData, 0, decompressedData.Length);
-                           outDecompressed.Close();
+                        var decompressedData = ShadeLz.Decompress(file.Data);
+                        var outPath = decompressedFolder + Path.GetFileNameWithoutExtension(filename) + "_dec" + extension;
+                        var outDecompressed = File.Open(outPath, FileMode.Create);
+                        outDecompressed.Write(decompressedData, 0, decompressedData.Length);
+                        outDecompressed.Close();
 
-                           var shtxMagic = new List<byte> { 0x53, 0x48, 0x54, 0x58 };
-                           if (decompressedData.Take(4).SequenceEqual(shtxMagic))
-                           {
-                               SHTX.Export(outPath, outPath + ".png");
-                           }
-                       }
-                       catch(IndexOutOfRangeException)
-                       {
-                           Console.WriteLine($"File {filename} could not be decompressed");
-                       }
+                        var shtxMagic = new List<byte> { 0x53, 0x48, 0x54, 0x58 };
+                        if (decompressedData.Take(4).SequenceEqual(shtxMagic))
+                        {
+                            SHTX.Export(outPath, outPath + ".png");
+                        }
+                   }
+                   catch(IndexOutOfRangeException)
+                   {
+                        Console.WriteLine($"File {filename} could not be decompressed");
                    }
                     
                    progress.Report(file.Index * 10000 / Files.Count);

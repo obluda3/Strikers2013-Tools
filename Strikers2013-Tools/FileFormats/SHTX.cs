@@ -5,7 +5,7 @@ using System.Text;
 using System.Drawing;
 using System.Threading.Tasks;
 using System.IO;
-using Be.IO;
+using StrikersTools.Utils;
 using nQuant;
 
 namespace StrikersTools.FileFormats
