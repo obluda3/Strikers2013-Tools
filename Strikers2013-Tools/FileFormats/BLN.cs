@@ -88,31 +88,11 @@ namespace StrikersTools.FileFormats
             }
 
         }
-        public async Task RepackArchiveAndBLN(string inputFolder, string binPath, IProgress<int> progress)
+
+        public async Task SyncWithBin(ArchiveFile binFile, int archiveIndex, IProgress<int> progress)
         {
-            await Task.Run(async () => 
+            await Task.Run(() =>
             {
-                var archiveFileName = Path.GetFileName(binPath);
-                var archiveIndex = -1;
-
-                for (var i = 0; i < ArchiveNames.Length; i++)
-                {
-                    if (archiveFileName.Contains(ArchiveNames[i]))
-                    {
-                        archiveIndex = i;
-                        break;
-                    }
-                }
-                if (archiveIndex < 0)
-                    return;
-
-                var binFile = new ArchiveFile(binPath, true);
-                binFile.ImportFiles(inputFolder);
-
-                await binFile.Save(binPath);
-
-                progress.Report(10000 / (Entries.Count + 1));
-
                 var fileTable = binFile.Files;
                 var blnPath = RootFolder + "mcb1.bln";
 
@@ -131,7 +111,7 @@ namespace StrikersTools.FileFormats
                             br.BaseStream.Position = mcb0Entry.offset;
                             while (br.BaseStream.Position < mcb0Entry.offset + mcb0Entry.size)
                             {
-                                if (bw.BaseStream.Position % 4 != 0) 
+                                if (bw.BaseStream.Position % 4 != 0)
                                     Console.WriteLine($"paniiiique {i}");
                                 if (br.PeekUInt32() == 0x7FFF)
                                 {
@@ -162,7 +142,7 @@ namespace StrikersTools.FileFormats
                                 }
                                 bw.Write((uint)fileInfo.Offset);
                                 var writtenSize = fileInfo.Size > 0 ? (int)fileInfo.Size : size; // hack
-                                bw.Write(writtenSize); 
+                                bw.Write(writtenSize);
                                 var backupPos = bw.BaseStream.Position;
                                 if (fileInfo.Modified)
                                 {
@@ -206,6 +186,34 @@ namespace StrikersTools.FileFormats
                     }
                     bw.Write(UnkData);
                 }
+            });
+        }
+        public async Task RepackArchiveAndBLN(string inputFolder, string binPath, IProgress<int> progress)
+        {
+            await Task.Run(async () => 
+            {
+                var archiveFileName = Path.GetFileName(binPath);
+                var archiveIndex = -1;
+
+                for (var i = 0; i < ArchiveNames.Length; i++)
+                {
+                    if (archiveFileName.Contains(ArchiveNames[i]))
+                    {
+                        archiveIndex = i;
+                        break;
+                    }
+                }
+                if (archiveIndex < 0)
+                    return;
+
+                var binFile = new ArchiveFile(binPath, true);
+                binFile.ImportFiles(inputFolder);
+
+                await binFile.Save(binPath);
+
+                progress.Report(10000 / (Entries.Count + 1));
+
+                await SyncWithBin(binFile, archiveIndex, progress);
             });
 
         }

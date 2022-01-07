@@ -134,16 +134,39 @@ namespace StrikersTools
         private async void btnImportArc_Click(object sender, EventArgs e)
         {
             lblProgress.Text = "Processing...";
+            btnImportArc.Enabled = false;
             var progress = new Progress<int>(value =>
             {
                 progressBar1.Value = value;
                 lblProgress.Text = $"{value / 100} %";
             });
 
+            if(IsFileOpened(txtMcb.Text) || IsFileOpened(txtPathArc.Text)) 
+            {
+                MessageBox.Show("Can't process, files are already in use.");
+                lblProgress.Text = "";
+            }
             var blnFile = new BLN(txtMcb.Text);
             await blnFile.RepackArchiveAndBLN(txtModified.Text, txtPathArc.Text, progress);
             lblProgress.Text = "Done !";
             progressBar1.Value = 0;
+            btnImportArc.Enabled = true;
+        }
+
+        private bool IsFileOpened(string path)
+        {
+            try
+            {
+                using (var file = File.OpenWrite(path))
+                {
+                    file.Close();
+                }
+            }
+            catch (IOException)
+            {
+                return true;
+            }
+            return false;
         }
 
         private async void btnExportArc_Click(object sender, EventArgs e)
