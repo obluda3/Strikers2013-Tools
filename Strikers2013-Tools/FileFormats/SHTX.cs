@@ -97,6 +97,8 @@ namespace StrikersTools.FileFormats
                     {
                         var palette = quantizedImage.Palette.Entries.ToList().Select(x => x.ToArgb()).ToList();
 
+                        for (var i = palette.Count; i < paletteLength; i++) palette.Add(0);
+
                         var bw = new BinaryWriter(output);
                         bw.Write(Encoding.ASCII.GetBytes("SHTX"));
                         bw.Write(Encoding.ASCII.GetBytes(magic));
