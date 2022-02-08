@@ -145,147 +145,145 @@ namespace StrikersTools.Utils
             if (needsHeader)
                 for (var i = 0; i < 12; i++) output.WriteByte(0);
 
-            var pos = 0;
-            var length = data.Length;
-            int rawLength = 0;
-            int runLength = 0;
-            int matchLength = 0;
-            int matchOffset = 0;
+            int rawLength, runLength, matchLength, matchOffset, pos, length;
+            rawLength = runLength = matchLength = matchOffset = pos = 0;
+            length = data.Length;
             MatchType match = MatchType.None;
 
-            int[] LastSeen = new int[0x100];
+            int[] HashHistory = new int[256 * 256 * 256];
+            for (var i = 0; i < 256 * 256 * 256; i++) HashHistory[i] = -1;
+
             Dictionary<int, int> SearchHistory = new Dictionary<int, int>();
-            List<byte> rawBytes = new List<byte>();
 
             while (pos + rawLength < length)
             {
                 var currentPos = pos + rawLength;
                 byte curByte = data[currentPos];
+                
+                int hash;
+
+                if (length - currentPos < 3) hash = -1;
+                else
+                {
+                    byte b1 = curByte, b2 = data[currentPos + 1], b3 = data[currentPos + 2];
+                    hash = b1 | (b2 << 8) | (b3 << 16);
+                }
+                var prevPosHash = HashHistory[hash];
+                HashHistory[hash] = currentPos;
+                if (prevPosHash != -1) SearchHistory[currentPos] = prevPosHash;
+
                 if (match == MatchType.None && length - currentPos > 4)
                 {
                     // check LZ Match
-                    if (LastSeen[curByte] != 0)
+                    if (prevPosHash != -1 && currentPos - prevPosHash < 0x1FFF)
                     {
-                        var prevPos = LastSeen[curByte];
-                        match = MatchType.LZ;
-                        if (currentPos - prevPos < 0x1FFF)
+                        var prevPos = prevPosHash;
+                        var curMatchLen = 0;
+                        while (data[currentPos + curMatchLen] == data[prevPos + curMatchLen])
                         {
-                            matchLength = 0;
-                            var curMatchLen = 0;
-                            while (data[currentPos + curMatchLen] == data[prevPos + curMatchLen])
-                            {
-                                curMatchLen++;
-                                if (currentPos + curMatchLen >= data.Length)
-                                    break;
-                            }
-
-                            var longestMatchIndex = prevPos;
-                            matchLength = curMatchLen;
-
-                            while (SearchHistory.ContainsKey(prevPos) && SearchHistory[prevPos] != 0)
-                            {
-                                if (currentPos + matchLength >= length)
-                                    break;
-                                curMatchLen = 0;
-                                prevPos = SearchHistory[prevPos];
-                                if (currentPos - prevPos > 0x1FFF)
-                                {
-                                    // Remove keys that are out of reach
-                                    while (SearchHistory.ContainsKey(prevPos) && SearchHistory[prevPos] != 0)
-                                    {
-                                        int oldPrevPos = prevPos;
-                                        prevPos = SearchHistory[prevPos];
-                                        SearchHistory.Remove(oldPrevPos);                                            
-                                    }
-                                    break;
-                                }
-                                    
-                                if (data[prevPos + matchLength] == data[currentPos + matchLength])
-                                {
-                                    while (data[currentPos + curMatchLen] == data[prevPos + curMatchLen])
-                                    {
-                                        curMatchLen++;
-                                        if (currentPos + curMatchLen >= data.Length)
-                                            break;
-                                    }
-                                    longestMatchIndex = curMatchLen > matchLength ? prevPos : longestMatchIndex;
-                                    matchLength = Math.Max(matchLength, curMatchLen);
-                                }
-                            }
-                            matchOffset = currentPos - longestMatchIndex;
-                            if (matchLength < 4) match = MatchType.None;
+                            curMatchLen++;
+                            if (currentPos + curMatchLen >= data.Length)
+                                break;
                         }
-                        else match = MatchType.None;
+
+                        var longestMatchIndex = prevPos;
+                        matchLength = curMatchLen;
+
+                        while (SearchHistory.ContainsKey(prevPos) && SearchHistory[prevPos] != 0)
+                        {
+                            if (currentPos + matchLength >= length)
+                                break;
+                            prevPos = SearchHistory[prevPos];
+                            if (currentPos - prevPos > 0x1FFF)
+                            {
+                                // frees some memory
+                                while (SearchHistory.ContainsKey(prevPos) && SearchHistory[prevPos] != 0)
+                                {
+                                    int oldPrevPos = prevPos;
+                                    prevPos = SearchHistory[prevPos];
+                                    SearchHistory.Remove(oldPrevPos);
+                                }
+                                break;
+                            }
+
+                            curMatchLen = 0;
+                            // If it's not at least as long as the current match, it's useless
+                            if (data[prevPos + matchLength] == data[currentPos + matchLength])
+                            {
+                                while (data[currentPos + curMatchLen] == data[prevPos + curMatchLen])
+                                {
+                                    curMatchLen++;
+                                    if (currentPos + curMatchLen >= data.Length)
+                                        break;
+                                }
+                                if(curMatchLen > matchLength)
+                                {
+                                    longestMatchIndex = prevPos;
+                                    matchLength = curMatchLen;
+                                }
+                            }
+                        }
+                        matchOffset = currentPos - longestMatchIndex;
                     }
                     // checking rle
-                    match = MatchType.RLE;
                     runLength = 1;
                     while (currentPos + runLength < length)
                     {
                         if (data[currentPos + runLength] != curByte)
                         {
-                            match = MatchType.None;
                             break;
                         }
                         runLength++;
                     }
-                    match = match != MatchType.None ? match // lmao
-                    : runLength >= 4 ? MatchType.RLE
-                    : matchLength >= 4 ? MatchType.LZ
-                    : MatchType.None;
+                    match = runLength >= 4 ? MatchType.RLE : matchLength >= 4 ? MatchType.LZ : MatchType.None;
                 }
                 if (match != MatchType.None)
                 {
                     if (rawLength > 0)
                     {
+                        var rawBytes = new byte[rawLength];
+                        Array.Copy(data, pos, rawBytes, 0, rawLength);
                         EncodeRawBytes(rawBytes, rawLength, output);
                         pos += rawLength;
-                        rawBytes.Clear();
                         rawLength = 0;
                     }
 
+                    int copyLen = runLength;
                     if (matchLength > runLength) // LZ
                     {
+                        copyLen = matchLength;
                         EncodeMatch(matchLength, matchOffset, output);
-
-                        // update positions
-                        for (var i = currentPos; i < currentPos + matchLength; i++)
-                        {
-                            var currentByte = data[i];
-                            var oldPrevPos = LastSeen[currentByte];
-
-                            LastSeen[currentByte] = i;
-                            SearchHistory[i] = oldPrevPos;
-                        }
                         pos += matchLength;
                     }
                     else // RLE
                     {
                         EncodeRun(runLength, curByte, output);
-                        for(var i = currentPos; i < currentPos + runLength; i++)
-                        {
-                            var oldPrevPos = LastSeen[curByte];
-
-                            LastSeen[curByte] = i;
-                            SearchHistory[i] = oldPrevPos;
-                        }
                         pos += runLength;
                     }
+                    // update history
+                    if (currentPos + copyLen + 1 < length)
+                    {
+                        for (var i = currentPos + 1; i < currentPos + copyLen; i++)
+                        {
+                            byte b1 = data[i], b2 = data[i + 1], b3 = data[i + 2];
+                            hash = b1 | (b2 << 8) | (b3 << 16);
+
+                            var prevPos = HashHistory[hash];
+                            HashHistory[hash] = i;
+                            if (prevPos != -1) SearchHistory[i] = prevPos;
+                        }
+                    }
                 }
-                else
-                {
-                    rawBytes.Add(curByte);
-                    var oldPrevPos = LastSeen[curByte];
-                    LastSeen[curByte] = currentPos;
-                    SearchHistory[currentPos] = oldPrevPos;
-                    rawLength++;
-                }
+                else rawLength++;
+
                 match = MatchType.None;
                 runLength = matchLength = matchOffset = 0;
 
             }
             if (rawLength > 0)
             {
+                var rawBytes = new byte[rawLength];
+                Array.Copy(data, pos, rawBytes, 0, rawLength);
                 EncodeRawBytes(rawBytes, rawLength, output);
             }
 
@@ -299,14 +297,11 @@ namespace StrikersTools.Utils
                 output.Write(magic, 0, 4);
                 output.Write(decompressedSize, 0, 4);
                 output.Write(compressedSize, 0, 4);
-
             }
-           
 
             return output.ToArray();
         }
 
-        // Not a real compressor yet, just produces valid files
         private static void EncodeRun(int runLength, byte repeatedByte, Stream output)
         {
             var curLen = runLength;
@@ -352,44 +347,42 @@ namespace StrikersTools.Utils
             }
         }
 
-        private static void EncodeRawBytes(List<byte> rawBytes, int rawLength, Stream output)
+        private static void EncodeRawBytes(byte[] rawBytes, int rawLength, Stream output)
         {
-            if (rawBytes.Count != rawLength)
-                Console.WriteLine("wtf");
             if (rawLength < 0x20)
             {
                 output.WriteByte((byte)rawLength);
                 output.Write(rawBytes.ToArray(), 0, rawLength);
-                rawBytes.Clear();
             }
             else
             {
+                var pos = 0;
                 var curLen = rawLength;
                 while (curLen > 0x1FFF)
                 {
 
                     output.WriteByte(0x3F);
                     output.WriteByte(0xFF);
-                    output.Write(rawBytes.Take(0x1FFF).ToArray(), 0, 0x1FFF);
-                    rawBytes.RemoveRange(0, 0x1FFF);
+                    for (var i = pos; i < pos + 0x1fff; i++) output.WriteByte(rawBytes[i]);
+                    pos += 0x1FFF;
                     curLen -= 0x1FFF;
 
                 }
                 if (curLen < 0x1f)
                 {
-                    output.WriteByte((byte)rawLength);
-                    output.Write(rawBytes.Take(curLen).ToArray(), 0, curLen);
-                    rawBytes.RemoveRange(0, curLen);
+                    output.WriteByte((byte)curLen);
+                    for (var i = pos; i < pos + curLen; i++) output.WriteByte(rawBytes[i]);
                 }
                 else
                 {
                     output.WriteByte((byte)(0x20 | ((0x1F00 & curLen) >> 8)));
                     output.WriteByte((byte)(curLen & 0xFF));
-                    output.Write(rawBytes.Take(curLen).ToArray(), 0, curLen);
-                    rawBytes.RemoveRange(0, curLen);
+                    for (var i = pos; i < pos + curLen; i++) output.WriteByte(rawBytes[i]);
                 }
             }
         }
+
+
         private enum MatchType { None, LZ, RLE }
 
 
