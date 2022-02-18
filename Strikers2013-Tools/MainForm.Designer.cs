@@ -31,14 +31,8 @@
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.lblProgress = new System.Windows.Forms.Label();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
-            this.btnMcb1 = new System.Windows.Forms.Button();
-            this.label6 = new System.Windows.Forms.Label();
-            this.txtMcb = new System.Windows.Forms.TextBox();
-            this.txtModified = new System.Windows.Forms.TextBox();
             this.txtPathArc = new System.Windows.Forms.TextBox();
-            this.label5 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
-            this.btnModified = new System.Windows.Forms.Button();
             this.btnImportArc = new System.Windows.Forms.Button();
             this.btnExportArc = new System.Windows.Forms.Button();
             this.btnBrowseArc = new System.Windows.Forms.Button();
@@ -84,14 +78,8 @@
             // 
             this.tabPage2.Controls.Add(this.lblProgress);
             this.tabPage2.Controls.Add(this.progressBar1);
-            this.tabPage2.Controls.Add(this.btnMcb1);
-            this.tabPage2.Controls.Add(this.label6);
-            this.tabPage2.Controls.Add(this.txtMcb);
-            this.tabPage2.Controls.Add(this.txtModified);
             this.tabPage2.Controls.Add(this.txtPathArc);
-            this.tabPage2.Controls.Add(this.label5);
             this.tabPage2.Controls.Add(this.label4);
-            this.tabPage2.Controls.Add(this.btnModified);
             this.tabPage2.Controls.Add(this.btnImportArc);
             this.tabPage2.Controls.Add(this.btnExportArc);
             this.tabPage2.Controls.Add(this.btnBrowseArc);
@@ -121,46 +109,6 @@
             this.progressBar1.Size = new System.Drawing.Size(509, 23);
             this.progressBar1.TabIndex = 18;
             // 
-            // btnMcb1
-            // 
-            this.btnMcb1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnMcb1.Location = new System.Drawing.Point(753, 39);
-            this.btnMcb1.Name = "btnMcb1";
-            this.btnMcb1.Size = new System.Drawing.Size(25, 19);
-            this.btnMcb1.TabIndex = 17;
-            this.btnMcb1.Text = "...";
-            this.btnMcb1.UseVisualStyleBackColor = true;
-            this.btnMcb1.Click += new System.EventHandler(this.btnMcb1_Click);
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(6, 65);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(68, 13);
-            this.label6.TabIndex = 16;
-            this.label6.Text = "Modified files";
-            // 
-            // txtMcb
-            // 
-            this.txtMcb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtMcb.Enabled = false;
-            this.txtMcb.Location = new System.Drawing.Point(139, 36);
-            this.txtMcb.Name = "txtMcb";
-            this.txtMcb.Size = new System.Drawing.Size(576, 20);
-            this.txtMcb.TabIndex = 15;
-            // 
-            // txtModified
-            // 
-            this.txtModified.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtModified.Enabled = false;
-            this.txtModified.Location = new System.Drawing.Point(139, 62);
-            this.txtModified.Name = "txtModified";
-            this.txtModified.Size = new System.Drawing.Size(576, 20);
-            this.txtModified.TabIndex = 11;
-            // 
             // txtPathArc
             // 
             this.txtPathArc.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
@@ -171,15 +119,6 @@
             this.txtPathArc.Size = new System.Drawing.Size(576, 20);
             this.txtPathArc.TabIndex = 4;
             // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(6, 39);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(50, 13);
-            this.label5.TabIndex = 14;
-            this.label5.Text = "mcb1.bln";
-            // 
             // label4
             // 
             this.label4.AutoSize = true;
@@ -187,17 +126,6 @@
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(0, 13);
             this.label4.TabIndex = 13;
-            // 
-            // btnModified
-            // 
-            this.btnModified.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnModified.Location = new System.Drawing.Point(753, 65);
-            this.btnModified.Name = "btnModified";
-            this.btnModified.Size = new System.Drawing.Size(25, 19);
-            this.btnModified.TabIndex = 12;
-            this.btnModified.Text = "...";
-            this.btnModified.UseVisualStyleBackColor = true;
-            this.btnModified.Click += new System.EventHandler(this.btnModified_Click);
             // 
             // btnImportArc
             // 
@@ -606,14 +534,8 @@
 
         #endregion
         private System.Windows.Forms.TabPage tabPage2;
-        private System.Windows.Forms.Button btnMcb1;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.TextBox txtMcb;
-        private System.Windows.Forms.TextBox txtModified;
         private System.Windows.Forms.TextBox txtPathArc;
-        private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.Button btnModified;
         private System.Windows.Forms.Button btnImportArc;
         private System.Windows.Forms.Button btnExportArc;
         private System.Windows.Forms.Button btnBrowseArc;

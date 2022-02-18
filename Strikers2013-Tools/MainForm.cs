@@ -96,36 +96,7 @@ namespace StrikersTools
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
                     txtPathArc.Text = ofd.FileName;
-                    btnModified.Enabled = true;
                     btnExportArc.Enabled = true;
-                }
-            }
-        }
-
-        private void btnModified_Click(object sender, EventArgs e)
-        {
-            using (var cofd = new CommonOpenFileDialog())
-            {
-                cofd.Title = "Browse to the location of your modified files";
-                cofd.IsFolderPicker = true;
-                if (cofd.ShowDialog() == CommonFileDialogResult.Ok)
-                {
-                    txtModified.Text = cofd.FileName;
-                    btnImportArc.Enabled = true;
-                }
-            }
-        }
-
-        private void btnMcb1_Click(object sender, EventArgs e)
-        {
-            using (var ofd = new OpenFileDialog())
-            {
-                ofd.Title = "Open the mcb1.bln";
-                ofd.Filter = "mcb1.bln (*.bln)|*.bln|All files (*.*)|*.*";
-                
-                if (ofd.ShowDialog() == DialogResult.OK)
-                {
-                    txtMcb.Text = ofd.FileName;
                     btnImportArc.Enabled = true;
                 }
             }
@@ -133,6 +104,22 @@ namespace StrikersTools
 
         private async void btnImportArc_Click(object sender, EventArgs e)
         {
+            string modifiedFolder = "";
+            using (var cofd = new CommonOpenFileDialog())
+            {
+                cofd.Title = "Browse to the location of your modified files";
+                cofd.IsFolderPicker = true;
+                if (cofd.ShowDialog() == CommonFileDialogResult.Ok)
+                {
+                    modifiedFolder = cofd.FileName;
+                }
+            }
+            if (modifiedFolder == "") return;
+            string mcb1Path = Path.GetDirectoryName(txtPathArc.Text) + Path.DirectorySeparatorChar + "mcb1.bln";
+
+            if (!File.Exists(mcb1Path))
+                throw new FileNotFoundException("The archive folder needs to contain the mcb1.bln", mcb1Path);
+            
             lblProgress.Text = "Processing...";
             btnImportArc.Enabled = false;
             var progress = new Progress<int>(value =>
@@ -141,7 +128,7 @@ namespace StrikersTools
                 lblProgress.Text = $"{value / 100} %";
             });
 
-            if (IsFileOpened(txtMcb.Text) || IsFileOpened(txtPathArc.Text))
+            if (IsFileOpened(mcb1Path) || IsFileOpened(txtPathArc.Text))
             {
                 MessageBox.Show("Can't process, files are already in use.");
                 lblProgress.Text = "";
@@ -149,8 +136,8 @@ namespace StrikersTools
             }
             else
             {
-                var blnFile = new BLN(txtMcb.Text);
-                await blnFile.RepackArchiveAndBLN(txtModified.Text, txtPathArc.Text, progress);
+                var blnFile = new BLN(mcb1Path);
+                await blnFile.RepackArchiveAndBLN(modifiedFolder, txtPathArc.Text, progress);
                 lblProgress.Text = "Done !";
                 progressBar1.Value = 0;
                 btnImportArc.Enabled = true;

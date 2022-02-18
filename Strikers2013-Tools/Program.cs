@@ -69,7 +69,9 @@ namespace StrikersTools
                         Font.ImportLetters(args[1], args[2]);
                         break;
                     case "-l":
-                        Locate(args[1], Convert.ToInt32(args[2]));
+                        var bln = new BLN(args[1]);
+                        if (args[2] == "all" || args[2] == "full") Locate(bln, -1);
+                        else Locate(bln, Convert.ToInt32(args[2]));
                         break;
                     default:
                         PrintUsage();
@@ -90,6 +92,8 @@ namespace StrikersTools
             Console.WriteLine("\t\tStrikers2013Tools.exe -r <path to .bin archive> <path to modified files> <path to mcb1.bln>");
             Console.WriteLine("\t- Get file locations from BLN Sub :");
             Console.WriteLine("\t\tStrikers2013Tools.exe -l <path to .bln> <BLN Sub index>");
+            Console.WriteLine("\t- Get file locations from BLN :");
+            Console.WriteLine("\t\tStrikers2013Tools.exe -l <path to .bln> <all/-1/full>");
             Console.WriteLine("\t- Import to text file :");
             Console.WriteLine("\t\tStrikers2013Tools.exe -i <path to original text file> <path to modified text file> <output path>");
             Console.WriteLine("\t- Export SHTX file :");
@@ -136,11 +140,12 @@ namespace StrikersTools
             text.Save(outPath);
         }
 
-        static void Locate(string path, int index)
+        static void Locate(BLN bln, int index)
         {
-            var bln = new BLN(path);
-
-            bln.Locate(index);
+            if (index != -1)
+                bln.Locate(index);
+            else
+                bln.LocateAll();
         }
         static void ExportText(string input, string output)
         {

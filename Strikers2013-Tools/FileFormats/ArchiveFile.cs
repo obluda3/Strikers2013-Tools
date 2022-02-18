@@ -152,7 +152,7 @@ namespace StrikersTools.FileFormats
                             SHTX.Export(outPath, outPath + ".png");
                         }
                    }
-                   catch(IndexOutOfRangeException)
+                   catch(Exception)
                    {
                         Console.WriteLine($"File {filename} could not be decompressed");
                    }
@@ -191,12 +191,13 @@ namespace StrikersTools.FileFormats
         public void ImportFiles(string inputFolder)
         {
             var files = Directory.GetFiles(inputFolder);
+            Console.WriteLine($"Importing {files.Length} files...");
             foreach (var file in files)
             {
-                int index = -1;
+                int index;
                 try
                 {
-                    index = Convert.ToInt32(Path.GetFileNameWithoutExtension(file).Split('.')[0]);
+                    index = Convert.ToInt32(Path.GetFileNameWithoutExtension(file).Split('.')[0].Split('_')[0]);
                 }
                 catch (FormatException)
                 {
@@ -219,7 +220,7 @@ namespace StrikersTools.FileFormats
                 bw.Write(ShiftFactor);
                 bw.Write(Mask);
 
-                for (var i = 0; i < FileCount; i++) bw.Write(0); // file table, filled later
+                bw.BaseStream.Position += FileCount * 4;
 
                 bw.WriteAlignment(PadFactor);
 
