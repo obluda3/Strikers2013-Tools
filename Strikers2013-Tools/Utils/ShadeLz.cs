@@ -145,21 +145,18 @@ namespace StrikersTools.Utils
             if (needsHeader)
                 for (var i = 0; i < 12; i++) output.WriteByte(0);
 
-            int rawLength, runLength, matchLength, matchOffset, pos, length;
-            rawLength = runLength = matchLength = matchOffset = pos = 0;
+            int rawLength, runLength, longestMatchLen, matchOffset, pos, length;
+            rawLength = runLength = longestMatchLen = matchOffset = pos = 0;
             length = data.Length;
             MatchType match = MatchType.None;
 
-            int[] HashHistory = new int[256 * 256 * 256];
-            for (var i = 0; i < 256 * 256 * 256; i++) HashHistory[i] = -1;
-
-            Dictionary<int, int> SearchHistory = new Dictionary<int, int>();
+            Dictionary<int, List<int>> PatternHistory = new Dictionary<int, List<int>>();
 
             while (pos + rawLength < length)
             {
                 var currentPos = pos + rawLength;
                 byte curByte = data[currentPos];
-                
+
                 int hash;
 
                 if (length - currentPos < 3) hash = -1;
@@ -168,62 +165,56 @@ namespace StrikersTools.Utils
                     byte b1 = curByte, b2 = data[currentPos + 1], b3 = data[currentPos + 2];
                     hash = b1 | (b2 << 8) | (b3 << 16);
                 }
-                var prevPosHash = HashHistory[hash];
-                HashHistory[hash] = currentPos;
-                if (prevPosHash != -1) SearchHistory[currentPos] = prevPosHash;
+                List<int> listPos;
+
+                var alreadyExists = PatternHistory.TryGetValue(hash, out listPos);
+                if (!alreadyExists) listPos = new List<int>();
+
+                listPos.Add(currentPos);
+                PatternHistory[hash] = listPos;
+
 
                 if (match == MatchType.None && length - currentPos > 4)
                 {
                     // check LZ Match
-                    if (prevPosHash != -1 && currentPos - prevPosHash < 0x1FFF)
+                    if (alreadyExists)
                     {
-                        var prevPos = prevPosHash;
-                        var curMatchLen = 0;
-                        while (data[currentPos + curMatchLen] == data[prevPos + curMatchLen])
-                        {
-                            curMatchLen++;
-                            if (currentPos + curMatchLen >= data.Length)
-                                break;
-                        }
+                        var prevPositions = PatternHistory[hash];
+                        prevPositions.RemoveAt(prevPositions.Count - 1); // removes the current one
 
-                        var longestMatchIndex = prevPos;
-                        matchLength = curMatchLen;
-
-                        while (SearchHistory.ContainsKey(prevPos) && SearchHistory[prevPos] != 0)
+                        var longestMatchPos = 0;
+                        longestMatchLen = 0;
+                        for (var i = 0; i < prevPositions.Count; i++)
                         {
-                            if (currentPos + matchLength >= length)
+                            var currentMatch = prevPositions[i];
+                            if (currentPos + longestMatchLen >= length)
                                 break;
-                            prevPos = SearchHistory[prevPos];
-                            if (currentPos - prevPos > 0x1FFF)
+                            if (currentPos - currentMatch > 0x1FFF)
                             {
-                                // frees some memory
-                                while (SearchHistory.ContainsKey(prevPos) && SearchHistory[prevPos] != 0)
-                                {
-                                    int oldPrevPos = prevPos;
-                                    prevPos = SearchHistory[prevPos];
-                                    SearchHistory.Remove(oldPrevPos);
-                                }
+                                prevPositions.Add(currentPos); // add it back before updating
+                                prevPositions.RemoveAll(x => x >= currentMatch);
+                                PatternHistory[hash] = prevPositions;
                                 break;
                             }
 
-                            curMatchLen = 0;
+                            var curMatchLen = 0;
                             // If it's not at least as long as the current match, it's useless
-                            if (data[prevPos + matchLength] == data[currentPos + matchLength])
+                            if (data[currentMatch + longestMatchLen] == data[currentPos + longestMatchLen])
                             {
-                                while (data[currentPos + curMatchLen] == data[prevPos + curMatchLen])
+                                while (data[currentPos + curMatchLen] == data[currentMatch + curMatchLen])
                                 {
                                     curMatchLen++;
                                     if (currentPos + curMatchLen >= data.Length)
                                         break;
                                 }
-                                if(curMatchLen > matchLength)
+                                if (curMatchLen > longestMatchLen)
                                 {
-                                    longestMatchIndex = prevPos;
-                                    matchLength = curMatchLen;
+                                    longestMatchPos = currentMatch;
+                                    longestMatchLen = curMatchLen;
                                 }
                             }
                         }
-                        matchOffset = currentPos - longestMatchIndex;
+                        matchOffset = currentPos - longestMatchPos;
                     }
                     // checking rle
                     runLength = 1;
@@ -235,7 +226,7 @@ namespace StrikersTools.Utils
                         }
                         runLength++;
                     }
-                    match = runLength >= 4 ? MatchType.RLE : matchLength >= 4 ? MatchType.LZ : MatchType.None;
+                    match = runLength >= 4 ? MatchType.RLE : longestMatchLen >= 4 ? MatchType.LZ : MatchType.None;
                 }
                 if (match != MatchType.None)
                 {
@@ -249,11 +240,11 @@ namespace StrikersTools.Utils
                     }
 
                     int copyLen = runLength;
-                    if (matchLength > runLength) // LZ
+                    if (longestMatchLen > runLength) // LZ
                     {
-                        copyLen = matchLength;
-                        EncodeMatch(matchLength, matchOffset, output);
-                        pos += matchLength;
+                        copyLen = longestMatchLen;
+                        EncodeMatch(longestMatchLen, matchOffset, output);
+                        pos += longestMatchLen;
                     }
                     else // RLE
                     {
@@ -268,16 +259,20 @@ namespace StrikersTools.Utils
                             byte b1 = data[i], b2 = data[i + 1], b3 = data[i + 2];
                             hash = b1 | (b2 << 8) | (b3 << 16);
 
-                            var prevPos = HashHistory[hash];
-                            HashHistory[hash] = i;
-                            if (prevPos != -1) SearchHistory[i] = prevPos;
+                            List<int> prevPositions;
+
+                            var listExists = PatternHistory.TryGetValue(hash, out prevPositions);
+                            if (!listExists) prevPositions = new List<int>();
+
+                            prevPositions.Add(i);
+                            PatternHistory[hash] = prevPositions;
                         }
                     }
                 }
                 else rawLength++;
 
                 match = MatchType.None;
-                runLength = matchLength = matchOffset = 0;
+                runLength = longestMatchLen = matchOffset = 0;
 
             }
             if (rawLength > 0)
@@ -437,21 +432,3 @@ namespace StrikersTools.Utils
  * 001xxxxx xxxxxxxx
  * Count -> x
  */
-
-// if !wasMatchFound
-
-// Check for LZ Match (table of last usage and everything)
-// if there is, get offset and length
-
-// Check for RLE Run
-// if there is, get length and byte
-
-// Increase raw length
-
-// if wasMatchFound
-// Raw output
-// If LZ
-// Output lz match
-// reset everything
-// If RLE
-// Output RLE run
