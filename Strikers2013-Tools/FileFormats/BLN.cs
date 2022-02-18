@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using StrikersTools.Utils;
 using System.Linq;
@@ -30,7 +29,8 @@ namespace StrikersTools.FileFormats
         // 0x02 => scn_sh.bin
         // 0x03 => ui.bin
         // 0x04 => dat.bin
-        public static string[] ArchiveNames = { "grp.bin", "scn.bin", "scn_sh.bin", "ui.bin", "dat.bin" };
+        // strap.bin is a lie but it's a hack!
+        public static string[] ArchiveNames = { "grp.bin", "scn.bin", "scn_sh.bin", "ui.bin", "dat.bin", "strap.bin" };
         private const int MCB0ENTRYLENGTH = 0xC;
         private string RootFolder;
         private List<Mcb0Entry> Entries = new List<Mcb0Entry>();
@@ -81,12 +81,17 @@ namespace StrikersTools.FileFormats
                     var size = br.ReadInt32();
 
                     var fileIndex = archives[arcIndex].FirstOrDefault(x => x.Offset == arcOffset).Index;
-                    Console.WriteLine($"{subBlnIndex:00000000}\\{i:00000000}.bin => located in {ArchiveNames[arcIndex]}\\{fileIndex:00000000}.bin");
+                    Console.WriteLine($"{subBlnIndex:00000000}\\{i:00000000}.bin\t{ArchiveNames[arcIndex]}\\" +
+                        $"{fileIndex:00000000}.bin");
                     br.BaseStream.Position += size;
                     i++;
                 }
             }
+        }
 
+        public void LocateAll()
+        {
+            for (var i = 0; i < Entries.Count; i++) Locate(i);
         }
 
         public async Task SyncWithBin(ArchiveFile binFile, int archiveIndex, IProgress<int> progress)
@@ -145,15 +150,9 @@ namespace StrikersTools.FileFormats
                                 bw.Write(writtenSize);
                                 var backupPos = bw.BaseStream.Position;
                                 if (fileInfo.Modified)
-                                {
                                     Console.WriteLine("{0} found in BLN Sub: {1}", fileInfo.Path, i);
-                                    bw.Write(fileInfo.Data);
-                                    br.BaseStream.Position += size;
-                                }
-                                else
-                                {
-                                    bw.Write(br.ReadBytes(size));
-                                }
+                                br.BaseStream.Position += size;
+                                bw.Write(fileInfo.Data);
                                 var writtenCount = bw.BaseStream.Position - backupPos;
                                 bw.PadWith(0, (fileInfo.Size - writtenCount));
                             }
@@ -186,7 +185,8 @@ namespace StrikersTools.FileFormats
                     }
                     bw.Write(UnkData);
                 }
-            });
+            }
+            );
         }
         public async Task RepackArchiveAndBLN(string inputFolder, string binPath, IProgress<int> progress)
         {
