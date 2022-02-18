@@ -18,6 +18,7 @@ namespace StrikersTools
         [STAThread]
         static void Main(string[] args)
         {
+            
             if (args.Length < 1)
             {
                 Application.EnableVisualStyles();
@@ -37,10 +38,8 @@ namespace StrikersTools
                         ExportText(args[1], args[2]);
                         break;
                     case "-r":
-                        if (args.Length > 4)
+                        if (args.Length > 3)
                             Repack(args[1], args[2], args[3]);
-                        else if (args.Length > 3)
-                            ImportFiles(args[1], args[2], args[3]);
                         else
                             PrintUsage();
                         break;
@@ -78,8 +77,6 @@ namespace StrikersTools
                 }
 
             }
-
-
         }
 
         static void PrintUsage()
@@ -89,8 +86,6 @@ namespace StrikersTools
             Console.WriteLine("\t\tStrikers2013Tools.exe -u <path to .bin archive>");
             Console.WriteLine("\t- Export a text file :");
             Console.WriteLine("\t\tStrikers2013Tools.exe -e <path to Strikers text file> <output>");
-            Console.WriteLine("\t- Repack to .bin archive :");
-            Console.WriteLine("\t\tStrikers2013Tools.exe -r <path to .bin archive> <path to modified files> <destination>");
             Console.WriteLine("\t- Repack to .bin archive and BLN :");
             Console.WriteLine("\t\tStrikers2013Tools.exe -r <path to .bin archive> <path to modified files> <path to mcb1.bln>");
             Console.WriteLine("\t- Get file locations from BLN Sub :");
