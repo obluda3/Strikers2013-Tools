@@ -235,7 +235,8 @@ namespace StrikersTools
                 sfd.FileName = Path.GetFileNameWithoutExtension(textBox4.Text) + ".png";
                 if (sfd.ShowDialog() == DialogResult.OK)
                 {
-                    SHTX.Export(textBox4.Text, sfd.FileName);
+                    var bitmap = SHTX.Export(textBox4.Text);
+                    bitmap.Save(sfd.FileName);
                     MessageBox.Show("Done !", "Done");
                 }
             }
@@ -257,7 +258,10 @@ namespace StrikersTools
                         sfd.FileName = textBox4.Text;
                         if (sfd.ShowDialog() == DialogResult.OK)
                         {
-                            SHTX.Convert(ofd.FileName, textBox4.Text, sfd.FileName);
+                            var data = SHTX.Convert(ofd.FileName, textBox4.Text);
+                            using (var file = File.OpenWrite(sfd.FileName))
+                                file.Write(data, 0, data.Length);
+                            var output = SHTX.Export(data);
                             MessageBox.Show("Done !", "Done");
                         }
                     }

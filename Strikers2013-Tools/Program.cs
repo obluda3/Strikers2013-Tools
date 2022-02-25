@@ -196,11 +196,14 @@ namespace StrikersTools
         }
         static void ExportShtx(string input, string output)
         {
-            SHTX.Export(input, output);
+            var bitmap = SHTX.Export(input);
+            bitmap.Save(output);
         }
         static void ConvertShtx(string input, string original, string output)
         {
-            SHTX.Convert(input, original, output);
+            var data = SHTX.Convert(input, original);
+            using (var file = File.OpenWrite(output))
+                file.Write(data, 0, data.Length);
         }
 
         static void Decompress(string input)

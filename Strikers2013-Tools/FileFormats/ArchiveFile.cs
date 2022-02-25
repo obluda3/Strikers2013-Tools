@@ -138,6 +138,7 @@ namespace StrikersTools.FileFormats
                    var output = File.Open(folder + outputPath, FileMode.Create);
                    output.Write(file.Data, 0, file.Data.Length);
                    output.Close();
+                   Console.WriteLine($"Decompressing {filename}...");
                    try
                    {
                         var decompressedData = ShadeLz.Decompress(file.Data);
@@ -149,7 +150,8 @@ namespace StrikersTools.FileFormats
                         var shtxMagic = new List<byte> { 0x53, 0x48, 0x54, 0x58 };
                         if (decompressedData.Take(4).SequenceEqual(shtxMagic))
                         {
-                            SHTX.Export(outPath, outPath + ".png");
+                            var bitmap = SHTX.Export(outPath);
+                           bitmap.Save(outPath + ".png");
                         }
                    }
                    catch(Exception)

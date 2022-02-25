@@ -12,14 +12,13 @@ namespace StrikersTools.FileFormats
 {
     class SHTX
     {
-
-        public static void Export(string input, string output)
+        public static Bitmap Export(byte[] input) 
         {
             byte[] textureData;
             int textureDataLength = 0;
-
-            var file = File.Open(input, FileMode.Open);
-            using (var br = new BinaryReader(file))
+            Bitmap image = null;
+            var memStream = new MemoryStream(input);
+            using (var br = new BinaryReader(memStream))
             {
                 var magic = Encoding.ASCII.GetString(br.ReadBytes(4));
                 if (magic != "SHTX")
@@ -59,12 +58,17 @@ namespace StrikersTools.FileFormats
 
                 textureData = br.ReadBytes(textureDataLength);
 
-                var image = DecodeImage(width, height, colorPalette, textureData);
-                image.Save(output);
+                image = DecodeImage(width, height, colorPalette, textureData);
+
             }
+            return image;
+        }
+        public static Bitmap Export(string input)
+        {
+            return Export(File.ReadAllBytes(input));
         }
 
-        public static void Convert(string input, string original, string outputPath)
+        public static byte[] Convert(string input, string original)
         {
             var output = new MemoryStream();
             var quantizer = new WuQuantizer();
@@ -164,11 +168,10 @@ namespace StrikersTools.FileFormats
                     }
                 }
             }
-            var outputStream = File.Open(outputPath, FileMode.Create);
             output.Position = 0;
-            output.CopyTo(outputStream);
+            var data = output.ToArray();
             output.Close();
-            outputStream.Close();
+            return data;
         }
         private static Bitmap DecodeImage(short width, short height, Color[] palette, byte[] textureData)
         {
