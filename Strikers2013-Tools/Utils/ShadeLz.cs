@@ -148,7 +148,7 @@ namespace StrikersTools.Utils
             int rawLength, runLength, longestMatchLen, matchOffset, pos, length;
             rawLength = runLength = longestMatchLen = matchOffset = pos = 0;
             length = data.Length;
-            MatchType match = MatchType.None;
+            bool match = false;
 
             Dictionary<int, List<int>> PatternHistory = new Dictionary<int, List<int>>();
 
@@ -174,7 +174,7 @@ namespace StrikersTools.Utils
                 PatternHistory[hash] = listPos;
 
 
-                if (match == MatchType.None && length - currentPos > 4)
+                if (!match && length - currentPos > 4)
                 {
                     // check LZ Match
                     if (alreadyExists)
@@ -226,9 +226,9 @@ namespace StrikersTools.Utils
                         }
                         runLength++;
                     }
-                    match = runLength >= 4 ? MatchType.RLE : longestMatchLen >= 4 ? MatchType.LZ : MatchType.None;
+                    match = runLength >= 4 || longestMatchLen >= 4;
                 }
-                if (match != MatchType.None)
+                if (match)
                 {
                     if (rawLength > 0)
                     {
@@ -271,7 +271,7 @@ namespace StrikersTools.Utils
                 }
                 else rawLength++;
 
-                match = MatchType.None;
+                match = false;
                 runLength = longestMatchLen = matchOffset = 0;
 
             }
@@ -376,10 +376,6 @@ namespace StrikersTools.Utils
                 }
             }
         }
-
-
-        private enum MatchType { None, LZ, RLE }
-
 
         /*
         public static byte[] LegacyCompress(byte[] input)
