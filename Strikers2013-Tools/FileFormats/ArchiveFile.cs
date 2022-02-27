@@ -171,6 +171,7 @@ namespace StrikersTools.FileFormats
             var fileData = data;
             if(isDecompressed)
             {
+                Console.WriteLine($"Compressing {fileInfo.Path}...");
                 var needsHeader = !FileName.Contains("dat");
                 fileData = ShadeLz.Compress(data, needsHeader);
             }
@@ -186,6 +187,7 @@ namespace StrikersTools.FileFormats
             var data = File.ReadAllBytes(path);
             var fileInfo = Files[index];
             var isDecompressed = Path.GetExtension(path).EndsWith(".dec");
+            
             fileInfo.Path = path;
             ImportFile(index, data, isDecompressed);
         }
