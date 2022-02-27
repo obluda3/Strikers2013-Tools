@@ -287,16 +287,20 @@ namespace StrikersTools
         private void btnDecompress_Click(object sender, EventArgs e)
         {
             var decData = ShadeLz.Decompress(File.ReadAllBytes(textBox3.Text));
-            var output = File.Open(textBox3.Text + ".out", FileMode.Create);
-            output.Write(decData, 0, decData.Length);
+            using (var output = File.Open(textBox3.Text + ".out", FileMode.Create))
+            {
+                output.Write(decData, 0, decData.Length);
+            }
             MessageBox.Show("Done !", "Done");
         }
 
         private void btnCompress_Click(object sender, EventArgs e)
         {
             var cmpData = ShadeLz.Compress(File.ReadAllBytes(textBox3.Text), !chkHeader.Checked);
-            var output = File.Open(textBox3.Text + ".out", FileMode.Create);
-            output.Write(cmpData, 0, cmpData.Length);
+            using (var output = File.Open(textBox3.Text + ".out", FileMode.Create))
+            {
+                output.Write(cmpData, 0, cmpData.Length);
+            }
             MessageBox.Show("Done !", "Done");
         }
     }
