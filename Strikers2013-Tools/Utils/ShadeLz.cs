@@ -155,6 +155,8 @@ namespace StrikersTools.Utils
             while (pos + rawLength < length)
             {
                 var currentPos = pos + rawLength;
+                if (currentPos == 0xE)
+                    Console.WriteLine();
                 byte curByte = data[currentPos];
 
                 int hash;
@@ -180,19 +182,16 @@ namespace StrikersTools.Utils
                     if (alreadyExists)
                     {
                         var prevPositions = PatternHistory[hash];
-                        prevPositions.RemoveAt(prevPositions.Count - 1); // removes the current one
-
                         var longestMatchPos = 0;
                         longestMatchLen = 0;
-                        for (var i = 0; i < prevPositions.Count; i++)
+                        for (var i = prevPositions.Count - 2; i >= 0; i--) // skips the last one cuz we just added it
                         {
                             var currentMatch = prevPositions[i];
                             if (currentPos + longestMatchLen >= length)
                                 break;
                             if (currentPos - currentMatch > 0x1FFF)
                             {
-                                prevPositions.Add(currentPos); // add it back before updating
-                                prevPositions.RemoveAll(x => x >= currentMatch);
+                                prevPositions.RemoveAll(x => x <= currentMatch);
                                 PatternHistory[hash] = prevPositions;
                                 break;
                             }
@@ -377,7 +376,7 @@ namespace StrikersTools.Utils
             }
         }
 
-        /*
+        
         public static byte[] LegacyCompress(byte[] input)
         {
             var outputStream = new MemoryStream();
@@ -401,7 +400,7 @@ namespace StrikersTools.Utils
                 output = outputStream.ToArray();
             }
             return output;
-        }*/
+        }
     }
 }
 
