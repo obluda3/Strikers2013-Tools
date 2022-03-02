@@ -11,16 +11,23 @@ namespace StrikersTools.FileFormats
 {
     class Font
     {
-        public static void ExtractFont(string input)
+        private List<Letter> _letters;
+        private string _fontName;
+        public Font(string path)
         {
-            var outputFolder = Path.GetDirectoryName(Path.GetFullPath(input)) + Path.DirectorySeparatorChar + Path.GetFileNameWithoutExtension(input) + "_extracted" 
+            using (var file = File.OpenRead(path))
+            {
+                _letters = GetLetters(file);
+            }
+            _fontName = path;
+        }
+        public void ExtractFont()
+        {
+            var outputFolder = Path.GetDirectoryName(Path.GetFullPath(_fontName)) + Path.DirectorySeparatorChar + Path.GetFileNameWithoutExtension(_fontName) + "_extracted" 
                 + Path.DirectorySeparatorChar;
             Directory.CreateDirectory(outputFolder);
 
-            var file = File.OpenRead(input);
-            var letters = GetLetters(file);
-
-            foreach (var letter in letters)
+            foreach (var letter in _letters)
             {
                 var data = ShadeLz.Decompress(letter.data);
 
@@ -47,60 +54,49 @@ namespace StrikersTools.FileFormats
             }
         }
 
-        public static void ImportLetters(string input, string inputFolder)
+        public void ImportLetters(string inputFolder)
         {
             var files = Directory.GetFiles(inputFolder);
-
-            var font = File.OpenRead(input);
-            var letters = GetLetters(font);
-            letters.OrderBy(x => x.index);
+            _letters.OrderBy(x => x.index);
 
             foreach (var file in files)
             {
                 var index = Convert.ToInt32(Path.GetFileNameWithoutExtension(file).Split('.')[0]);
-                var letter = letters[index];
+                var letter = _letters[index];
                 var data = PNGToA4(file);
                 letter.data = ShadeLz.Compress(data, false);
-                
-                /*
-                var letterOut = File.Open(Path.GetDirectoryName(file) + "\\out\\" + Path.GetFileNameWithoutExtension(file) + ".bin", FileMode.Create);
-                letterOut.Write(letter.data, 0, letter.data.Length);
-                letterOut.Close();
-            }*/
-                
-                //letter.data = ShadeLz.Compress(letter.data);
 
-                letters[index] = letter;
+                _letters[index] = letter;
             }
 
-            var output = File.Open(input + ".out", FileMode.Create);
+            var output = File.Open(_fontName + ".out", FileMode.Create);
             using(var bw = new BinaryWriter(output))
             {
-                bw.Write(letters.Count);
+                bw.Write(_letters.Count);
 
-                for (var i = 0; i < letters.Count; i++) bw.Write((int)0); // Pads with 0s, will be filled later on
+                for (var i = 0; i < _letters.Count; i++) bw.Write((int)0); // Pads with 0s, will be filled later on
 
-                for (var i = 0; i < letters.Count; i++)
+                for (var i = 0; i < _letters.Count; i++)
                 {
-                    var letter = letters[i];
-                    if (letters[0].data.SequenceEqual(letter.data) && letter.index != 0)
-                        letter.offset = letters[0].offset;
+                    var letter = _letters[i];
+                    if (_letters[0].data.SequenceEqual(letter.data) && letter.index != 0)
+                        letter.offset = _letters[0].offset;
                     else
                     {
                         letter.offset = (int)bw.BaseStream.Position;
                         bw.Write(letter.data);
                         bw.Write((byte)0);
                     }
-                    letters[i] = letter;
+                    _letters[i] = letter;
                 }
                 
                 bw.BaseStream.Position = 4;
-                foreach (var letter in letters)
+                foreach (var letter in _letters)
                     bw.Write(letter.offset);
             }
         }
 
-        private static byte[] PNGToA4(string input)
+        private byte[] PNGToA4(string input)
         {
             var img = new Bitmap(input);
             var output = new byte[img.Width * img.Height / 2];
@@ -123,7 +119,7 @@ namespace StrikersTools.FileFormats
             return output;
         }
 
-        private static List<Letter> GetLetters(Stream input)
+        private List<Letter> GetLetters(Stream input)
         {
             var br = new BinaryReader(input);
             var entryCount = br.ReadInt32();
