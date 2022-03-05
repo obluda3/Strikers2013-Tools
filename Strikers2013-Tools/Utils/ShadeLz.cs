@@ -155,8 +155,6 @@ namespace StrikersTools.Utils
             while (pos + rawLength < length)
             {
                 var currentPos = pos + rawLength;
-                if (currentPos == 0xE)
-                    Console.WriteLine();
                 byte curByte = data[currentPos];
 
                 int hash;
