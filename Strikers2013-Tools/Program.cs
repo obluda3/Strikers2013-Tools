@@ -63,10 +63,12 @@ namespace StrikersTools
                         Compress(args[1]);
                         break;
                     case "-f":
-                        Font.ExtractFont(args[1]);
+                        var font = new Font(args[1]);
+                        font.ExtractFont();
                         break;
                     case "-fi":
-                        Font.ImportLetters(args[1], args[2]);
+                        var fontFile = new Font(args[1]);
+                        fontFile.ImportLetters(args[2]);
                         break;
                     case "-l":
                         var bln = new BLN(args[1]);
