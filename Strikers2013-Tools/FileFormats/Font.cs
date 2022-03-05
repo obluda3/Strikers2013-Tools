@@ -68,7 +68,17 @@ namespace StrikersTools.FileFormats
 
                 _letters[index] = letter;
             }
+            for (var i = 0; i < _letters.Count; i++)
+            {
+                var letter = _letters[i];
+                var cmpData = letter.data;
+                var decData = ShadeLz.Decompress(cmpData);
+                var newCmpData = ShadeLz.Compress(decData, false);
 
+                var finalCmpData = cmpData.Length < newCmpData.Length ? cmpData : newCmpData;
+                letter.data = finalCmpData;
+                _letters[i] = letter;
+            }
             var output = File.Open(_fontName + ".out", FileMode.Create);
             using(var bw = new BinaryWriter(output))
             {
