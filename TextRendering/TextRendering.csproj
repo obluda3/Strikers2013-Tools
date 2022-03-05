@@ -15,4 +15,12 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="backgrounds\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Strikers2013-Tools\Strikers2013-Tools.csproj" />
+  </ItemGroup>
+
 </Project>

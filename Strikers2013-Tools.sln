@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Strikers2013-Tools", "Strikers2013-Tools\Strikers2013-Tools.csproj", "{F9C357CB-DDA7-4817-ACB4-81B3F3ABC97D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TextRendering", "TextRendering\TextRendering.csproj", "{DACDDABE-3895-4C6A-8392-00C39AC51E23}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F9C357CB-DDA7-4817-ACB4-81B3F3ABC97D} = {F9C357CB-DDA7-4817-ACB4-81B3F3ABC97D}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

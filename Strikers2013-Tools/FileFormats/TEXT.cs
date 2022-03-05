@@ -22,7 +22,7 @@ namespace StrikersTools.FileFormats
         public string formatted;
         public int index;
     }
-    class TEXT
+    public class TEXT
     {
         private uint END_OF_TEXTOFF, POINTERS_OFF;
         private uint sectNumber, offsetPointer, entryCount, endOfText;

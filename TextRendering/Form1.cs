@@ -2,14 +2,17 @@ namespace TextRendering
 {
     public partial class Form1 : Form
     {
-        private TextRenderer _renderer = new TextRenderer();
+        private TextRenderer _renderer;
         public Form1()
         {
             InitializeComponent();
+            GameBackground screen = new GameBackground(0, 0, 200, new Bitmap(320, 320));
+            _renderer = new TextRenderer(screen);
         }
         private void update(int xadvance)
         {
-            var bitmap = _renderer.RenderedText(textBox1.Text, xadvance, (int)numericUpDown2.Value);
+            bool exceeds = false;
+            var bitmap = _renderer.RenderedText(textBox1.Text, xadvance, (int)numericUpDown2.Value, out exceeds);
             pictureBox1.Image = bitmap;
         }
         private void textBox1_TextChanged(object sender, EventArgs e)
