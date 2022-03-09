@@ -63,6 +63,7 @@ namespace StrikersTools.Dictionaries
             [0xDA] = 'ã',
             [0xDB] = 'Õ',
             [0xDC] = 'õ',
+            [0xDD] = '°',
         };
 
         public static string Decode(byte[] input) 
