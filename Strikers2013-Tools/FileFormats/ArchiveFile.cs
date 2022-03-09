@@ -45,28 +45,28 @@ namespace StrikersTools.FileFormats
         // 0x04 => dat.bin
         public static string[] ArchiveNames = { "grp.bin", "scn.bin", "scn_sh.bin", "ui.bin", "dat.bin" };
 
-        private string FileName;
+        private string fileName;
 
-        private int FileCount;
-        private int PadFactor;
-        private int MultFactor;
-        private int ShiftFactor;
-        private int Mask;
+        private int fileCount;
+        private int padFactor;
+        private int multFactor;
+        private int shiftFactor;
+        private int mask;
 
         public List<ArchiveFileInfo> Files { get; private set; }
 
         public ArchiveFile(string filename, bool getData) 
         {
-            FileName = filename;
+            fileName = filename;
 
             var fileStream = File.OpenRead(filename);
             using (var br = new BinaryReader(fileStream)) // Parses header
             {
-                FileCount = br.ReadInt32();
-                PadFactor = br.ReadInt32();
-                MultFactor = br.ReadInt32();
-                ShiftFactor = br.ReadInt32();
-                Mask = br.ReadInt32();
+                fileCount = br.ReadInt32();
+                padFactor = br.ReadInt32();
+                multFactor = br.ReadInt32();
+                shiftFactor = br.ReadInt32();
+                mask = br.ReadInt32();
 
                 Files = GetFileInfos(br, getData);
             }
@@ -76,20 +76,20 @@ namespace StrikersTools.FileFormats
         {
             var files = new List<ArchiveFileInfo>();
 
-            for (var i = 0; i < FileCount; i++)
+            for (var i = 0; i < fileCount; i++)
             {
                 br.BaseStream.Position = 0x14 + 4 * i;
 
                 var offSize = br.ReadUInt32();
-                var offset = (offSize >> ShiftFactor) * PadFactor;
-                var size = (uint)((offSize & Mask) * MultFactor);
+                var offset = (offSize >> shiftFactor) * padFactor;
+                var size = (uint)((offSize & mask) * multFactor);
 
                 br.BaseStream.Position = offset;
-                var paddedSize = (uint) ((size + PadFactor - 1) & ~(PadFactor - 1));
+                var paddedSize = (uint) ((size + padFactor - 1) & ~(padFactor - 1));
                 ArchiveFileInfo afi;
                 if(paddedSize == 0 || size == 0)
                 {
-                    size = paddedSize = (uint)PadFactor; // hack
+                    size = paddedSize = (uint)padFactor; // hack
                 }
                 if (getData)
                 {
@@ -124,7 +124,7 @@ namespace StrikersTools.FileFormats
         {
             await Task.Run(() =>
            {
-               var folder = Path.GetDirectoryName(FileName) + Path.DirectorySeparatorChar + Path.GetFileNameWithoutExtension(FileName) + Path.DirectorySeparatorChar;
+               var folder = Path.GetDirectoryName(fileName) + Path.DirectorySeparatorChar + Path.GetFileNameWithoutExtension(fileName) + Path.DirectorySeparatorChar;
                Directory.CreateDirectory(folder);
                var decompressedFolder = folder + Path.DirectorySeparatorChar + "dec\\";
                Directory.CreateDirectory(decompressedFolder);
@@ -172,13 +172,13 @@ namespace StrikersTools.FileFormats
             if(isDecompressed)
             {
                 Console.WriteLine($"Compressing {fileInfo.Path}...");
-                var needsHeader = !FileName.Contains("dat");
+                var needsHeader = !fileName.Contains("dat");
                 fileData = ShadeLz.Compress(data, needsHeader);
             }
 
-            fileInfo.Data = fileData.Padded(PadFactor);
+            fileInfo.Data = fileData.Padded(padFactor);
             fileInfo.Modified = true;
-            fileInfo.Size = (uint)((fileData.Length + PadFactor - 1) & ~(PadFactor - 1));
+            fileInfo.Size = (uint)((fileData.Length + padFactor - 1) & ~(padFactor - 1));
 
             Files[index] = fileInfo;
         }
@@ -218,15 +218,15 @@ namespace StrikersTools.FileFormats
             var file = File.Open(path, FileMode.Create);
             using (var bw = new BinaryWriter(file))
             {
-                bw.Write(FileCount);
-                bw.Write(PadFactor);
-                bw.Write(MultFactor);
-                bw.Write(ShiftFactor);
-                bw.Write(Mask);
+                bw.Write(fileCount);
+                bw.Write(padFactor);
+                bw.Write(multFactor);
+                bw.Write(shiftFactor);
+                bw.Write(mask);
 
-                bw.BaseStream.Position += FileCount * 4;
+                bw.BaseStream.Position += fileCount * 4;
 
-                bw.WriteAlignment(PadFactor);
+                bw.WriteAlignment(padFactor);
 
                 foreach(var fileInfo in Files)
                 {
@@ -237,7 +237,7 @@ namespace StrikersTools.FileFormats
 
                     var padSize = fileInfo.Size - fileInfo.Data.Length;
                     bw.PadWith(0, padSize);
-                    bw.WriteAlignment(PadFactor);
+                    bw.WriteAlignment(padFactor);
                 }
 
                 bw.BaseStream.Position = 0x14;
@@ -257,8 +257,8 @@ namespace StrikersTools.FileFormats
         private uint GetOffSizeFromOffsetAndSize(uint offset, uint size)
         {
             uint offsize = 0;
-            offsize |= (uint)(offset / PadFactor) << ShiftFactor;
-            offsize |= (uint)(size / MultFactor);
+            offsize |= (uint)(offset / padFactor) << shiftFactor;
+            offsize |= (uint)(size / multFactor);
             return offsize;
         }
 

@@ -7,17 +7,17 @@ using System.Linq;
 
 namespace StrikersTools.FileFormats
 {
-    struct Mcb0Entry
+    class Mcb0Entry
     {
-        public int id;
-        public uint offset;
-        public uint size;
+        public int ID;
+        public uint Offset;
+        public uint Size;
 
         public Mcb0Entry(int id, uint offset, uint size)
         {
-            this.id = id;
-            this.offset = offset;
-            this.size = size;
+            ID = id;
+            Offset = offset;
+            Size = size;
         }
     }
 
@@ -72,9 +72,9 @@ namespace StrikersTools.FileFormats
             var mcb1 = File.OpenRead(RootFolder + "mcb1.bln");
             using(var br = new BinaryReader(mcb1))
             {
-                br.BaseStream.Position = entry.offset;
+                br.BaseStream.Position = entry.Offset;
                 var i = 0;
-                while (br.PeekUInt32() != 0x7fff && br.BaseStream.Position < entry.offset + entry.size)
+                while (br.PeekUInt32() != 0x7fff && br.BaseStream.Position < entry.Offset + entry.Size)
                 {
                     var arcIndex = br.ReadInt32();
                     var arcOffset = br.ReadInt32();
@@ -113,8 +113,8 @@ namespace StrikersTools.FileFormats
                             var mcb0Entry = Entries[i];
                             var newOffset = (uint)bw.BaseStream.Position;
 
-                            br.BaseStream.Position = mcb0Entry.offset;
-                            while (br.BaseStream.Position < mcb0Entry.offset + mcb0Entry.size)
+                            br.BaseStream.Position = mcb0Entry.Offset;
+                            while (br.BaseStream.Position < mcb0Entry.Offset + mcb0Entry.Size)
                             {
                                 if (bw.BaseStream.Position % 4 != 0)
                                     Console.WriteLine($"paniiiique {i}");
@@ -159,8 +159,8 @@ namespace StrikersTools.FileFormats
                             bw.Write(0x7FFF);
                             bw.WriteAlignment(0x800);
                             var newSize = (uint)bw.BaseStream.Position - newOffset;
-                            mcb0Entry.offset = newOffset;
-                            mcb0Entry.size = newSize;
+                            mcb0Entry.Offset = newOffset;
+                            mcb0Entry.Size = newSize;
 
                             Entries[i] = mcb0Entry;
                             progress.Report(10000 * (i + 2) / (Entries.Count + 1));
@@ -179,9 +179,9 @@ namespace StrikersTools.FileFormats
                 {
                     foreach (var entry in Entries)
                     {
-                        bw.Write(entry.id);
-                        bw.Write(entry.offset);
-                        bw.Write(entry.size);
+                        bw.Write(entry.ID);
+                        bw.Write(entry.Offset);
+                        bw.Write(entry.Size);
                     }
                     bw.Write(UnkData);
                 }

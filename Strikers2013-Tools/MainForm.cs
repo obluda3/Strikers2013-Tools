@@ -25,7 +25,7 @@ namespace StrikersTools
             using (var ofd = new OpenFileDialog())
             {
                 ofd.Title = "Open a Strikers Text File (14/35/37.bin)";
-                ofd.Filter = "Strikers text file (*.bin;*.out)|*.bin;*.out|All files (*.*)|*.*";
+                ofd.Filter = "Strikers text file (*.bin;*.out;*.dec)|*.bin;*.out;*.dec|All files (*.*)|*.*";
                 if(ofd.ShowDialog() == DialogResult.OK)
                 {
                     txtPathTxt.Text = ofd.FileName;
