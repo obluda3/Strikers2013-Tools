@@ -9,15 +9,79 @@ namespace StrikersTools.FileFormats
 {
     class Mcb0Entry
     {
-        public int ID;
-        public uint Offset;
-        public uint Size;
+        public int ID { get; }
+        public uint Offset { get; set; }
+        public uint Size { get; set; }
+        public readonly int Index;
 
-        public Mcb0Entry(int id, uint offset, uint size)
+        public List<Mcb1File> Files { get; set; }
+        
+        public Mcb0Entry(int id, uint offset, uint size, int index)
         {
             ID = id;
             Offset = offset;
             Size = size;
+            Index = index;
+        }
+        public Mcb0Entry(BinaryReader brMcb0, BinaryReader brMcb1, int index)
+        {
+            ID = brMcb0.ReadInt32();
+            Offset = brMcb0.ReadUInt32();
+            Size = brMcb0.ReadUInt32();
+
+            Files = new List<Mcb1File>();
+
+            brMcb1.BaseStream.Position = Offset;
+            for(var i = 0;  brMcb1.BaseStream.Position < Offset + Size && brMcb1.PeekUInt32() != 0x7fff; i++)
+            {
+                var mcb1File = new Mcb1File(brMcb1, i);
+                brMcb1.BaseStream.Position += mcb1File.Size;
+                Files.Add(mcb1File);
+            }
+            Index = index;
+        }
+
+        public void Write(BinaryWriter bw)
+        {
+            bw.Write(ID);
+            bw.Write(Offset);
+            bw.Write(Size);
+        }
+    }
+
+    class Mcb1File
+    {
+        public int ArchiveIndex { get; set; }
+        public int ArchiveOffset { get; set; }
+        public int Size { get; set; }
+         
+        public readonly long OriginalOffset;
+        public byte[] NewData { get; set; }
+        public readonly int Index;
+
+        public void Write(BinaryWriter bw, BinaryReader mcb1Reader)
+        {
+            bw.Write(ArchiveIndex);
+            bw.Write(ArchiveOffset);
+            bw.Write(Size);
+
+            if (NewData != null)
+                bw.Write(NewData);
+            else
+            {
+                mcb1Reader.BaseStream.Position = OriginalOffset + 12;
+                byte[] fileData = mcb1Reader.ReadBytes(Size);
+                bw.Write(fileData);
+            }
+        }
+        public Mcb1File(BinaryReader br, int index)
+        {
+            var offset = br.BaseStream.Position;
+            OriginalOffset = offset;
+            ArchiveIndex = br.ReadInt32();
+            ArchiveOffset = br.ReadInt32();
+            Size = br.ReadInt32();
+            Index = index;
         }
     }
 
@@ -31,7 +95,6 @@ namespace StrikersTools.FileFormats
         // 0x04 => dat.bin
         // strap.bin is a lie but it's a hack!
         public static string[] ArchiveNames = { "grp.bin", "scn.bin", "scn_sh.bin", "ui.bin", "dat.bin", "strap.bin" };
-        private const int MCB0ENTRYLENGTH = 0xC;
         private string RootFolder;
         private List<Mcb0Entry> Entries = new List<Mcb0Entry>();
         private byte[] UnkData;
@@ -41,134 +104,46 @@ namespace StrikersTools.FileFormats
             RootFolder = Path.GetDirectoryName(blnPath) + Path.DirectorySeparatorChar;
 
             var mcb0 = File.OpenRead(RootFolder + "mcb0.bln");
+            var mcb1 = File.OpenRead(RootFolder + "mcb1.bln");
             using (var br = new BinaryReader(mcb0))
+            using (var brMcb1 = new BinaryReader(mcb1))
             {
-                while (br.PeekUInt32() != 0)
+                for (var i = 0; br.PeekUInt32() != 0; i++)
                 {
-                    var id = br.ReadInt32();
-                    var offset = br.ReadUInt32();
-                    var size = br.ReadUInt32();
-
-                    var mcb0Entry = new Mcb0Entry(id, offset, size);
+                    var mcb0Entry = new Mcb0Entry(br, brMcb1, i);
                     Entries.Add(mcb0Entry);
                 }
                 UnkData = br.ReadBytes((int)(br.BaseStream.Length - br.BaseStream.Position));
             }
         }
-        public void Locate(int subBlnIndex)
-        {
-            var entry = Entries[subBlnIndex];
 
-            var archives = new List<List<ArchiveFileInfo>>();
-
-            foreach (var archive in ArchiveNames)
-            {
-                var archiveData = new ArchiveFile(RootFolder + archive, false).Files;
-                archiveData.ForEach(x => x.Data = Array.Empty<byte>()); // frees some memory
-
-                archives.Add(archiveData);
-            }
-
-            var mcb1 = File.OpenRead(RootFolder + "mcb1.bln");
-            using(var br = new BinaryReader(mcb1))
-            {
-                br.BaseStream.Position = entry.Offset;
-                var i = 0;
-                while (br.PeekUInt32() != 0x7fff && br.BaseStream.Position < entry.Offset + entry.Size)
-                {
-                    var arcIndex = br.ReadInt32();
-                    var arcOffset = br.ReadInt32();
-                    var size = br.ReadInt32();
-
-                    var fileIndex = archives[arcIndex].FirstOrDefault(x => x.Offset == arcOffset).Index;
-                    Console.WriteLine($"{subBlnIndex:00000000}\\{i:00000000}.bin\t{ArchiveNames[arcIndex]}\\" +
-                        $"{fileIndex:00000000}.bin");
-                    br.BaseStream.Position += size;
-                    i++;
-                }
-            }
-        }
-
-        public void LocateAll()
-        {
-            for (var i = 0; i < Entries.Count; i++) Locate(i);
-        }
-
-        public async Task SyncWithBin(ArchiveFile binFile, int archiveIndex, IProgress<int> progress)
+        public async void Save(IProgress<int> progress)
         {
             await Task.Run(() =>
             {
-                var fileTable = binFile.Files;
                 var blnPath = RootFolder + "mcb1.bln";
 
-                var mcb1 = File.Open(blnPath, FileMode.Open, FileAccess.ReadWrite);
+                var mcb1 = File.Open(blnPath, FileMode.Open, FileAccess.Read);
                 var tempMcb1 = File.Open(blnPath + ".tmp", FileMode.Create);
 
                 using (var br = new BinaryReader(mcb1))
+                using (var bw = new BinaryWriter(tempMcb1))
                 {
-                    using (var bw = new BinaryWriter(tempMcb1))
+                    for (var i = 0; i < Entries.Count; i++)
                     {
-                        for (var i = 0; i < Entries.Count; i++)
+                        var entry = Entries[i];
+                        var newOffset = (uint)bw.BaseStream.Position;
+                        var subBlnFiles = entry.Files;
+                        foreach (var file in subBlnFiles)
                         {
-                            var mcb0Entry = Entries[i];
-                            var newOffset = (uint)bw.BaseStream.Position;
-
-                            br.BaseStream.Position = mcb0Entry.Offset;
-                            while (br.BaseStream.Position < mcb0Entry.Offset + mcb0Entry.Size)
-                            {
-                                if (bw.BaseStream.Position % 4 != 0)
-                                    Console.WriteLine($"paniiiique {i}");
-                                if (br.PeekUInt32() == 0x7FFF)
-                                {
-                                    break;
-                                }
-
-                                var arcIndex = br.ReadInt32();
-                                var arcOffset = br.ReadUInt32();
-                                var size = br.ReadInt32();
-
-                                bw.Write(arcIndex);
-
-                                // Checks if it's the right archive
-                                if (arcIndex != archiveIndex)
-                                {
-                                    bw.Write(arcOffset);
-                                    bw.Write(size);
-                                    bw.Write(br.ReadBytes(size));
-                                    continue;
-                                }
-
-                                // If it is, gets the fileInfo of the file
-                                var fileInfo = fileTable.FirstOrDefault(x => x.OldOffset == arcOffset);
-                                if (fileInfo.Offset == 0)
-                                {
-                                    Console.WriteLine("Invalid archive offset in SubBLN {0}: {1}\n\r", i, arcOffset);
-                                    return;
-                                }
-                                bw.Write((uint)fileInfo.Offset);
-                                var writtenSize = fileInfo.Size > 0 ? (int)fileInfo.Size : size; // hack
-                                bw.Write(writtenSize);
-                                var backupPos = bw.BaseStream.Position;
-                                if (fileInfo.Modified)
-                                    Console.WriteLine("{0} found in BLN Sub: {1}", fileInfo.Path, i);
-                                br.BaseStream.Position += size;
-                                bw.Write(fileInfo.Data);
-                                var writtenCount = bw.BaseStream.Position - backupPos;
-                                bw.PadWith(0, (fileInfo.Size - writtenCount));
-                            }
-                            bw.Write(0x7FFF);
-                            bw.WriteAlignment(0x800);
-                            var newSize = (uint)bw.BaseStream.Position - newOffset;
-                            mcb0Entry.Offset = newOffset;
-                            mcb0Entry.Size = newSize;
-
-                            Entries[i] = mcb0Entry;
-                            progress.Report(10000 * (i + 2) / (Entries.Count + 1));
+                            file.Write(bw, br);
                         }
-                        br.Close();
-                        bw.Close();
-                        tempMcb1.Close();
-                        mcb1.Close();
+                        bw.Write(0x7FFF);
+                        bw.WriteAlignment(0x800);
+                        var newSize = (uint)bw.BaseStream.Position - newOffset;
+                        entry.Offset = newOffset;
+                        entry.Size = newSize;
+                        progress.Report(100 * (i + 1) / (Entries.Count));
                     }
                 }
                 File.Delete(blnPath);
@@ -179,44 +154,66 @@ namespace StrikersTools.FileFormats
                 {
                     foreach (var entry in Entries)
                     {
-                        bw.Write(entry.ID);
-                        bw.Write(entry.Offset);
-                        bw.Write(entry.Size);
+                        entry.Write(bw);
                     }
                     bw.Write(UnkData);
                 }
-            }
-            );
+            });
         }
-        public async Task RepackArchiveAndBLN(string inputFolder, string binPath, IProgress<int> progress)
-        {
-            await Task.Run(async () => 
-            {
-                var archiveFileName = Path.GetFileName(binPath);
-                var archiveIndex = -1;
 
-                for (var i = 0; i < ArchiveNames.Length; i++)
+        public void UpdateBlnReferences(ArchiveFile binFile)
+        {
+            var fileTable = binFile.Files;
+
+            foreach (var entry in Entries) 
+            { 
+                var files = entry.Files;
+                var correctFiles = files.Where(x => x.ArchiveIndex == binFile.ArchiveIndex);
+                foreach (var file in correctFiles)
                 {
-                    if (archiveFileName.Contains(ArchiveNames[i]))
+                    var fileInfo = fileTable.FirstOrDefault(x => x.OldOffset == file.ArchiveOffset);
+                    if (fileInfo != null)
                     {
-                        archiveIndex = i;
-                        break;
+                        var newOffset = fileInfo.Offset;
+                        var newSize = fileInfo.Size > 0 ? (int)fileInfo.Size : file.Size; // hack
+                        file.ArchiveOffset = (int)newOffset;
+                        file.Size = newSize;
+
+                        if (fileInfo.Modified)
+                        {
+                            Console.WriteLine($"{fileInfo.Path} found in BLN Sub: {entry.Index:00000000}\\{file.Index:00000000}.bin");
+                            file.NewData = fileInfo.Data;
+                        }
                     }
                 }
-                if (archiveIndex < 0)
-                    return;
-
-                var binFile = new ArchiveFile(binPath, true);
-                binFile.ImportFiles(inputFolder);
-
-                await binFile.Save(binPath);
-
-                progress.Report(10000 / (Entries.Count + 1));
-
-                await SyncWithBin(binFile, archiveIndex, progress);
-            });
-
+            }
         }
+           
+        public void Locate(int subBlnIndex)
+        {
+            var entry = Entries[subBlnIndex];
+
+            var archives = new List<List<ArchiveFileInfo>>();
+
+            foreach (var archive in ArchiveNames)
+            {
+                var archiveData = new ArchiveFile(RootFolder + archive, false).Files;
+                archives.Add(archiveData);
+            }
+
+            foreach (var file in entry.Files)
+            {
+                var fileIndex = archives[file.ArchiveIndex].FirstOrDefault(x => x.Offset == file.ArchiveOffset).Index;
+                Console.WriteLine($"{subBlnIndex:00000000}\\{file.Index:00000000}.bin\t{ArchiveNames[file.ArchiveIndex]}\\" +
+                    $"{fileIndex:00000000}.bin");
+            }
+        }
+
+        public void LocateAll()
+        {
+            for (var i = 0; i < Entries.Count; i++) Locate(i);
+        }
+
 
     }
 }

@@ -125,7 +125,7 @@ namespace StrikersTools
             var progress = new Progress<int>(value =>
             {
                 progressBar1.Value = value;
-                lblProgress.Text = $"{value / 100} %";
+                lblProgress.Text = $"{value} %";
             });
 
             if (IsFileOpened(mcb1Path) || IsFileOpened(txtPathArc.Text))
@@ -137,11 +137,15 @@ namespace StrikersTools
             else
             {
                 var blnFile = new BLN(mcb1Path);
-                await blnFile.RepackArchiveAndBLN(modifiedFolder, txtPathArc.Text, progress);
-                lblProgress.Text = "Done !";
-                progressBar1.Value = 0;
-                btnImportArc.Enabled = true;
+                var binFile = new ArchiveFile(txtPathArc.Text, true);
+                binFile.ImportFiles(modifiedFolder);
+                await binFile.Save(txtPathArc.Text);
+                blnFile.UpdateBlnReferences(binFile);
+                blnFile.Save(progress);
             }
+            progressBar1.Value = 0;
+            lblProgress.Text = "Done !";
+            btnImportArc.Enabled = true;
         }
 
         private bool IsFileOpened(string path)

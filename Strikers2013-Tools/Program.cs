@@ -177,7 +177,6 @@ namespace StrikersTools
                 }
                 var progress = new Progress<int>();
                 var bln = new BLN(mcbPath);
-                await bln.RepackArchiveAndBLN(inputPath, binPath, progress);
             }
             else
                PrintUsage();

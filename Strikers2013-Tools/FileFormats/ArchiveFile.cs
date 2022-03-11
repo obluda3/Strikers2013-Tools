@@ -32,7 +32,6 @@ namespace StrikersTools.FileFormats
             Offset = offset;
             OldOffset = offset;
             Index = index;
-            Data = Array.Empty<byte>();
         }
     }
     class ArchiveFile
@@ -43,8 +42,8 @@ namespace StrikersTools.FileFormats
         // 0x02 => scn_sh.bin
         // 0x03 => ui.bin
         // 0x04 => dat.bin
-        public static string[] ArchiveNames = { "grp.bin", "scn.bin", "scn_sh.bin", "ui.bin", "dat.bin" };
-
+        public static string[] ArchiveNames = { "grp.bin", "scn.bin", "scn_sh.bin", "ui.bin", "dat.bin", "strap.bin" };
+        public int ArchiveIndex { get; private set; }
         private string fileName;
 
         private int fileCount;
@@ -58,6 +57,18 @@ namespace StrikersTools.FileFormats
         public ArchiveFile(string filename, bool getData) 
         {
             fileName = filename;
+            var archiveFileName = Path.GetFileName(filename);
+            var archiveIndex = -1;
+
+            for (var i = 0; i < ArchiveNames.Length; i++)
+            {
+                if (archiveFileName.Contains(ArchiveNames[i]))
+                {
+                    archiveIndex = i;
+                    break;
+                }
+            }
+            ArchiveIndex = archiveIndex;
 
             var fileStream = File.OpenRead(filename);
             using (var br = new BinaryReader(fileStream)) // Parses header
@@ -138,7 +149,6 @@ namespace StrikersTools.FileFormats
                    var output = File.Open(folder + outputPath, FileMode.Create);
                    output.Write(file.Data, 0, file.Data.Length);
                    output.Close();
-                   Console.WriteLine($"Decompressing {filename}...");
                    try
                    {
                         var decompressedData = ShadeLz.Decompress(file.Data);
@@ -150,7 +160,7 @@ namespace StrikersTools.FileFormats
                         var shtxMagic = new List<byte> { 0x53, 0x48, 0x54, 0x58 };
                         if (decompressedData.Take(4).SequenceEqual(shtxMagic))
                         {
-                            var bitmap = SHTX.Export(outPath);
+                           var bitmap = SHTX.Export(outPath);
                            bitmap.Save(outPath + ".png");
                         }
                    }
