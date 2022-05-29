@@ -169,7 +169,7 @@ namespace StrikersTools.FileFormats
                         Console.WriteLine($"File {filename} could not be decompressed");
                    }
                     
-                   progress.Report(file.Index * 10000 / Files.Count);
+                   progress.Report(file.Index * 100 / Files.Count);
                }
            });
         }
