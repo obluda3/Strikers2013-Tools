@@ -16,11 +16,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="backgrounds\" />
+    <ProjectReference Include="..\Strikers2013-Tools\Strikers2013-Tools.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Strikers2013-Tools\Strikers2013-Tools.csproj" />
+    <None Update="backgrounds\textbox.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

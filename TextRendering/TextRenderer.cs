@@ -78,10 +78,9 @@ namespace TextRendering
         }
         private Bitmap CharBitmap(int codepoint)
         {
-            var cd = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
             var index = CodepointToIndex(codepoint);
-            var path = cd + "\\fonts\\";
-            var file = "";
+            var path = FileExplorer.FilePath("fonts\\");
+            string? file;
             if (File.Exists($"{path}{index}.png"))
                 file = $"{path}{index}.png";
             else if (File.Exists($"{path}{index:00000000}.png"))
@@ -95,7 +94,7 @@ namespace TextRendering
         private const float _baseToolScale = 12F;
         public Bitmap RenderedText(string message, int xadvance, int percent, out bool exceeds)
         {
-            Bitmap curBmp = new Bitmap(GameScreen.SourceImage);
+            Bitmap curBmp = GameScreen.BaseBitmap();
             var formattedMessage = TEXT.FormatThing(message);
 
             float x = GameScreen.X_Origin;
@@ -134,7 +133,7 @@ namespace TextRendering
                 var xAdvance = _baseGameScale * xAdvanceRatio * scale;
                 x += xAdvance;
 
-                if (GameScreen.Exceeds((int)(x - xAdvance), xadvance)) exceeds = true;
+                exceeds = GameScreen.Exceeds((int)(x - xAdvance), xadvance);
             }
             return curBmp;
         }

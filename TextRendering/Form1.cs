@@ -6,7 +6,8 @@ namespace TextRendering
         public Form1()
         {
             InitializeComponent();
-            GameBackground screen = new GameBackground(0, 0, 200, new Bitmap(320, 320));
+            var screenshot = new Bitmap(FileExplorer.FilePath("backgrounds\\textbox.png"));
+            GameBackground screen = new GameBackground(0, 0, 200, screenshot);
             _renderer = new TextRenderer(screen);
         }
         private void update(int xadvance)

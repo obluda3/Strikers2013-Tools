@@ -24,5 +24,10 @@ namespace TextRendering
             X_Max = xMax;
             SourceImage = image;
         }
+
+        public Bitmap BaseBitmap()
+        {
+            return new Bitmap(SourceImage);
+        }
     }
 }
