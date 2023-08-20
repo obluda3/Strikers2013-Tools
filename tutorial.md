@@ -5,7 +5,7 @@
 
 [Kuriimu2](https://github.com/FanTranslatorsInternational/Kuriimu2) can help with modifying the BLN and some formats used in the game, but it can't import files to the BIN archives (unless you do it manually, which is harder).
 
-With Strikers2013-Tools, you can extract the bin archives by going in **Archive**, selecting the desired one, and **Extract**. You can import files by creating a folder with all of the modified files, browse to the location of the mcb1.bln and the folder, then clicking on **Import**.
+With Strikers2013-Tools, you can extract the bin archives by going in **Archive**, selecting the desired one, and **Extract**. You can import files by creating a folder with all of the modified files, browse to that location, then clicking on **Import**.
 
 The files in the game are compressed with an LZ/RLE based compression, "Shade Lz" in Kuriimu. In most cases it's the regular one, but the files in dat.bin are compressed with the headerless version.
 
